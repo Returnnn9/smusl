@@ -1,111 +1,118 @@
-"use client";
-import React from "react";
-import Link from "next/link";
-import { User, ChevronDown, UserPlus, MapPin, Search } from "lucide-react";
-import { useApp } from "@/store/AppContext";
-import { useSession } from "next-auth/react";
-import { cn } from "@/lib/utils";
+"use client"
 
-const Header: React.FC = () => {
+import React from "react"
+import Link from "next/link"
+import { User, MapPin, Search } from "lucide-react"
+import { useApp } from "@/store/AppContext"
+import { useSession } from "next-auth/react"
+import { cn } from "@/lib/utils"
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+const CATEGORIES = ["Десерты", "Хлеб", "Снеки", "Выпечка"] as const
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
+interface HeaderProps {
+ showCategories?: boolean
+}
+
+const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
  const {
   setAddressModalOpen,
   address,
-  setAuthModalOpen,
   activeCategory,
   setActiveCategory,
   searchQuery,
-  setSearchQuery
- } = useApp();
- const { data: session, status } = useSession();
+  setSearchQuery,
+ } = useApp()
 
- const handleProfileClick = (e: React.MouseEvent) => {
-  // Allow all users to access profile
- };
-
- const categories = ["Десерты", "Хлеб", "Снеки", "Выпечка"];
+ const { status } = useSession()
+ const isAuthenticated = status === "authenticated"
 
  return (
-  <header className="w-full z-[100] font-manrope bg-[#FDF8ED] pb-4 border-b border-[#4A403A]/5">
-   <div className="w-full px-4 sm:px-8 lg:px-12">
-    {/* Top Row: Logo, Address, Profile */}
-    <div className="flex items-center justify-between py-6">
+  <header className="w-full z-[100] font-montserrat bg-[#F5E6DA]/50 pb-3 sm:pb-5 border-b border-[#4A403A]/5">
+   <div className="w-full px-4 sm:px-8 lg:px-10">
+
+    {/* Top row: Logo · Address · Profile */}
+    <div className="flex items-center justify-between py-3 sm:py-4">
      {/* Logo */}
-     <Link href="/" className="flex items-center cursor-pointer group shrink-0 select-none">
-      <img
-       src="/photo/logo.png"
-       alt="СМЫСЛ ЕСТЬ"
-       className="h-[60px] sm:h-[50px] w-auto object-contain"
-      />
+     <Link href="/" className="flex items-center cursor-pointer shrink-0 select-none">
+      <img src="/photo/logo.png" alt="СМЫСЛ ЕСТЬ" className="h-[30px] xs:h-[35px] sm:h-[40px] md:h-[46px] w-auto object-contain" />
      </Link>
 
-     <div className="flex items-center gap-4 sm:gap-6">
+     {/* Right: Address + Profile */}
+     <div className="flex items-center gap-2 sm:gap-3">
       {/* Address Button */}
       <button
        onClick={() => setAddressModalOpen(true)}
-       className="hidden md:flex items-center gap-3 px-6 py-3.5 bg-white/50 border border-[#4A403A]/10 rounded-full hover:bg-white hover:shadow-lg transition-all group"
+       className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-white border border-[#D8CEC8] rounded-full text-[14px] text-[#5B5047]/80 hover:border-[#CF8F73]/60 hover:text-[#5B5047] transition-all"
       >
-       <MapPin className="w-4 h-4 text-[#4A403A]/60 group-hover:text-smusl-terracotta transition-colors" />
-       <span className="text-[14px] font-bold text-[#4A403A]/70 group-hover:text-smusl-terracotta transition-colors max-w-[200px] truncate">
+       <MapPin className="w-4 h-4 text-[#5B5047]/50 shrink-0" />
+       <span className="max-w-[220px] truncate">
         {address || "Выберите способ и адрес получения"}
        </span>
+      </button>
+
+      {/* Address (mobile icon only) */}
+      <button
+       onClick={() => setAddressModalOpen(true)}
+       className="sm:hidden flex items-center justify-center w-9 h-9 bg-white border border-[#D8CEC8] rounded-full"
+      >
+       <MapPin className="w-4 h-4 text-[#5B5047]/60" />
       </button>
 
       {/* Profile Button */}
       <Link
        href="/profile"
-       onClick={handleProfileClick}
-       className="flex items-center gap-2.5 px-6 py-3.5 rounded-full bg-white border border-[#F0F0F0] text-[14px] font-[800] text-[#4A403A] hover:shadow-lg transition-all shrink-0 active:scale-95 shadow-sm"
+       className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#D8CEC8] rounded-full text-[14px] text-[#5B5047]/80 hover:border-[#CF8F73]/60 hover:text-[#5B5047] transition-all shrink-0"
       >
-       {status === "authenticated" ? (
-        <>
-         <User className="w-4 h-4 text-smusl-terracotta shrink-0" />
-         <span className="hidden sm:inline">Личный кабинет</span>
-        </>
-       ) : (
-        <>
-         <UserPlus className="w-4 h-4 text-[#4A403A]/40 shrink-0" />
-         <span className="hidden sm:inline">Войти</span>
-        </>
-       )}
+       <User className={cn("w-4 h-4 shrink-0", isAuthenticated ? "text-[#CF8F73]" : "text-[#5B5047]/50")} />
+       <span className="hidden sm:inline">
+        {isAuthenticated ? "Личный кабинет" : "Личный кабинет"}
+       </span>
       </Link>
      </div>
     </div>
 
-    {/* Bottom Row: Categories and Search */}
-    <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-2">
-     {/* Categories */}
-     <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide shrink-0 w-full md:w-auto">
-      {categories.map((cat) => (
-       <button
-        key={cat}
-        onClick={() => setActiveCategory(cat)}
-        className={cn(
-         "px-8 py-3.5 rounded-2xl text-[14px] font-bold border-2 whitespace-nowrap transition-all duration-300",
-         activeCategory === cat
-          ? "bg-white border-smusl-terracotta text-smusl-terracotta shadow-lg shadow-smusl-terracotta/10"
-          : "bg-white/50 border-transparent text-smusl-gray hover:bg-white hover:border-smusl-light-gray"
-        )}
-       >
-        {cat}
-       </button>
-      ))}
-     </div>
+    {/* Bottom row: Categories · Search */}
+    {showCategories && (
+     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-8 pt-1">
+      {/* Categories */}
+      <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar smooth-scroll shrink-0 w-[calc(100%+2rem)] -mx-4 px-4 sm:w-auto sm:mx-0 sm:px-0">
+       {CATEGORIES.map((cat) => (
+        <button
+         key={cat}
+         onClick={() => setActiveCategory(cat)}
+         className={cn(
+          "px-5 sm:px-6 py-2 sm:py-2.5 rounded-[1rem] text-[15px] sm:text-[16px] font-medium border-[1.5px] transition-all duration-200 whitespace-nowrap",
+          activeCategory === cat
+           ? "bg-white border-[#CF8F73] text-[#CF8F73]"
+           : "bg-white text-[#5B5047]/70 border-[#D8CEC8]/60 hover:border-[#CF8F73]/50 hover:text-[#5B5047]"
+         )}
+        >
+         {cat}
+        </button>
+       ))}
+      </div>
 
-     {/* Search Bar */}
-     <div className="relative w-full md:w-[320px] lg:w-[450px] group">
-      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4A403A]/20 group-focus-within:text-smusl-terracotta transition-colors" />
-      <input
-       type="text"
-       value={searchQuery}
-       onChange={(e) => setSearchQuery(e.target.value)}
-       placeholder="Кекс фисташковый"
-       className="w-full bg-white/70 backdrop-blur-md border border-[#E8E8E8] rounded-2xl py-3.5 pl-11 pr-5 text-[14px] font-medium focus:outline-none focus:border-smusl-terracotta focus:bg-white transition-all shadow-sm placeholder:text-[#4A403A]/20"
-      />
+      {/* Search */}
+      <div className="relative w-full sm:max-w-[300px] md:max-w-[380px] lg:max-w-[440px] group mb-1 sm:mb-0">
+       <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5B5047]/30 group-focus-within:text-[#CF8F73] transition-colors" />
+       <input
+        type="text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Кекс фисташковый"
+        className="w-full bg-white border border-[#D8CEC8]/80 rounded-full py-2.5 sm:py-3 pl-11 pr-5 text-[15px] sm:text-[16px] font-medium text-[#5B5047] focus:outline-none focus:border-[#CF8F73]/50 transition-all placeholder:text-[#5B5047]/30"
+       />
+      </div>
      </div>
-    </div>
+    )}
+
    </div>
   </header>
- );
-};
+ )
+}
 
-export default Header;
+export default Header

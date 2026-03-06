@@ -132,6 +132,9 @@ export default function MapPicker({ initialAddress, onAddressSelect, onError, cl
      center: defaultCenter,
      zoom: 13,
      controls: [],
+    }, {
+     suppressMapOpenBlock: true,
+     yandexMapDisablePoiInteractivity: true
     });
 
     const marker = new window.ymaps.Placemark(defaultCenter, {}, {
@@ -537,6 +540,16 @@ export default function MapPicker({ initialAddress, onAddressSelect, onError, cl
      ? "* Кликните на карту или передвиньте метку для выбора адреса"
      : "* Начните вводить адрес и выберите вариант из списка"}
    </p>
+
+   {/* CSS to hide Yandex branding/copyrights for a cleaner 2026-style UI */}
+   <style jsx global>{`
+    [class*="ymaps-2-1"][class*="-map-copyrights-promo"],
+    [class*="ymaps-2-1"][class*="-copyright-promo-container"],
+    [class*="ymaps-2-1"][class*="-copyright__wrap"],
+    [class*="ymaps-2-1"][class*="-any-links-container"] {
+     display: none !important;
+    }
+   `}</style>
   </div>
  );
 }

@@ -5,39 +5,131 @@ import Link from "next/link"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, Clock, Heart, ShoppingBag, Minus, Plus, Trash2 } from "lucide-react"
+import { ArrowLeft, Clock, Heart, ShoppingBag, Minus, Plus, Trash2, LogOut, RotateCcw } from "lucide-react"
 import { useApp, Product, CartItem } from "@/store/AppContext"
 import { products } from "@/components/data"
 import ProductCard from "@/components/ProductCard"
-import { OrderSkeleton, ProductCardSkeleton } from "@/components/Skeleton"
-import { LogOut } from "lucide-react"
+import { ProductCardSkeleton } from "@/components/Skeleton"
 
-interface LocalSession { name: string; email: string; }
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+interface LocalSession {
+ name: string
+ email: string
+}
+
+type TabLabel = "История заказов" | "Избранное" | "Корзина"
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+const TABS: { label: TabLabel; icon: React.FC<React.SVGProps<SVGSVGElement>> }[] = [
+ { label: "История заказов", icon: Clock },
+ { label: "Избранное", icon: Heart },
+ { label: "Корзина", icon: ShoppingBag },
+]
+
+// ─── Sub-components ──────────────────────────────────────────────────────────
+
+function EmptyState({ icon: Icon, text, linkText, linkHref }: {
+ icon: React.FC<React.SVGProps<SVGSVGElement>>
+ text: string
+ linkText: string
+ linkHref: string
+}) {
+ return (
+  <div className="py-16 flex flex-col items-center justify-center bg-white rounded-[2rem] border border-dashed border-[#CF8F73]/30">
+   <Icon className="w-10 h-10 text-[#CF8F73]/20 mb-4" />
+   <p className="text-smusl-gray font-bold text-center px-4 mb-6">{text}</p>
+   <Link href={linkHref} className="text-[#CF8F73] font-black border-b-2 border-[#CF8F73]">
+    {linkText}
+   </Link>
+  </div>
+ )
+}
+
+function CartItemRow({ item, index, isLast, onDecrement, onIncrement, onRemove }: {
+ item: CartItem
+ index: number
+ isLast: boolean
+ onDecrement: () => void
+ onIncrement: () => void
+ onRemove: () => void
+}) {
+ return (
+  <motion.div
+   initial={{ opacity: 0, x: -10 }}
+   animate={{ opacity: 1, x: 0 }}
+   transition={{ delay: index * 0.05 }}
+   className={`flex items-center justify-between p-5 sm:p-8 gap-5 bg-white hover:bg-[#FAF8F5]/80 transition-colors ${!isLast ? "border-b border-smusl-light-gray/40" : ""}`}
+  >
+   <div className="flex items-center gap-6 flex-1 min-w-0">
+    <div className="w-20 h-20 sm:w-32 sm:h-32 rounded-[1.8rem] overflow-hidden bg-white shrink-0 p-1.5 border border-smusl-light-gray/40 shadow-sm">
+     <img src={item.image} className="w-full h-full object-cover rounded-[1.4rem]" alt={item.name} />
+    </div>
+    <div className="min-w-0">
+     <h3 className="text-[18px] sm:text-[22px] font-bold text-[#5B5047] leading-tight">{item.name}</h3>
+     <p className="text-[16px] sm:text-[20px] font-black text-[#5B5047] mt-1">{item.price} ₽</p>
+    </div>
+   </div>
+
+   <div className="flex items-center shrink-0">
+    <div className="flex items-center p-2 bg-[#FAF8F5] rounded-[1.4rem] border border-smusl-light-gray/60 shadow-sm">
+     {/* Quantity Controls */}
+     <div className="flex items-center gap-4 px-1">
+      <button
+       onClick={onDecrement}
+       className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-smusl-light-gray text-smusl-brown hover:bg-smusl-terracotta hover:text-white transition-all shadow-sm active:scale-90"
+      >
+       <Minus className="w-4 h-4" />
+      </button>
+      <span className="text-[18px] font-black text-smusl-brown min-w-[32px] text-center">{item.quantity}</span>
+      <button
+       onClick={onIncrement}
+       className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-smusl-light-gray text-smusl-brown hover:bg-smusl-terracotta hover:text-white transition-all shadow-sm active:scale-90"
+      >
+       <Plus className="w-4 h-4" />
+      </button>
+     </div>
+
+     {/* Clear Divider */}
+     <div className="w-px h-8 bg-smusl-light-gray/60 mx-3" />
+
+     {/* Delete Button */}
+     <button
+      onClick={onRemove}
+      className="w-10 h-10 flex items-center justify-center rounded-[1rem] text-[#CF8F73] hover:text-red-500 hover:bg-red-50 transition-all active:scale-95 group"
+     >
+      <Trash2 className="w-5.5 h-5.5 group-hover:scale-110 transition-transform" />
+     </button>
+    </div>
+   </div>
+  </motion.div>
+ )
+}
+
+// ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
- const { addToCart, updateQuantity, setAuthModalOpen, setUserName, favorites, orderHistory, cart } = useApp()
+ const { addToCart, addMultipleToCart, updateQuantity, setAuthModalOpen, setUserName, favorites, orderHistory, cart } = useApp()
  const [localSession, setLocalSession] = useState<LocalSession | null>(null)
- const [activeTab, setActiveTab] = useState("Избранное")
+ const [activeTab, setActiveTab] = useState<TabLabel>("История заказов")
  const [isLoading, setIsLoading] = useState(true)
 
  useEffect(() => {
   try {
    const raw = localStorage.getItem("smuslest_session")
    if (raw) setLocalSession(JSON.parse(raw))
-  } catch { /* ignore */ }
+  } catch {
+   // storage unavailable
+  }
+  const timer = setTimeout(() => setIsLoading(false), 600)
+  return () => clearTimeout(timer)
  }, [])
 
- useEffect(() => {
-  setIsLoading(true);
-  const timer = setTimeout(() => setIsLoading(false), 800);
-  return () => clearTimeout(timer);
- }, [activeTab]);
-
- // Get favorite products from the data source
- const favoriteProducts = products.filter(p => favorites.includes(p.id))
-
  const isAuthenticated = !!localSession
- const displayName = isAuthenticated ? localSession!.name.toUpperCase() : "ГОСТЬ"
+ const displayName = isAuthenticated ? localSession!.name : "Гость"
+ const favoriteProducts = products.filter(p => favorites.includes(p.id))
+ const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
  const handleLogout = () => {
   localStorage.removeItem("smuslest_session")
@@ -46,236 +138,245 @@ export default function ProfilePage() {
   window.location.reload()
  }
 
- return (
-  <div className="min-h-screen bg-smusl-beige font-montserrat flex flex-col">
-   <Header />
+ const handleRepeatOrder = (order: any) => {
+  const productsToAdd: Product[] = []
+  order.items.forEach((item: CartItem) => {
+   const product = products.find(p => p.id === item.id)
+   if (product) productsToAdd.push(product)
+  })
 
-   <main className="flex-1 w-full px-4 sm:px-6 lg:px-10 pb-20 mt-10">
-    {/* ── Back Link ── */}
-    <Link href="/market" className="flex items-center gap-2 text-smusl-brown/60 hover:text-smusl-brown transition-colors mb-6 group font-bold">
-     <ArrowLeft className="w-4 h-4 text-smusl-brown group-hover:-translate-x-1 transition-transform" />
-     <span className="text-[13px]">Назад</span>
+  if (productsToAdd.length > 0) {
+   addMultipleToCart(productsToAdd)
+   setActiveTab("Корзина")
+  }
+ }
+
+ return (
+  <div className="min-h-screen bg-[#FAF8F5] font-montserrat flex flex-col">
+   <Header showCategories={false} />
+
+   <main className="flex-1 w-full px-4 sm:px-8 lg:px-12 pb-24 pt-8">
+
+    {/* Back */}
+    <Link href="/market" className="inline-flex items-center gap-2 text-[#4A403A]/40 hover:text-smusl-terracotta transition-all mb-10 text-[15px] sm:text-[17px] font-black uppercase tracking-[0.1em] group">
+     <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+     Назад в магазин
     </Link>
 
-    <div className="flex flex-col lg:flex-row justify-between items-start mb-8 sm:mb-10 gap-4 w-full">
-     <div className="space-y-1">
-      <h1 className="text-[20px] sm:text-[28px] lg:text-[36px] font-bold text-[#CF8F73]/50 leading-tight tracking-tight">
+    {/* Header row */}
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 sm:gap-6 mb-8">
+     <div>
+      <h1 className="text-[28px] sm:text-[40px] lg:text-[52px] font-bold text-[#CF8F73] leading-tight">
        Добро пожаловать,
       </h1>
-      <h1 className="text-[28px] sm:text-[40px] lg:text-[48px] font-black text-[#CF8F73] leading-[0.95] tracking-tighter">
+      <h1 className="text-[32px] sm:text-[48px] lg:text-[60px] font-black text-[#CF8F73] leading-[0.95]">
        {displayName}!
       </h1>
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-       {isAuthenticated ? (
-        <button
-         onClick={handleLogout}
-         className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-50 text-red-500 border border-red-100 text-[13px] font-bold hover:bg-red-100 transition-all active:scale-95"
-        >
-         <LogOut className="w-3.5 h-3.5" />
-         Выйти
-        </button>
-       ) : (
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+       {!isAuthenticated && (
         <button
          onClick={() => setAuthModalOpen(true)}
-         className="flex items-center gap-2 px-5 py-2 rounded-full bg-smusl-terracotta text-white text-[13px] font-bold hover:bg-smusl-terracotta/90 transition-all active:scale-95 shadow-sm"
+         className="px-6 py-2.5 rounded-full bg-smusl-terracotta text-white text-[14px] font-bold hover:bg-[#b87a60] transition-all active:scale-95 shadow-md"
         >
          Войти в аккаунт
+        </button>
+       )}
+       {isAuthenticated && (
+        <button
+         onClick={handleLogout}
+         className="flex items-center gap-2 px-5 py-2 rounded-full bg-red-50 text-red-500 border border-red-100 text-[13px] font-bold hover:bg-red-100 transition-all active:scale-95"
+        >
+         <LogOut className="w-4 h-4" />
+         Выйти
         </button>
        )}
       </div>
      </div>
 
-     {/* Points Block */}
+     {/* Points block */}
      {isAuthenticated && (
-      <div className="w-full sm:w-auto px-5 py-4 sm:p-6 border-2 border-[#CF8F73]/20 rounded-[1.5rem] flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start sm:min-w-[200px] bg-white shadow-sm group hover:border-[#CF8F73]/40 transition-colors">
-       <span className="text-[11px] text-[#CF8F73]/60 font-bold uppercase tracking-widest">Всего баллов</span>
-       <span className="text-[28px] sm:text-[40px] font-black text-[#4A403A] leading-none tracking-tight">1,102</span>
+      <div className="px-5 py-3 sm:px-6 sm:py-4 border-2 border-[#CF8F73]/30 rounded-[1.5rem] flex flex-row sm:flex-col items-center sm:items-end gap-3 sm:gap-0 bg-white shadow-sm self-start">
+       <span className="text-[11px] text-[#CF8F73]/60 font-bold uppercase tracking-widest sm:mb-1">Всего баллов</span>
+       <span className="text-[36px] sm:text-[44px] font-black text-[#4A403A] leading-none tracking-tight">102</span>
       </div>
      )}
     </div>
 
-    {/* ── Tabs ── */}
-    <div className="flex gap-2 mb-6 overflow-x-auto py-1 no-scrollbar">
-     {[
-      { label: "История заказов", icon: Clock },
-      { label: "Избранное", icon: Heart },
-      { label: "Корзина", icon: ShoppingBag },
-     ].map((tab) => (
-      <button
-       key={tab.label}
-       onClick={() => setActiveTab(tab.label)}
-       className={`flex items-center gap-2 px-4 py-2.5 rounded-[1rem] text-[13px] font-bold transition-all border-2 whitespace-nowrap ${activeTab === tab.label
-        ? "bg-white text-[#CF8F73] border-[#CF8F73] shadow-md shadow-[#CF8F73]/10"
-        : "bg-white text-smusl-gray border-transparent hover:border-smusl-light-gray"
-        }`}
-      >
-       <tab.icon className={`w-4 h-4 shrink-0 ${activeTab === tab.label ? "fill-[#CF8F73]" : ""}`} />
-       {tab.label}
-      </button>
-     ))}
+    {/* Tabs Navigation */}
+    <div className="mt-12 sm:mt-16 mb-8 sm:mb-12">
+     <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto no-scrollbar pb-2 px-1">
+      {TABS.map(({ label, icon: Icon }) => (
+       <button
+        key={label}
+        onClick={() => setActiveTab(label)}
+        className={`flex items-center gap-2 px-5 sm:px-8 py-3 sm:py-4 rounded-[1.5rem] text-[14px] sm:text-[16px] font-bold border-2 transition-all duration-300 ${activeTab === label
+         ? "bg-white text-[#CF8F73] border-[#CF8F73] shadow-lg shadow-[#CF8F73]/10"
+         : "bg-white text-smusl-gray/70 border-smusl-light-gray hover:border-smusl-gray/40 hover:text-smusl-gray"
+         }`}
+       >
+        <Icon className={`w-4.5 h-4.5 shrink-0 ${activeTab === label ? "text-[#CF8F73]" : "text-smusl-gray/40"}`} />
+        {label}
+       </button>
+      ))}
+     </div>
     </div>
 
-    {/* ── Content ── */}
+    {/* Content Area */}
     <AnimatePresence mode="wait">
      <motion.div
       key={activeTab}
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.3 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
      >
-      {activeTab === "Избранное" ? (
-       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-        {isLoading ? (
-         Array.from({ length: 4 }).map((_, i) => (
-          <ProductCardSkeleton key={i} />
-         ))
-        ) : favoriteProducts.length > 0 ? (
-         favoriteProducts.map((p: Product, i) => (
-          <ProductCard key={p.id} {...p} onAdd={() => addToCart(p)} index={i} />
-         ))
-        ) : (
-         <div className="col-span-full py-20 flex flex-col items-center justify-center bg-white rounded-[2rem] border border-dashed border-[#CF8F73]/30">
-          <Heart className="w-12 h-12 text-[#CF8F73]/20 mb-4" />
-          <p className="text-smusl-gray font-bold text-center px-4">В избранном пока пусто. Добавляйте товары из магазина!</p>
-          <Link href="/market" className="mt-6 text-[#CF8F73] font-black border-b-2 border-[#CF8F73]">Перейти в магазин</Link>
-         </div>
-        )}
-       </div>
-      ) : activeTab === "История заказов" ? (
+      {/* ── История заказов ── */}
+      {activeTab === "История заказов" && (
        <div className="space-y-4">
         {isLoading ? (
-         Array.from({ length: 4 }).map((_, i) => (
-          <OrderSkeleton key={i} />
-         ))
+         <div className="space-y-4">
+          {[0, 1, 2].map(i => (
+           <div key={i} className="h-32 bg-white rounded-[2rem] animate-pulse shadow-sm" />
+          ))}
+         </div>
         ) : orderHistory.length > 0 ? (
-         orderHistory.map((order, i) => (
-          <motion.div
-           key={order.id}
-           initial={{ opacity: 0, x: -20 }}
-           animate={{ opacity: 1, x: 0 }}
-           transition={{ duration: 0.4, delay: i * 0.1 }}
-           className="flex flex-col bg-white border border-smusl-light-gray rounded-[1.5rem] shadow-sm hover:border-smusl-terracotta transition-all overflow-hidden"
-          >
-           <div className="p-4 sm:p-6 md:p-8 flex flex-col md:flex-row justify-between gap-4">
-            <div className="space-y-3 flex-1">
-             <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-0.5 bg-green-50 text-green-600 rounded-full text-[11px] font-bold uppercase tracking-wide border border-green-100">Выполнен</span>
-              <span className="text-smusl-gray text-[12px] sm:text-[13px] font-medium">{order.date}</span>
-              <span className="text-smusl-gray text-[12px]">№{order.id.toString().slice(-6)}</span>
-             </div>
-
-             <div className="space-y-1.5">
-              <span className="block text-[11px] font-bold text-smusl-gray uppercase tracking-widest">Товары:</span>
-              <div className="flex flex-wrap gap-1.5">
-               {order.items.map((item: CartItem) => (
-                <div key={item.id} className="flex items-center gap-1.5 bg-smusl-beige/30 px-2 py-1.5 rounded-xl border border-smusl-light-gray">
-                 <img src={item.image} className="w-6 h-6 rounded-lg object-cover" alt="" />
-                 <span className="text-[11px] sm:text-[12px] font-bold text-smusl-brown">{item.name} <span className="text-[#CF8F73]">x{item.quantity}</span></span>
-                </div>
-               ))}
+         orderHistory.map((order, i) => {
+          const firstItem = order.items[0] as CartItem
+          const firstProduct = products.find(p => p.id === firstItem?.id)
+          const extraCount = order.items.length - 1
+          return (
+           <motion.div
+            key={order.id}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.08 }}
+            className="bg-white rounded-[2rem] shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden group"
+           >
+            {/* Mobile layout */}
+            <div className="sm:hidden p-6 flex flex-col gap-5">
+             <div className="flex gap-5">
+              <div className="w-24 h-24 rounded-[1.6rem] overflow-hidden bg-[#FDFBF9] shrink-0 shadow-sm">
+               {firstProduct?.image
+                ? <img src={firstProduct.image} alt={firstProduct.name} className="w-full h-full object-cover" />
+                : <div className="w-full h-full bg-smusl-beige/60" />
+               }
+              </div>
+              <div className="flex-1 min-w-0 flex flex-col justify-center gap-2">
+               <p className="text-[18px] font-bold text-[#5B5047] leading-tight">{firstItem?.name}</p>
+               {extraCount > 0 && <p className="text-[13px] text-[#CF8F73] font-black uppercase tracking-tighter">+{extraCount} товаров</p>}
+               <p className="text-[20px] font-black text-[#5B5047]">{order.total} ₽</p>
               </div>
              </div>
-
-             <div>
-              <span className="block text-[10px] font-bold text-smusl-gray uppercase tracking-widest mb-0.5">Адрес:</span>
-              <span className="text-[12px] sm:text-[13px] text-smusl-brown font-medium">{order.address}</span>
+             <div className="space-y-3 pt-4 border-t border-smusl-brown/[0.05]">
+              <p className="text-[13px] text-smusl-gray/60 font-medium leading-relaxed">{order.address}</p>
+              <button
+               onClick={() => handleRepeatOrder(order)}
+               className="w-full flex items-center justify-center gap-2.5 py-4 bg-[#CD8B70] text-white rounded-[1.4rem] text-[15px] font-black uppercase tracking-widest shadow-lg shadow-[#CD8B70]/20 active:scale-95"
+              >
+               <RotateCcw className="w-4 h-4" />
+               Повторить заказ
+              </button>
              </div>
             </div>
 
-            <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-3">
-             <div className="text-left md:text-right">
-              <span className="block text-[10px] font-bold text-smusl-gray uppercase tracking-widest mb-0.5">Сумма:</span>
-              <span className="text-[22px] sm:text-[26px] font-black text-smusl-brown leading-none">{order.total} ₽</span>
+            {/* Desktop layout */}
+            <div className="hidden sm:flex items-center gap-10 p-8 lg:p-10">
+             <div className="w-28 h-28 rounded-[2rem] overflow-hidden bg-[#FDFBF9] shrink-0 shadow-sm">
+              {firstProduct?.image
+               ? <img src={firstProduct.image} alt={firstProduct.name} className="w-full h-full object-cover" />
+               : <div className="w-full h-full bg-smusl-beige/60" />
+              }
              </div>
-
+             <div className="flex-1 min-w-0">
+              <p className="text-[20px] font-bold text-[#5B5047] leading-snug">{firstItem?.name}</p>
+              <p className="text-[15px] text-smusl-gray/60 font-black mt-2">
+               {firstProduct?.weight} × {firstItem?.quantity}
+               {extraCount > 0 && <span className="ml-4 text-[#CF8F73] uppercase tracking-tighter">+{extraCount} ещё</span>}
+              </p>
+             </div>
+             <div className="shrink-0 text-center px-4">
+              <p className="text-[11px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-2">Дата</p>
+              <p className="text-[15px] text-[#5B5047] font-bold">{order.date}</p>
+             </div>
+             <div className="shrink-0 max-w-[200px] px-4">
+              <p className="text-[11px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-2">Адрес</p>
+              <p className="text-[14px] text-[#5B5047]/80 font-medium leading-relaxed line-clamp-2">{order.address}</p>
+             </div>
+             <div className="shrink-0 text-right px-4">
+              <p className="text-[11px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-2">Сумма</p>
+              <p className="text-[26px] font-black text-[#5B5047]">{order.total} ₽</p>
+             </div>
              <button
-              onClick={() => {
-               order.items.forEach((item: CartItem) => {
-                const p = products.find(prod => prod.id === item.id)
-                if (p) addToCart(p)
-               })
-              }}
-              className="shrink-0 px-5 py-2.5 bg-smusl-terracotta text-white rounded-xl text-[12px] sm:text-[13px] font-bold hover:bg-[#b87a60] transition-all shadow-md shadow-smusl-terracotta/20 active:scale-95"
+              onClick={() => handleRepeatOrder(order)}
+              className="flex items-center gap-3 px-8 py-4.5 bg-[#CD8B70] text-white rounded-[1.6rem] text-[15px] font-black uppercase tracking-widest hover:brightness-105 transition-all active:scale-95 shadow-xl shadow-[#CD8B70]/20"
              >
+              <RotateCcw className="w-4 h-4" />
               Повторить
              </button>
             </div>
-           </div>
-          </motion.div>
-         ))
+           </motion.div>
+          )
+         })
         ) : (
-         <div className="py-20 flex flex-col items-center justify-center bg-white rounded-[2rem] border border-dashed border-[#CF8F73]/30">
-          <Clock className="w-12 h-12 text-[#CF8F73]/20 mb-4" />
-          <p className="text-smusl-gray font-bold text-center px-4">История заказов пуста</p>
-          <Link href="/market" className="mt-6 text-[#CF8F73] font-black border-b-2 border-[#CF8F73]">Заказать что-нибудь вкусное</Link>
-         </div>
+         <EmptyState icon={Clock} text="История заказов пуста" linkText="Заказать что-нибудь вкусное" linkHref="/market" />
         )}
        </div>
-      ) : (
-       <div className="space-y-6">
-        {cart.length > 0 ? (
-         <>
-          <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] border border-smusl-light-gray shadow-sm overflow-hidden">
+      )}
+
+      {/* ── Избранное ── */}
+      {activeTab === "Избранное" && (
+       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        {isLoading
+         ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
+         : favoriteProducts.length > 0
+          ? favoriteProducts.map((p: Product, i) => (
+           <ProductCard key={p.id} {...p} onAdd={() => addToCart(p)} index={i} />
+          ))
+          : (
+           <div className="col-span-full">
+            <EmptyState icon={Heart} text="В избранном пока пусто" linkText="Перейти в магазин" linkHref="/market" />
+           </div>
+          )
+        }
+       </div>
+      )}
+
+      {/* ── Корзина ── */}
+      {activeTab === "Корзина" && (
+       cart.length > 0 ? (
+        <div className="space-y-6">
+         <div className="bg-white rounded-[2.5rem] shadow-sm overflow-hidden">
+          <AnimatePresence initial={false}>
            {cart.map((item, i) => (
-            <motion.div
+            <CartItemRow
              key={item.id}
-             initial={{ opacity: 0, x: -10 }}
-             animate={{ opacity: 1, x: 0 }}
-             transition={{ delay: i * 0.05 }}
-             className={`flex items-center justify-between p-3 sm:p-5 gap-3 ${i !== cart.length - 1 ? "border-b border-smusl-light-gray/50" : ""}`}
-            >
-             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[1rem] overflow-hidden bg-smusl-beige/50 shrink-0">
-               <img src={item.image} className="w-full h-full object-cover" alt={item.name} />
-              </div>
-              <div className="min-w-0">
-               <h3 className="text-[13px] sm:text-[14px] font-bold text-smusl-brown leading-tight truncate">{item.name}</h3>
-               <p className="text-[12px] sm:text-[13px] font-black text-[#CF8F73]">{item.price} ₽</p>
-              </div>
-             </div>
-
-             <div className="flex items-center gap-2 shrink-0">
-              <div className="flex items-center gap-2 bg-smusl-beige/30 px-3 py-1.5 rounded-xl border border-smusl-light-gray/50">
-               <button onClick={() => updateQuantity(item.id, -1)} className="w-6 h-6 flex items-center justify-center rounded-full bg-white text-smusl-brown hover:bg-smusl-terracotta hover:text-white transition-all shadow-sm active:scale-90">
-                <Minus className="w-3 h-3" />
-               </button>
-               <span className="text-[13px] font-black text-smusl-brown min-w-[16px] text-center">{item.quantity}</span>
-               <button onClick={() => updateQuantity(item.id, 1)} className="w-6 h-6 flex items-center justify-center rounded-full bg-white text-smusl-brown hover:bg-smusl-terracotta hover:text-white transition-all shadow-sm active:scale-90">
-                <Plus className="w-3 h-3" />
-               </button>
-              </div>
-              <button onClick={() => updateQuantity(item.id, -item.quantity)} className="text-red-400 hover:text-red-600 transition-colors p-1">
-               <Trash2 className="w-4 h-4" />
-              </button>
-             </div>
-            </motion.div>
+             item={item}
+             index={i}
+             isLast={i === cart.length - 1}
+             onDecrement={() => updateQuantity(item.id, -1)}
+             onIncrement={() => updateQuantity(item.id, 1)}
+             onRemove={() => updateQuantity(item.id, -item.quantity)}
+            />
            ))}
-          </div>
-
-          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between gap-4 bg-white px-5 py-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-smusl-light-gray shadow-sm">
-           <div>
-            <span className="text-[11px] font-bold text-smusl-gray uppercase tracking-widest block mb-0.5">Итого:</span>
-            <span className="text-[28px] sm:text-[36px] font-black text-smusl-brown leading-none">
-             {cart.reduce((sum, item) => sum + item.price * item.quantity, 0)} ₽
-            </span>
-           </div>
-           <Link
-            href="/market"
-            className="shrink-0 px-6 sm:px-10 py-3 sm:py-4 bg-smusl-terracotta text-white rounded-xl text-[13px] sm:text-[15px] font-black uppercase tracking-wider hover:bg-[#b87a60] transition-all shadow-lg shadow-smusl-terracotta/20 text-center active:scale-95"
-           >
-            Оформить заказ
-           </Link>
-          </div>
-         </>
-        ) : (
-         <div className="py-20 flex flex-col items-center justify-center bg-white rounded-[2rem] border border-dashed border-[#CF8F73]/30">
-          <ShoppingBag className="w-12 h-12 text-[#CF8F73]/20 mb-4" />
-          <p className="text-smusl-gray font-bold text-center px-4">В корзине пока пусто</p>
-          <Link href="/market" className="mt-6 text-[#CF8F73] font-black border-b-2 border-[#CF8F73]">Начать покупки</Link>
+          </AnimatePresence>
          </div>
-        )}
-       </div>
+         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-[#FDFBF9] px-8 sm:px-12 py-10 sm:py-12 rounded-[3rem] shadow-xl shadow-[#D9C5B2]/10 gap-8 mt-8 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-smusl-terracotta/5 rounded-full blur-[80px] -mr-24 -mt-24" />
+          <div className="relative z-10 flex flex-col justify-center">
+           <span className="block text-[11px] font-bold text-[#4A403A]/20 uppercase tracking-[0.4em] mb-2 px-1">итого к оплате</span>
+           <div className="flex items-baseline gap-1 px-1">
+            <span className="text-[40px] sm:text-[56px] font-black text-[#4A403A] leading-none tracking-tighter">{cartTotal.toLocaleString("ru-RU")}</span>
+            <span className="text-[20px] sm:text-[28px] font-medium text-[#4A403A] ml-1">₽</span>
+           </div>
+          </div>
+          <Link href="/market" className="relative z-10 text-center px-12 sm:px-16 py-6 sm:py-7 bg-[#CD8B70] text-white rounded-[2rem] text-[16px] sm:text-[18px] font-black uppercase tracking-[0.2em] hover:brightness-105 hover:scale-[1.02] transition-all shadow-2xl shadow-[#CD8B70]/30 active:scale-95">
+           Оформить заказ
+          </Link>
+         </div>
+        </div>
+       ) : (
+        <EmptyState icon={ShoppingBag} text="В корзине пока пусто" linkText="Начать покупки" linkHref="/market" />
+       )
       )}
      </motion.div>
     </AnimatePresence>

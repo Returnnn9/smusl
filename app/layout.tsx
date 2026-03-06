@@ -20,8 +20,8 @@ const greatVibes = Great_Vibes({
 });
 
 export const metadata: Metadata = {
- title: "СМЫСЛ ЕСТЬ — Artisanal Bakery",
- description: "Crafted with soul. Fresh breads and pastries delivered to your door.",
+ title: "СМЫСЛ ЕСТЬ",
+ description: "Смысл есть",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

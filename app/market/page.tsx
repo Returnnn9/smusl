@@ -22,7 +22,8 @@ export default function Home() {
   cart,
   activeCategory,
   setActiveCategory,
-  searchQuery
+  searchQuery,
+  selectedProduct
  } = useApp();
  const [isLoading, setIsLoading] = useState(true);
 
@@ -46,21 +47,14 @@ export default function Home() {
  })
 
  return (
-  <div className="min-h-screen bg-smusl-beige font-montserrat flex flex-col">
+  <div className="min-h-screen bg-[#F5E6DA]/40 font-montserrat flex flex-col">
    <Header />
 
-   <main className="flex-1 w-full px-4 sm:px-6 lg:px-10 pb-20 pt-2 lg:pt-6">
+   <main className="flex-1 w-full px-8 sm:px-6 lg:px-10 pb-20 pt-2 lg:pt-6">
 
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 sm:mb-8">
-     <motion.h2
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="text-[20px] font-black text-[#4A403A]"
-     >
-      {activeCategory}
-     </motion.h2>
-     <p className="text-[12px] sm:text-[13px] font-bold text-[#4A403A]/30 uppercase tracking-widest">
-      {filteredProducts.length} товаров
+    <div className="mb-8">
+     <p className="text-[14px] sm:text-[16px] font-medium text-[#4A403A]/60">
+      всего товаров в этой категории {filteredProducts.length}
      </p>
     </div>
 
@@ -76,7 +70,7 @@ export default function Home() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
         transition={{ duration: 0.4 }}
-        className="grid grid-cols-2 gap-2 sm:gap-3"
+        className="grid grid-cols-2 gap-1.5 sm:gap-3"
        >
         {isLoading
          ? Array.from({ length: 6 }).map((_, i) => <ProductCardSkeleton key={i} />)
@@ -140,28 +134,28 @@ export default function Home() {
 
     {/* ── Mobile FAB ── */}
     <AnimatePresence>
-     {cart.length > 0 && (
+     {cart.length > 0 && !selectedProduct && (
       <motion.div
        initial={{ y: 100 }}
        animate={{ y: 0 }}
        exit={{ y: 100 }}
-       className="fixed bottom-8 left-0 right-0 z-[90] lg:hidden px-6"
+       className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-[400px] sm:hidden"
       >
        <button
         onClick={() => setCartOpen(true)}
-        className="w-full h-16 bg-[#CF8F73] rounded-2xl flex items-center justify-between px-7 text-white shadow-2xl shadow-[#CF8F73]/40 active:scale-[0.98] transition-soft"
+        className="w-full bg-[#CD8B70] text-white px-5 py-3.5 rounded-full shadow-[0_8px_30px_rgb(205,139,112,0.4)] flex relative items-center justify-between active:scale-[0.98] transition-transform"
        >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
          <div className="relative">
           <ShoppingCart className="w-6 h-6" />
-          <span className="absolute -top-2 -right-2 bg-white text-[#CF8F73] text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-lg">
-           {cart.reduce((s, i) => s + i.quantity, 0)}
-          </span>
+          <div className="absolute -top-1.5 -right-2 bg-white text-[#CD8B70] text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+           {cart.reduce((sum, item) => sum + item.quantity, 0)}
+          </div>
          </div>
-         <span className="text-[17px] font-bold">В корзину</span>
+         <span className="font-bold text-[17px]">В корзину</span>
         </div>
-        <span className="text-[18px] font-black tracking-tighter">
-         {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString("ru-RU")} ₽
+        <span className="font-black text-[18px]">
+         {cart.reduce((sum, item) => sum + item.price * item.quantity, 0)} ₽
         </span>
        </button>
       </motion.div>
