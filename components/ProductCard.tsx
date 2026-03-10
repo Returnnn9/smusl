@@ -56,23 +56,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ onAdd, index = 0, ...product 
    </div>
 
    <div className="flex-1 flex flex-col gap-3 sm:gap-4 px-2 xs:px-3 sm:px-4 pb-3 sm:pb-4">
-    <div className="space-y-1.5 sm:space-y-2">
-     {/* Title & Price Row */}
-     <div className="flex flex-col xl:flex-row xl:items-baseline justify-between gap-1.5 xl:gap-3">
-      <motion.h3
-       className="text-[14px] xs:text-[15px] sm:text-[16px] xl:text-[20px] font-bold text-[#4A403A] leading-[1.2] tracking-tight line-clamp-2 min-h-[2.4em]"
-      >
-       {name}
-      </motion.h3>
-      <div className="text-[15px] xs:text-[16px] sm:text-[17px] xl:text-[22px] font-[900] text-[#4A403A] whitespace-nowrap xl:text-right mt-1">
-       {price} ₽/шт
+    <div className="flex flex-col justify-between pt-1 sm:pt-2">
+     <div className="space-y-0.5 sm:space-y-1">
+      {/* Title & Price Row */}
+      <div className="flex items-start justify-between gap-3 sm:gap-4">
+       <motion.h3
+        className="text-[16px] xs:text-[18px] sm:text-[20px] xl:text-[22px] font-bold text-[#6B5D54] leading-[1.1] tracking-tight line-clamp-2"
+       >
+        {name}
+       </motion.h3>
+       <div className="text-[18px] xs:text-[20px] sm:text-[24px] xl:text-[26px] font-[900] text-[#6B5D54] whitespace-nowrap text-right shrink-0 tracking-tight">
+        {price} ₽/шт
+       </div>
       </div>
-     </div>
 
-     {/* Row 2: Weight & Stock */}
-     <div className="flex items-center justify-between text-[#8E8278] mt-1">
-      <p className="text-[13px] xs:text-[14px] sm:text-[14px] xl:text-[15px] font-medium">{weight}</p>
-      <p className="text-[12px] xs:text-[13px] sm:text-[13px] xl:text-[15px] font-medium text-right text-[#8E8278]/70">в наличии 10 шт</p>
+      {/* Row 2: Weight & Stock */}
+      <div className="flex items-center justify-between">
+       <p className="text-[15px] sm:text-[17px] font-medium text-[#9C9188]">{weight}</p>
+       <p className="text-[14px] sm:text-[16px] font-medium text-[#9C9188]/70 text-right">в наличии 10 шт</p>
+      </div>
      </div>
     </div>
 

@@ -198,9 +198,9 @@ export default function ProfilePage() {
        {!isAuthenticated && (
         <button
          onClick={() => setAuthModalOpen(true)}
-         className="px-6 py-2.5 rounded-full bg-smusl-terracotta text-white text-[14px] font-bold hover:bg-[#b87a60] transition-all active:scale-95 shadow-md"
+         className="px-8 py-3.5 sm:px-10 sm:py-4 rounded-[2rem] bg-[#CD8B70] text-white text-[16px] sm:text-[18px] font-bold hover:bg-[#C27E63] transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-[0_8px_24px_rgba(205,139,112,0.35)] hover:shadow-[0_12px_32px_rgba(205,139,112,0.5)] select-none touch-manipulation transform-gpu"
         >
-         Войти в аккаунт
+         <span className="drop-shadow-sm tracking-wide pointer-events-none">Войти в аккаунт</span>
         </button>
        )}
        {isAuthenticated && (

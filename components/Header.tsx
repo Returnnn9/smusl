@@ -66,9 +66,9 @@ const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
       {/* Profile Button */}
       <Link
        href="/profile"
-       className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#D8CEC8] rounded-full text-[14px] text-[#5B5047]/80 hover:border-[#CF8F73]/60 hover:text-[#5B5047] transition-all shrink-0"
+       className="flex items-center gap-2.5 sm:gap-3 px-5 sm:px-6 py-2.5 sm:py-3 bg-white border border-[#D8CEC8] rounded-full text-[15px] sm:text-[16px] font-medium text-[#5B5047]/90 hover:border-[#CF8F73]/60 hover:text-[#5B5047] transition-all shrink-0 shadow-none hover:shadow-none"
       >
-       <User className={cn("w-4 h-4 shrink-0", isAuthenticated ? "text-[#CF8F73]" : "text-[#5B5047]/50")} />
+       <User className={cn("w-5 h-5 shrink-0", isAuthenticated ? "text-[#CF8F73]" : "text-[#5B5047]/60")} />
        <span className="hidden sm:inline">
         {isAuthenticated ? "Личный кабинет" : "Личный кабинет"}
        </span>

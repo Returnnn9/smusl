@@ -93,20 +93,20 @@ export default function ProductDetailsModal() {
      </div>
 
      {/* Quantity + Add */}
-     <div className="flex items-center gap-3 sm:gap-4">
+     <div className="flex items-center gap-3 sm:gap-4 select-none">
       <div className="flex items-center gap-4 sm:gap-6 bg-[#FDF4EE] rounded-[1rem] sm:rounded-[1.2rem] px-5 sm:px-6 py-3 sm:py-3.5">
        <button
         onClick={decrement}
-        className="text-[24px] sm:text-[28px] font-light text-[#CF8F73] leading-none w-6 text-center hover:opacity-70 transition-opacity"
+        className="text-[24px] sm:text-[28px] font-light text-[#CF8F73] leading-none w-6 text-center hover:opacity-70 transition-opacity select-none touch-manipulation"
        >
         −
        </button>
-       <span className="text-[19px] sm:text-[20px] font-bold text-[#4A403A] min-w-[20px] sm:min-w-[24px] text-center">
+       <span className="text-[19px] sm:text-[20px] font-bold text-[#4A403A] min-w-[20px] sm:min-w-[24px] text-center select-none cursor-default font-mono">
         {quantity}
        </span>
        <button
         onClick={increment}
-        className="text-[24px] sm:text-[28px] font-light text-[#CF8F73] leading-none w-6 text-center hover:opacity-70 transition-opacity"
+        className="text-[24px] sm:text-[28px] font-light text-[#CF8F73] leading-none w-6 text-center hover:opacity-70 transition-opacity select-none touch-manipulation"
        >
         +
        </button>
@@ -114,10 +114,10 @@ export default function ProductDetailsModal() {
 
       <button
        onClick={handleAddToCart}
-       className="flex-1 h-[56px] sm:h-[68px] bg-[#CF8F73] text-white rounded-[1.2rem] font-semibold text-[16px] sm:text-[18px] flex items-center justify-center gap-2 sm:gap-3 shadow-lg shadow-[#CF8F73]/20 hover:bg-[#b87a60] transition-all active:scale-95"
+       className="flex-1 h-[56px] sm:h-[68px] bg-[#CD8B70] text-white rounded-[1.2rem] font-bold text-[16px] sm:text-[18px] flex items-center justify-center gap-2 sm:gap-3 shadow-[0_8px_24px_rgba(205,139,112,0.35)] hover:shadow-[0_12px_32px_rgba(205,139,112,0.5)] hover:bg-[#C27E63] transition-all hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.98] select-none touch-manipulation transform-gpu"
       >
-       <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
-       Добавить в корзину
+       <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 text-white" />
+       <span className="drop-shadow-sm tracking-wide pointer-events-none">Добавить в корзину</span>
       </button>
      </div>
 
