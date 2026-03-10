@@ -18,6 +18,7 @@ export class UserStore extends EventEmitter {
  private userPhone: string = "";
  private favorites: number[] = [];
  private orderHistory: Order[] = [];
+ private savedAddresses: string[] = []; 
 
  constructor(rootStore: RootStore) {
   super();
@@ -28,6 +29,7 @@ export class UserStore extends EventEmitter {
   favorites: number[];
   orderHistory: Order[];
   address: string | null;
+  savedAddresses: string[] | null;
   deliveryType: "delivery" | "pickup" | null;
   userName: string | null;
   userPhone: string | null;
@@ -36,6 +38,7 @@ export class UserStore extends EventEmitter {
   this.favorites = data.favorites;
   this.orderHistory = data.orderHistory;
   if (data.address) this.address = data.address;
+  if (data.savedAddresses) this.savedAddresses = data.savedAddresses;
   if (data.deliveryType) this.deliveryType = data.deliveryType;
   if (data.userName) this.userName = data.userName;
   if (data.userPhone) this.userPhone = data.userPhone;
@@ -54,6 +57,7 @@ export class UserStore extends EventEmitter {
  getUserPhone() { return this.userPhone; }
  getFavorites() { return this.favorites; }
  getOrderHistory() { return this.orderHistory; }
+ getSavedAddresses() { return this.savedAddresses; }
 
  // Actions
  topUpBalance(amount: number) {
@@ -65,8 +69,28 @@ export class UserStore extends EventEmitter {
   this.address = newAddress;
   this.deliveryType = type;
   this.hasSetAddress = true;
+  
+  if (type === "delivery" && !this.savedAddresses.includes(newAddress)) {
+   this.savedAddresses = [newAddress, ...this.savedAddresses];
+   this.saveSavedAddresses();
+  }
+
   this.saveAddress();
   this.emitChange();
+ }
+
+ addSavedAddress(address: string) {
+   if (!this.savedAddresses.includes(address)) {
+     this.savedAddresses = [address, ...this.savedAddresses];
+     this.saveSavedAddresses();
+     this.emitChange();
+   }
+ }
+
+ removeSavedAddress(address: string) {
+   this.savedAddresses = this.savedAddresses.filter(a => a !== address);
+   this.saveSavedAddresses();
+   this.emitChange();
  }
 
  setHasSetAddress(val: boolean) {
@@ -129,30 +153,49 @@ export class UserStore extends EventEmitter {
   return true;
  }
 
- private saveAddress() {
-  if (typeof window !== "undefined") {
-   localStorage.setItem("smuslest_address", this.address);
-   localStorage.setItem("smuslest_delivery_type", this.deliveryType || "");
-   localStorage.setItem("smuslest_has_set_address", String(this.hasSetAddress));
-  }
- }
+  private setCookie(name: string, value: string, days: number = 365) {
 
- private saveUser() {
-  if (typeof window !== "undefined") {
-   localStorage.setItem("smuslest_name", this.userName);
-   localStorage.setItem("smuslest_phone", this.userPhone);
+   if (typeof window !== "undefined") {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+   }
   }
- }
 
- private saveFavorites() {
-  if (typeof window !== "undefined") {
-   localStorage.setItem("smuslest_favorites", JSON.stringify(this.favorites));
+  private saveAddress() {
+   if (typeof window !== "undefined") {
+    localStorage.setItem("smuslest_address", this.address);
+    localStorage.setItem("smuslest_delivery_type", this.deliveryType || "");
+    localStorage.setItem("smuslest_has_set_address", String(this.hasSetAddress));
+    
+    // Also save to cookies for persistence
+    this.setCookie("smuslest_address", this.address);
+    this.setCookie("smuslest_has_set_address", String(this.hasSetAddress));
+   }
   }
- }
 
- private saveOrders() {
-  if (typeof window !== "undefined") {
-   localStorage.setItem("smuslest_orders", JSON.stringify(this.orderHistory));
+  private saveUser() {
+   if (typeof window !== "undefined") {
+    localStorage.setItem("smuslest_name", this.userName);
+    localStorage.setItem("smuslest_phone", this.userPhone);
+   }
   }
- }
+
+  private saveFavorites() {
+   if (typeof window !== "undefined") {
+    localStorage.setItem("smuslest_favorites", JSON.stringify(this.favorites));
+   }
+  }
+
+  private saveSavedAddresses() {
+   if (typeof window !== "undefined") {
+    localStorage.setItem("smuslest_saved_addresses", JSON.stringify(this.savedAddresses));
+    this.setCookie("smuslest_saved_addresses", JSON.stringify(this.savedAddresses));
+   }
+  }
+
+  private saveOrders() {
+   if (typeof window !== "undefined") {
+    localStorage.setItem("smuslest_orders", JSON.stringify(this.orderHistory));
+   }
+  }
 }

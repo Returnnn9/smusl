@@ -11,6 +11,11 @@ export const PICKUP_POINTS: PickupPoint[] = [
  { city: "Санкт-Петербург", address: "Садовая ул., 10", coords: [59.932, 30.339] },
 ];
 
+export const CITY_COORDS: Record<string, [number, number]> = {
+ 'Москва': [55.7558, 37.6173],
+ 'Санкт-Петербург': [59.9343, 30.3351]
+};
+
 export const CITY_CONFIG: Record<CityKey, { viewbox: string; short: string }> = {
  'Москва': { viewbox: '36.8,56.0,38.0,55.4', short: 'мск' },
  'Санкт-Петербург': { viewbox: '29.5,60.2,30.8,59.7', short: 'спб' },

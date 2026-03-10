@@ -63,15 +63,14 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isMobile = false, onClose }) 
        {cart.map((item) => (
         <motion.div
          key={item.id}
-         layout
-         initial={{ opacity: 0, scale: 0.95, y: 10 }}
-         animate={{ opacity: 1, scale: 1, y: 0 }}
-         exit={{ opacity: 0, scale: 0.9, x: -50 }}
+         layout="position"
+         initial={{ opacity: 0, y: 10 }}
+         animate={{ opacity: 1, y: 0 }}
+         exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
          whileTap={isMobile ? { scale: 0.98 } : {}}
-         transition={{ type: "spring", stiffness: 400, damping: 25 }}
+         transition={{ type: "spring", stiffness: 400, damping: 30 }}
          className="relative group shrink-0"
         >
-         {/* Background swipe action (Remove) */}
          {isMobile && (
           <div className="absolute top-[1px] bottom-[1px] left-[1px] right-[1px] bg-red-500 rounded-[2rem] flex items-center justify-end pr-6 shadow-inner z-0">
            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -164,7 +163,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isMobile = false, onClose }) 
         setCheckoutOpen(true)
         if (onClose) onClose()
        }}
-       className="w-full bg-[#CF8D72] rounded-[1.5rem] px-8 h-[72px] flex items-center justify-between text-white shadow-[0_8px_30px_rgb(207,141,114,0.4)] group relative overflow-hidden"
+       className="w-full bg-[#CF8D72] rounded-[1.5rem] px-8 h-[72px] flex items-center justify-between text-white shadow-[0_8px_30px_rgba(207,141,114,0.3)] group relative overflow-hidden"
       >
        {/* Button shimmer effect */}
        <motion.div

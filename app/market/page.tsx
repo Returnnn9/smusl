@@ -62,7 +62,7 @@ export default function Home() {
  })
 
  return (
-  <div className="min-h-screen bg-[#F5E6DA]/40 font-montserrat flex flex-col">
+  <div className="min-h-screen bg-[#F9EFDA] font-montserrat flex flex-col">
    <Header />
 
    <main className="flex-1 w-full px-4 sm:px-6 lg:px-10 pb-32 pt-4 lg:pt-6">
@@ -120,10 +120,10 @@ export default function Home() {
        />
        {/* Bottom Sheet Panel */}
        <motion.div
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+        initial={{ y: "100%", opacity: 0.5 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: "100%", opacity: 0.5 }}
+        transition={{ type: "spring", damping: 32, stiffness: 300 }}
         drag="y"
         dragConstraints={{ top: 0 }}
         dragElastic={0.2}

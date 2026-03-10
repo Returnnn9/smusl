@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { Search, MapPin, Loader2, X, Plus, Minus } from "lucide-react";
+import { Search, MapPin, Loader2, X, Plus, Minus, Navigation } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface AddressDetails {
@@ -20,6 +20,7 @@ interface MapPickerProps {
  onError?: (error: string | null) => void;
  className?: string;
  hideSearch?: boolean;
+ showGeolocate?: boolean;
  externalCoords?: [number, number] | null;
 }
 
@@ -49,6 +50,7 @@ export default function MapPicker({
  onError,
  className,
  hideSearch,
+ showGeolocate = false,
  externalCoords,
 }: MapPickerProps) {
  const API_KEY = process.env.NEXT_PUBLIC_2GIS_API_KEY || "";
@@ -169,18 +171,18 @@ export default function MapPicker({
 
   try {
    const initialCoords: [number, number] = externalCoords || [55.7558, 37.6173];
-   const center = [initialCoords[1], initialCoords[0]]; // Lon, Lat
+   const center = [initialCoords[1], initialCoords[0]];
 
    const map = new window.mapgl.Map(mapRef.current, {
     center: center,
     zoom: 16,
     key: API_KEY,
-    zoomControl: false, // Disabling native zoom controls as per request
+    zoomControl: false,
    });
 
    mapInstance.current = map;
 
-   map.on('move', () => {
+   map.on('movestart', () => {
     setIsMoving(true);
    });
 
@@ -201,22 +203,20 @@ export default function MapPicker({
    setError("Failed to initialize map");
   }
 
-  // Cleanup should ONLY run on unmount, not on every prop change!
+
   return () => {
    if (mapInstance.current) {
     mapInstance.current.destroy();
     mapInstance.current = null;
    }
   };
-  // Empty dependency array ensures this effect runs exactly once when loaded
-  // eslint-disable-next-line react-hooks/exhaustive-deps
- }, [isLoaded, API_KEY]);
- // Removed other dependencies to fix map refreshing entirely.
 
- // Sync with externalCoords - strictly controlled
+ }, [isLoaded, API_KEY]);
+
+
  useEffect(() => {
   if (externalCoords && mapInstance.current) {
-   // 1. Precise check: if same as last dragged center, do nothing.
+
    if (lastReportedCoords.current &&
     Math.abs(lastReportedCoords.current[0] - externalCoords[0]) < 0.00001 &&
     Math.abs(lastReportedCoords.current[1] - externalCoords[1]) < 0.00001) {
@@ -227,7 +227,6 @@ export default function MapPicker({
    const deltaLat = Math.abs(currentCenter[1] - externalCoords[0]);
    const deltaLon = Math.abs(currentCenter[0] - externalCoords[1]);
 
-   // 2. Threshold check (~10 meters now for extra safety)
    if (deltaLat > 0.0001 || deltaLon > 0.0001) {
     isProgrammatic.current = true;
     const center = [externalCoords[1], externalCoords[0]];
@@ -237,7 +236,7 @@ export default function MapPicker({
   }
  }, [externalCoords]);
 
- // Custom Zoom Controls
+
  const handleZoomIn = () => {
   if (mapInstance.current) {
    mapInstance.current.setZoom(mapInstance.current.getZoom() + 1);
@@ -250,7 +249,6 @@ export default function MapPicker({
   }
  };
 
- // Search Suggestions fetch
  const fetchSuggestions = async (query: string) => {
   if (query.length < 2) {
    setSuggestions([]);
@@ -272,6 +270,28 @@ export default function MapPicker({
   if (debounceRef.current) clearTimeout(debounceRef.current);
   debounceRef.current = setTimeout(() => fetchSuggestions(val), 300);
  };
+
+ const geolocate = useCallback(() => {
+  if (!navigator.geolocation) {
+   setError("Геолокация не поддерживается вашим браузером");
+   return;
+  }
+
+  setIsLocating(true);
+  navigator.geolocation.getCurrentPosition(
+   (pos) => {
+    const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+    updateMapLocationRef.current(coords, true);
+    setIsLocating(false);
+   },
+   (err) => {
+    console.error("Geolocation error:", err);
+    setError("Не удалось определить местоположение. Проверьте разрешения в браузере.");
+    setIsLocating(false);
+   },
+   { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+ }, []);
 
  return (
   <div className={cn("relative w-full h-full flex flex-col min-h-[400px]", className)}>
@@ -348,11 +368,9 @@ export default function MapPicker({
    )}
 
    <div className="flex-1 w-full bg-[#f3f0ea] rounded-2xl overflow-hidden relative border border-gray-100 shadow-inner">
-    {/* Map Mount Point */}
-    <div ref={mapRef} className="absolute inset-0 z-0" />
 
-    {/* Custom Map Controls */}
-    <div className="absolute right-4 top-4 z-[500] flex flex-col items-center shadow-[0_4px_12px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden bg-white/95 backdrop-blur-sm border border-black/5">
+    <div ref={mapRef} className="absolute inset-0 z-0" />
+    <div className="absolute right-4 top-1/2 -translate-y-1/2 z-[500] flex flex-col items-center shadow-[0_4px_12px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden bg-white/95 backdrop-blur-sm border border-black/5">
      <button
       onClick={handleZoomIn}
       className="w-10 h-10 flex items-center justify-center bg-transparent hover:bg-gray-50 transition-colors border-b border-black/5 text-[#333]"
@@ -369,13 +387,29 @@ export default function MapPicker({
      </button>
     </div>
 
+    {/* Floating Geolocation Button */}
+    {showGeolocate && (
+     <button
+      onClick={geolocate}
+      disabled={isLocating}
+      className="absolute right-4 bottom-28 z-[500] w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg border border-black/5 hover:bg-gray-50 active:scale-95 transition-all text-[#333] disabled:opacity-50"
+      title="Где я"
+     >
+      {isLocating ? (
+       <Loader2 className="w-6 h-6 animate-spin text-[#3A332E]" />
+      ) : (
+       <Navigation className="w-6 h-6 fill-current" />
+      )}
+     </button>
+    )}
+
     {/* Static Center Pin Overlay */}
     <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-[500]">
      <div className={`relative flex flex-col items-center transition-transform duration-200 ${isMoving ? '-translate-y-4' : '-translate-y-2'}`}>
-      <div className="w-9 h-9 bg-[#FF3366] rounded-full shadow-[0_4px_16px_rgba(255,51,102,0.4)] flex items-center justify-center border-[3px] border-white z-10">
+      <div className="w-9 h-9 bg-[#3A332E] rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.3)] flex items-center justify-center border-2 border-white z-10 transition-colors">
        <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
       </div>
-      <div className="w-1 h-3.5 bg-gradient-to-b from-[#FF3366] to-transparent -mt-0.5 z-0"></div>
+      <div className="w-1 h-3.5 bg-gradient-to-b from-[#3A332E] to-transparent -mt-0.5 z-0"></div>
       <div className={`w-4 h-1.5 bg-black/20 rounded-[50%] blur-[2px] transition-all duration-200 ${isMoving ? 'scale-75 opacity-50 mt-4' : 'scale-100 opacity-100 mt-1'}`}></div>
      </div>
     </div>

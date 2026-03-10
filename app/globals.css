@@ -49,7 +49,7 @@
  }
 
  body {
-  @apply font-manrope text-base font-medium antialiased text-[#4A423D] bg-[#FDF8ED];
+  @apply font-manrope text-base font-medium antialiased text-[#4A423D] bg-white;
   letter-spacing: -0.01em;
   line-height: 1.5;
  }

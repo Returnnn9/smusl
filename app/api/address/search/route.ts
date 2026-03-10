@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 const DGIS_KEY = process.env.NEXT_PUBLIC_2GIS_API_KEY;
 
 const CITY_COORDS = {
@@ -21,20 +23,22 @@ export async function GET(req: NextRequest) {
    key: DGIS_KEY || '',
    location: coords,
    sort_point: coords,
+   radius: '50000',
+   type: 'building,street',
    fields: 'items.point,items.address',
    limit: '20'
   });
 
   const url = `https://catalog.api.2gis.com/3.0/items?${params.toString()}`;
-  const response = await fetch(url);
+  const response = await fetch(url, { cache: 'no-store' });
 
   if (!response.ok) {
-   return NextResponse.json([]);
+   return NextResponse.json({ debug_url: url, error: 'Api response not ok' });
   }
 
   const data = await response.json();
 
-  if (!data?.result?.items) return NextResponse.json([]);
+  if (!data?.result?.items) return NextResponse.json({ debug_url: url, final: [] });
 
   const suggestions = data.result.items
    .map((item: any) => {
@@ -68,30 +72,29 @@ export async function GET(req: NextRequest) {
      // If we still have no road, skip this item
      if (!road) return null;
 
-     // Normalize road name
-     let cleanRoad = road.replace(/(^|\s)(ул|улица|пр|пр-т|проспект|пер|переулок|б-р|бульвар|ш|шоссе|наб|набережная|аллея|тракт)\.?\s+/gi, ' ').trim();
-     cleanRoad = cleanRoad.replace(/\s+(ул|улица|пр|пр-т|проспект|пер|переулок|б-р|бульвар|ш|шоссе|наб|набережная|аллея|тракт)\.?$/gi, '').trim();
+     // Normalize road name: Preserve original type if present (проспект, шоссе, проезд, etc.)
+     let displayRoad = road;
+     const lowerRoad = road.toLowerCase();
+     const hasType = ['проспект', 'шоссе', 'бульвар', 'переулок', 'набережная', 'аллея', 'площадь', 'тупик', 'проезд', 'улица'].some(kw => lowerRoad.includes(kw));
 
-     if (cleanRoad.length > 0) {
-      cleanRoad = cleanRoad.charAt(0).toUpperCase() + cleanRoad.slice(1);
+     if (!hasType) {
+      // Only attempt to "clean" and re-prefix if it doesn't already have a strong type
+      let cleanRoad = road.replace(/(^|\s)(ул|улица|пр|пр-т|проспект|пер|переулок|б-р|бульвар|ш|шоссе|наб|набережная|аллея|тракт)\.?\s+/gi, ' ').trim();
+      cleanRoad = cleanRoad.replace(/\s+(ул|улица|пр|пр-т|проспект|пер|переулок|б-р|бульвар|ш|шоссе|наб|набережная|аллея|тракт)\.?$/gi, '').trim();
+
+      if (cleanRoad.length > 0) {
+       cleanRoad = cleanRoad.charAt(0).toUpperCase() + cleanRoad.slice(1);
+       displayRoad = `улица ${cleanRoad}`;
+      }
+     } else {
+      // If it has a type, just ensure it's capitalized correctly
+      displayRoad = displayRoad.charAt(0).toUpperCase() + displayRoad.slice(1);
      }
 
      // Filter: Road after cleanup shouldn't be just the city name
-     if (cleanRoad.toLowerCase() === city.toLowerCase() || cleanRoad.toLowerCase() === 'москва' || cleanRoad.toLowerCase() === 'санкт-петербург') {
+     const checkRoad = displayRoad.toLowerCase();
+     if (checkRoad === city.toLowerCase() || checkRoad === 'москва' || checkRoad === 'санкт-петербург') {
       return null;
-     }
-
-     // Refined road normalization: prevent double "улица" and ensure proper prefix
-     let displayRoad = cleanRoad;
-     if (displayRoad) {
-      // Remove common redundant prefixes if they exist at the start to ensure we don't double them
-      displayRoad = displayRoad.replace(/^(ул\.|улица|пр-т|проспект|аллея|бульвар|наб\.|набережная)\s+/i, '');
-      // Always prefix with "улица " for consistency, UNLESS it's clearly a different type (though 2GIS usually provides the base name)
-      const lowerRoad = displayRoad.toLowerCase();
-      const hasType = ['проспект', 'шоссе', 'бульвар', 'переулок', 'набережная', 'аллея', 'площадь', 'тупик', 'проезд'].some(kw => lowerRoad.includes(kw));
-      if (!hasType && !lowerRoad.includes('улица')) {
-       displayRoad = `улица ${displayRoad}`;
-      }
      }
 
      // Final Filter: Result must be relevant to the city
