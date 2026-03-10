@@ -5,6 +5,7 @@ import { Heart } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { useUIStore, useCartStore, useUserStore, useStoreData } from "@/store/hooks"
+import { cn } from "@/lib/utils"
 
 interface CartSidebarProps {
  isMobile?: boolean
@@ -27,12 +28,15 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isMobile = false, onClose }) 
   <div className={`flex flex-col ${isMobile ? "h-full" : "h-[calc(100vh-8rem)]"} ${!isMobile ? "bg-gradient-to-b from-[#FDF8ED] to-[#F5E6DA] rounded-[2.5rem] shadow-2xl border border-white/20 p-6" : ""} font-manrope overflow-hidden`}>
 
    {/* Header Area */}
-   <div className="flex items-center justify-between mb-6 shrink-0">
+   <div className={`flex items-center justify-between shrink-0 ${isMobile ? "mb-4 pt-1" : "mb-6"}`}>
     <div className="flex flex-col min-w-0 w-full">
-     <span className="text-[12px] font-bold text-[#CF8D72] uppercase tracking-[0.2em] mb-1">Ваша корзина</span>
-     <h2 className="text-[20px] font-extrabold text-[#4A423D] flex items-center gap-2 min-w-0">
+     <span className="text-[10px] sm:text-[12px] font-bold text-[#CF8D72] uppercase tracking-[0.2em] mb-1">Ваша корзина</span>
+     <h2 className="flex items-center gap-2 min-w-0">
       <span className="w-2 h-2 rounded-full bg-[#CF8D72] animate-pulse shrink-0" />
-      <span className="truncate max-w-full" title={address || "ул. Ижорская, 3"}>
+      <span className={cn(
+       "font-extrabold text-[#4A423D] truncate max-w-full",
+       isMobile ? "text-[17px]" : "text-[20px]"
+      )} title={address || "ул. Ижорская, 3"}>
        {address || "ул. Ижорская, 3"}
       </span>
      </h2>

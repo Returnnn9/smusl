@@ -271,7 +271,8 @@ export default function MapPicker({ initialAddress, onAddressSelect, onAddressDe
     }
    }
   } catch (e) {
-   console.error("Geocode error", e);
+   console.error("Geocode error for:", addr, e);
+   // Silent fail if it's just a generic API error or empty result
   }
  };
 

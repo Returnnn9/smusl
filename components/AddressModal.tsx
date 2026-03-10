@@ -239,20 +239,21 @@ export default function AddressModal() {
         exit={{ opacity: 0, scale: 0.98 }}
         className="flex flex-col sm:flex-row h-full w-full"
        >
-        {/* Left Panel - Visual Placeholder (At top on mobile) */}
-        <div className="w-full h-[240px] shrink-0 sm:h-full sm:w-[55%] p-4 pb-0 sm:p-6 sm:pb-6">
-         <div className="w-full h-full bg-[#D9D9D9] rounded-[2rem] sm:rounded-[2rem] flex items-center justify-center overflow-hidden relative border border-gray-100 shadow-sm">
-          {/* Visual Map Background for Step 1 */}
-          <div className="absolute inset-0 opacity-40 mix-blend-multiply bg-[url('/photo/map-bg.png')] bg-cover bg-center grayscale" />
-          <div className="relative z-10 w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg">
-           <MapPin className="w-8 h-8 text-smusl-terracotta" />
-          </div>
+        {/* Left Panel - Map (At top on mobile) */}
+        <div className="w-full h-[280px] sm:h-full sm:w-[55%] p-4 pb-0 sm:p-6 sm:pb-6 shrink-0 sm:shrink">
+         <div className="w-full h-full rounded-[2rem] sm:rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm relative">
+          <MapPicker
+           hideSearch={true}
+           initialAddress={selectedCity}
+           onAddressSelect={() => { }}
+           onError={setMapError}
+          />
          </div>
         </div>
 
         <div className="flex-1 p-5 sm:p-10 flex flex-col justify-center overflow-y-auto">
          <div className="flex items-center justify-between mb-8">
-          <h2 className="text-[26px] font-extrabold text-smusl-brown tracking-tight">
+          <h2 className="text-[22px] sm:text-[26px] font-extrabold text-smusl-brown tracking-tight">
            Способ получения
           </h2>
           <button
@@ -499,7 +500,7 @@ export default function AddressModal() {
          <button
           onClick={handleSaveDelivery}
           disabled={!tempAddress}
-          className="mt-4 sm:mt-auto w-full h-[64px] sm:h-[72px] bg-smusl-terracotta z-10 disabled:bg-smusl-terracotta/50 text-white rounded-full font-[800] text-[18px] sm:text-[20px] hover:bg-[#b87a60] transition-all shadow-lg shadow-smusl-terracotta/20 active:scale-95 mb-6 sm:mb-0 shrink-0"
+          className="mt-2 sm:mt-6 w-full h-[64px] sm:h-[72px] bg-smusl-terracotta disabled:bg-smusl-terracotta/50 text-white rounded-full font-[800] text-[18px] sm:text-[20px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-lg shadow-smusl-terracotta/20 z-10 shrink-0 mb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:mb-0"
          >
           Всё верно
          </button>
@@ -616,7 +617,7 @@ export default function AddressModal() {
          <button
           onClick={handleSavePickup}
           disabled={!selectedPickup}
-          className="mt-2 sm:mt-6 w-full h-[64px] sm:h-[72px] bg-smusl-terracotta disabled:bg-smusl-terracotta/50 text-white rounded-full font-[800] text-[18px] sm:text-[20px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-lg shadow-smusl-terracotta/20 z-10 shrink-0 mb-6 sm:mb-0"
+          className="mt-2 sm:mt-6 w-full h-[64px] sm:h-[72px] bg-smusl-terracotta disabled:bg-smusl-terracotta/50 text-white rounded-full font-[800] text-[18px] sm:text-[20px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-lg shadow-smusl-terracotta/20 z-10 shrink-0 mb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:mb-0"
          >
           Всё верно
          </button>

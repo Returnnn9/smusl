@@ -226,16 +226,21 @@ export default function CheckoutModal() {
         exit={{ opacity: 0, scale: 0.98 }}
         className="flex flex-col sm:flex-row h-full w-full"
        >
-        {/* Left Panel - Visual Placeholder */}
-        <div className="w-full h-[220px] shrink-0 sm:h-full sm:w-[45%] p-4 pb-0 sm:p-6 sm:pb-6">
-         <div className="w-full h-full bg-[#D9D9D9] rounded-[1.5rem] flex items-center justify-center">
-          {/* Optional: Add a subtle icon or brand element if needed, but gray matches the mockup */}
+        {/* Left Panel - Map */}
+        <div className="w-full h-[280px] sm:h-full sm:w-[45%] p-4 pb-0 sm:p-6 sm:pb-6 shrink-0 sm:shrink">
+         <div className="w-full h-full rounded-[1.5rem] overflow-hidden border border-gray-100 shadow-inner relative">
+          <MapPicker
+           hideSearch={true}
+           initialAddress={selectedCity}
+           onAddressSelect={() => { }}
+           onError={setMapError}
+          />
          </div>
         </div>
 
         <div className="flex-1 p-5 sm:p-10 flex flex-col justify-center overflow-y-auto min-h-0">
          <div className="flex items-center justify-between mb-8">
-          <h2 className="text-[26px] font-extrabold text-smusl-brown tracking-tight">
+          <h2 className="text-[22px] sm:text-[26px] font-extrabold text-smusl-brown tracking-tight">
            Способ получения
           </h2>
           <button
@@ -477,7 +482,7 @@ export default function CheckoutModal() {
          <button
           onClick={handleNextFromDelivery}
           disabled={!tempAddress}
-          className="mt-4 sm:mt-auto w-full h-[56px] sm:h-[64px] bg-smusl-terracotta disabled:bg-smusl-terracotta/40 text-white rounded-[1.2rem] font-[800] text-[16px] sm:text-[18px] hover:bg-[#b87a60] transition-all shadow-xl shadow-smusl-terracotta/20 active:scale-95"
+          className="mt-4 sm:mt-auto w-full h-[56px] sm:h-[64px] bg-smusl-terracotta disabled:bg-smusl-terracotta/40 text-white rounded-[1.2rem] font-[800] text-[16px] sm:text-[18px] hover:bg-[#b87a60] transition-all shadow-xl shadow-smusl-terracotta/20 active:scale-95 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0"
          >
           Всё верно
          </button>
@@ -594,7 +599,7 @@ export default function CheckoutModal() {
          <button
           onClick={handleNextFromPickup}
           disabled={!selectedPickup}
-          className="mt-6 w-full h-[64px] bg-smusl-terracotta disabled:bg-smusl-terracotta/40 text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-smusl-terracotta/20 shrink-0 mb-8 sm:mb-0"
+          className="mt-6 w-full h-[64px] bg-smusl-terracotta disabled:bg-smusl-terracotta/40 text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-smusl-terracotta/20 shrink-0 mb-[calc(2rem+env(safe-area-inset-bottom))] sm:mb-0"
          >
           Всё верно
          </button>
@@ -671,7 +676,7 @@ export default function CheckoutModal() {
            disabled={!userName || !userPhone}
            className="w-full bg-[#CF8F73] disabled:bg-[#CF8F73]/40 disabled:cursor-not-allowed
 																rounded-[1.2rem] h-[60px] sm:h-[72px] text-white font-[800] text-[16px] sm:text-[18px]
-																hover:bg-[#b87a60] transition-all shadow-xl shadow-[#CF8F73]/20 active:scale-[0.98] mb-4 sm:mb-0"
+																hover:bg-[#b87a60] transition-all shadow-xl shadow-[#CF8F73]/20 active:scale-[0.98] mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0"
           >
            Далее к оплате
           </button>
@@ -828,7 +833,7 @@ export default function CheckoutModal() {
            disabled={!paymentMethod || (paymentMethod === 'card' && !isCardValid)}
            className="w-full bg-[#CF8F73] disabled:bg-[#CF8F73]/40 disabled:cursor-not-allowed
 																rounded-[1.2rem] h-[60px] sm:h-[72px] text-white font-[800] text-[16px] sm:text-[18px]
-																hover:bg-[#b87a60] transition-all shadow-xl shadow-[#CF8F73]/20 active:scale-[0.98] mt-auto"
+																hover:bg-[#b87a60] transition-all shadow-xl shadow-[#CF8F73]/20 active:scale-[0.98] mt-auto mb-[env(safe-area-inset-bottom)] sm:mb-0"
           >
            Оформить заказ
           </button>

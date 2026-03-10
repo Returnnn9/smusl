@@ -51,10 +51,10 @@ export default function Home() {
   <div className="min-h-screen bg-[#F5E6DA]/40 font-montserrat flex flex-col">
    <Header />
 
-   <main className="flex-1 w-full px-4 sm:px-6 lg:px-10 pb-20 pt-4 lg:pt-6">
+   <main className="flex-1 w-full px-4 sm:px-6 lg:px-10 pb-32 pt-4 lg:pt-6">
 
     <div className="mb-8">
-     <p className="text-[24px] sm:text-[16px] font-medium text-[#4A403A]/60">
+     <p className="text-[16px] sm:text-[16px] font-medium text-[#4A403A]/60">
       всего товаров в этой категории {filteredProducts.length}
      </p>
     </div>
@@ -126,7 +126,7 @@ export default function Home() {
         >
          <div className="w-12 h-1.5 rounded-full bg-[#4A403A]/20" />
         </div>
-        <div className="flex-1 overflow-y-auto w-full px-2 sm:px-6 pb-6 scrollbar-hide">
+        <div className="flex-1 overflow-y-auto w-full px-2 sm:px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] scrollbar-hide">
          <CartSidebar isMobile={true} onClose={() => setCartOpen(false)} />
         </div>
        </motion.div>
@@ -141,7 +141,7 @@ export default function Home() {
        initial={{ y: 100 }}
        animate={{ y: 0 }}
        exit={{ y: 100 }}
-       className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-[400px] md:hidden"
+       className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-[400px] md:hidden"
       >
        <motion.button
         whileHover={{ scale: 1.02 }}

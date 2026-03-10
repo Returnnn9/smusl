@@ -80,10 +80,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ onAdd, index = 0, ...product 
      whileTap={{ scale: 0.96 }}
      whileHover={{ y: -2 }}
      onClick={(e) => { e.stopPropagation(); onAdd() }}
-     className="w-full h-12 mt-auto bg-smusl-terracotta rounded-[1rem] flex items-center justify-center gap-2 text-white hover:bg-[#b87a60] transition-colors shadow-premium"
+     className="w-full h-12 xs:h-14 sm:h-16 mt-auto bg-smusl-terracotta rounded-[1rem] flex items-center justify-center gap-2 text-white hover:bg-[#b87a60] transition-all "
     >
-     <ShoppingBag className="w-5 h-5 shrink-0" />
-     <span className="text-[14px] font-bold">Добавить в корзину</span>
+     <ShoppingBag className="w-4 h-4 xs:w-5 xs:h-5 shrink-0" />
+     <span className="text-[14px] xs:text-[16px] sm:text-[18px] font-bold">Добавить в корзину</span>
     </motion.button>
    </div>
   </motion.div>
