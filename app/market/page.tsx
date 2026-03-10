@@ -54,15 +54,11 @@ export default function Home() {
    <main className="flex-1 w-full px-4 sm:px-6 lg:px-10 pb-20 pt-4 lg:pt-6">
 
     <div className="mb-8">
-     <p className="text-[14px] sm:text-[16px] font-medium text-[#4A403A]/60">
+     <p className="text-[24px] sm:text-[16px] font-medium text-[#4A403A]/60">
       всего товаров в этой категории {filteredProducts.length}
      </p>
     </div>
-
-    {/* ── Main Layout Grid ── */}
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_290px] xl:grid-cols-[1fr_500px] gap-4 items-start">
-
-     {/* Products Grid */}
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_500px] gap-4 items-start">
      <section>
       <AnimatePresence mode="wait">
        <motion.div

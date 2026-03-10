@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope, Great_Vibes } from "next/font/google";
+import { Manrope, Great_Vibes, Montserrat } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/store/StoreProvider";
 import { Providers } from "@/components/Providers";
@@ -12,6 +12,13 @@ const manrope = Manrope({
  variable: "--font-manrope",
  display: "swap",
  weight: ["200", "300", "400", "500", "600", "700", "800"],
+});
+
+const montserrat = Montserrat({
+ subsets: ["latin", "cyrillic"],
+ variable: "--font-montserrat",
+ weight: ["300", "400", "500", "600", "700", "800", "900"],
+ display: "swap",
 });
 
 const greatVibes = Great_Vibes({

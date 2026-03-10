@@ -19,31 +19,37 @@ export const products: Product[] = [
  {
   id: 1,
   ...commonProductData,
+  name: "Кекс фисташковый",
   image: "/photo/Rectangle 22.png",
  },
  {
   id: 2,
   ...commonProductData,
+  name: "Мусс «Облако»",
   image: "/photo/Rectangle 22-1.png",
  },
  {
   id: 3,
   ...commonProductData,
+  name: "Шоколадный шедевр",
   image: "/photo/Rectangle 22-2.png",
  },
  {
   id: 4,
   ...commonProductData,
+  name: "Пирожное Лайм",
   image: "/photo/Rectangle 22-3.png",
  },
  {
   id: 5,
   ...commonProductData,
+  name: "Макарон малина",
   image: "/photo/Rectangle 22-4.png",
  },
  {
   id: 6,
   ...commonProductData,
+  name: "Эклер фисташка",
   image: "/photo/Rectangle 22-5.png",
  },
  // Filler items for other categories

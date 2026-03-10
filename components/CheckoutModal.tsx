@@ -28,8 +28,12 @@ export default function CheckoutModal() {
  const checkout = () => rootStore.checkout()
  const { data: session, status } = useSession()
 
- const [step, setStep] = useState<1 | 2 | 3 | 4>(1)
+ const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1)
  const [deliveryType, setDeliveryType] = useState<DeliveryType>(null)
+ const [paymentMethod, setPaymentMethod] = useState<'sbp' | 'card' | null>(null)
+ const [cardNumber, setCardNumber] = useState('')
+ const [cardExpiry, setCardExpiry] = useState('')
+ const [cardCVC, setCardCVC] = useState('')
  const [tempAddress, setTempAddress] = useState(address)
  const [selectedPickup, setSelectedPickup] = useState<PickupPoint | null>(null)
  const [mapError, setMapError] = useState<string | null>(null)
@@ -75,6 +79,10 @@ export default function CheckoutModal() {
  const reset = () => {
   setStep(1)
   setDeliveryType(null)
+  setPaymentMethod(null)
+  setCardNumber('')
+  setCardExpiry('')
+  setCardCVC('')
   setTempAddress(address)
   setSelectedPickup(null)
   setMapError(null)
@@ -130,10 +138,26 @@ export default function CheckoutModal() {
   }
  }
 
+ const formatCardNumber = (val: string) => {
+  const digits = val.replace(/\D/g, '').substring(0, 16)
+  const groups = digits.match(/.{1,4}/g) || []
+  return groups.join(' ')
+ }
+
+ const formatExpiry = (val: string) => {
+  const digits = val.replace(/\D/g, '').substring(0, 4)
+  if (digits.length <= 2) return digits
+  return `${digits.substring(0, 2)}/${digits.substring(2, 4)}`
+ }
+
+ const isCardValid = cardNumber.replace(/\D/g, '').length === 16 &&
+  cardExpiry.length === 5 &&
+  cardCVC.length === 3
+
  const handleFinalCheckout = () => {
   const success = checkout()
   if (success) {
-   setStep(4)
+   setStep(5)
    setTimeout(() => {
     handleClose()
    }, 3000)
@@ -159,9 +183,9 @@ export default function CheckoutModal() {
    )}>
     {mapError && step === 2 ? mapError : text}
    </p>
-   {step > 1 && step < 4 && (
+   {step > 1 && step < 5 && (
     <button
-     onClick={() => setStep(step === 3 ? 2 : 1)}
+     onClick={() => setStep(step === 4 ? 3 : step === 3 ? 2 : 1)}
      className="flex items-center gap-2 text-[12px] font-bold text-[#6C5B52]/50 hover:text-[#6C5B52] transition-colors mt-2"
     >
      <ArrowLeft className="w-3.5 h-3.5" /> Назад
@@ -643,11 +667,168 @@ export default function CheckoutModal() {
           <div className="flex-1" />
 
           <button
-           onClick={handleFinalCheckout}
+           onClick={() => setStep(4)}
            disabled={!userName || !userPhone}
            className="w-full bg-[#CF8F73] disabled:bg-[#CF8F73]/40 disabled:cursor-not-allowed
 																rounded-[1.2rem] h-[60px] sm:h-[72px] text-white font-[800] text-[16px] sm:text-[18px]
 																hover:bg-[#b87a60] transition-all shadow-xl shadow-[#CF8F73]/20 active:scale-[0.98] mb-4 sm:mb-0"
+          >
+           Далее к оплате
+          </button>
+         </div>
+        </div>
+       </motion.div>
+      )}
+
+      {/* ───── STEP 4: Payment Selection ───── */}
+      {step === 4 && (
+       <motion.div
+        key="step4-payment"
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        className="flex flex-col sm:flex-row h-full w-full"
+       >
+        <LeftPanel
+         icon={
+          <div className="relative">
+           <div className="absolute -top-4 -right-4 w-8 h-8 bg-[#CF8F73] rounded-full flex items-center justify-center text-white text-[14px] font-black">!</div>
+           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#CF8F73" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
+           </svg>
+          </div>
+         }
+         text={<>Выберите удобный<br />способ оплаты</>}
+        />
+
+        <div className="flex-1 p-5 sm:p-8 md:p-10 flex flex-col overflow-y-auto no-scrollbar">
+         <div className="flex items-start justify-between mb-8">
+          <div>
+           <button onClick={() => setStep(3)} className="sm:hidden flex items-center gap-1.5 text-[12px] font-bold text-[#6C5B52]/50 mb-2">
+            <ArrowLeft className="w-3.5 h-3.5" /> Назад
+           </button>
+           <h2 className="text-[24px] font-[800] text-[#4A3F39] tracking-tight">Способ оплаты</h2>
+          </div>
+          <button onClick={handleClose} className="p-2 bg-[#FAF6F3] rounded-full text-[#6C5B52]/40 hover:text-[#4A3F39] transition-colors shrink-0">
+           <X className="w-5 h-5" />
+          </button>
+         </div>
+
+         <div className="flex flex-col gap-4 flex-1">
+          {/* SBP Option */}
+          <button
+           onClick={() => setPaymentMethod('sbp')}
+           className={cn(
+            "w-full p-6 rounded-[1.5rem] border-2 transition-all flex items-center gap-5 group",
+            paymentMethod === 'sbp' ? "border-[#CF8F73] bg-[#CF8F73]/5" : "border-[#4A3F39]/5 bg-[#FAF6F3] hover:border-[#CF8F73]/30"
+           )}
+          >
+           <div className={cn(
+            "w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm transition-colors",
+            paymentMethod === 'sbp' ? "bg-[#CF8F73] text-white" : "bg-white text-[#CF8F73]"
+           )}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+             <polyline points="16 3 21 3 21 8" /><line x1="4" y1="20" x2="21" y2="3" /><polyline points="21 16 21 21 16 21" /><line x1="15" y1="15" x2="21" y2="21" /><line x1="4" y1="4" x2="9" y2="9" />
+            </svg>
+           </div>
+           <div className="text-left flex-1">
+            <span className="block text-[18px] font-[800] text-[#4A3F39]">СБП</span>
+            <span className="block text-[13px] font-medium text-[#6C5B52]/60">Система быстрых платежей</span>
+           </div>
+           <div className={cn(
+            "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+            paymentMethod === 'sbp' ? "border-[#CF8F73] bg-[#CF8F73]" : "border-[#D8CEC8]"
+           )}>
+            {paymentMethod === 'sbp' && <div className="w-2 h-2 rounded-full bg-white" />}
+           </div>
+          </button>
+
+          {/* Card Option */}
+          <button
+           onClick={() => setPaymentMethod('card')}
+           className={cn(
+            "w-full p-6 rounded-[1.5rem] border-2 transition-all flex items-center gap-5 group",
+            paymentMethod === 'card' ? "border-[#CF8F73] bg-[#CF8F73]/5" : "border-[#4A3F39]/5 bg-[#FAF6F3] hover:border-[#CF8F73]/30"
+           )}
+          >
+           <div className={cn(
+            "w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm transition-colors",
+            paymentMethod === 'card' ? "bg-[#CF8F73] text-white" : "bg-white text-[#CF8F73]"
+           )}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+             <rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
+            </svg>
+           </div>
+           <div className="text-left flex-1">
+            <span className="block text-[18px] font-[800] text-[#4A3F39]">Картой</span>
+            <span className="block text-[13px] font-medium text-[#6C5B52]/60">Перевод по номеру карты</span>
+           </div>
+           <div className={cn(
+            "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+            paymentMethod === 'card' ? "border-[#CF8F73] bg-[#CF8F73]" : "border-[#D8CEC8]"
+           )}>
+            {paymentMethod === 'card' && <div className="w-2 h-2 rounded-full bg-white" />}
+           </div>
+          </button>
+
+          {paymentMethod === 'card' && (
+           <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mt-2 p-5 bg-white border border-[#4A3F39]/10 rounded-[1.2rem] shadow-sm flex flex-col gap-4"
+           >
+            <div>
+             <label className="text-[10px] font-bold text-[#6C5B52]/50 uppercase block mb-1.5 ml-1">Номер карты</label>
+             <div className="relative">
+              <input
+               type="text"
+               value={cardNumber}
+               onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+               placeholder="0000 0000 0000 0000"
+               className="w-full bg-[#FAF6F3] border-2 border-[#4A3F39]/5 rounded-[0.8rem] px-4 py-3
+																			text-[16px] font-[800] text-[#4A3F39] placeholder:text-[#6C5B52]/20
+																			focus:outline-none focus:border-[#CF8F73] transition-all"
+              />
+             </div>
+            </div>
+
+            <div className="flex gap-4">
+             <div className="flex-1">
+              <label className="text-[10px] font-bold text-[#6C5B52]/50 uppercase block mb-1.5 ml-1">Срок действия</label>
+              <input
+               type="text"
+               value={cardExpiry}
+               onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
+               placeholder="ММ/ГГ"
+               className="w-full bg-[#FAF6F3] border-2 border-[#4A3F39]/5 rounded-[0.8rem] px-4 py-3
+																				text-[16px] font-[800] text-[#4A3F39] placeholder:text-[#6C5B52]/20
+																				focus:outline-none focus:border-[#CF8F73] transition-all"
+              />
+             </div>
+             <div className="flex-1">
+              <label className="text-[10px] font-bold text-[#6C5B52]/50 uppercase block mb-1.5 ml-1">CVC / CVV</label>
+              <input
+               type="password"
+               value={cardCVC}
+               onChange={(e) => setCardCVC(e.target.value.replace(/\D/g, '').substring(0, 3))}
+               placeholder="•••"
+               className="w-full bg-[#FAF6F3] border-2 border-[#4A3F39]/5 rounded-[0.8rem] px-4 py-3
+																				text-[16px] font-[800] text-[#4A3F39] placeholder:text-[#6C5B52]/20
+																				focus:outline-none focus:border-[#CF8F73] transition-all"
+              />
+             </div>
+            </div>
+           </motion.div>
+          )}
+
+          <div className="flex-1 min-h-[20px]" />
+
+          <button
+           onClick={handleFinalCheckout}
+           disabled={!paymentMethod || (paymentMethod === 'card' && !isCardValid)}
+           className="w-full bg-[#CF8F73] disabled:bg-[#CF8F73]/40 disabled:cursor-not-allowed
+																rounded-[1.2rem] h-[60px] sm:h-[72px] text-white font-[800] text-[16px] sm:text-[18px]
+																hover:bg-[#b87a60] transition-all shadow-xl shadow-[#CF8F73]/20 active:scale-[0.98] mt-auto"
           >
            Оформить заказ
           </button>
@@ -656,10 +837,10 @@ export default function CheckoutModal() {
        </motion.div>
       )}
 
-      {/* ───── STEP 4: Success! ───── */}
-      {step === 4 && (
+      {/* ───── STEP 5: Success! ───── */}
+      {step === 5 && (
        <motion.div
-        key="step4-success"
+        key="step5-success"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
