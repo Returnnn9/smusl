@@ -33,7 +33,7 @@ const itemVariants = {
   y: 0,
   scale: 1,
   transition: {
-   type: "spring",
+   type: "spring" as const,
    damping: 25,
    stiffness: 200
   }
@@ -199,7 +199,7 @@ export default function AddressModal() {
      initial={{ opacity: 0, y: "100%" }}
      animate={{ opacity: 1, y: 0 }}
      exit={{ opacity: 0, y: "100%" }}
-     transition={{ type: "spring", damping: 32, stiffness: 280 }}
+     transition={{ type: "spring" as const, damping: 32, stiffness: 280 }}
      className="relative z-10 bg-white sm:bg-white/95 sm:backdrop-blur-[20px] rounded-t-[2rem] sm:rounded-[3rem] shadow-[0_-8px_40px_rgba(0,0,0,0.12)] sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] overflow-hidden flex w-full max-w-[900px] h-[95vh] sm:h-full font-manrope sm:border-l sm:border-white/20 mt-auto sm:mt-0"
     >
      <button onClick={handleClose} className="absolute top-6 right-6 z-50 p-2 bg-white/50 backdrop-blur-md rounded-full text-black hover:bg-white transition-colors sm:hidden">

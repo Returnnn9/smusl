@@ -1,5 +1,27 @@
 [
   {
+    "id": 1773181479835,
+    "items": [
+      {
+        "id": 6,
+        "name": "Эклер фисташка",
+        "image": "/photo/Rectangle 22-5.png",
+        "price": 399,
+        "quantity": 1
+      },
+      {
+        "id": 2,
+        "name": "Мусс «Облако»",
+        "image": "/photo/Rectangle 22-1.png",
+        "price": 399,
+        "quantity": 4
+      }
+    ],
+    "total": 1995,
+    "date": "11 марта 2026 г.",
+    "address": "Москва"
+  },
+  {
     "id": 1773181245311,
     "items": [
       {

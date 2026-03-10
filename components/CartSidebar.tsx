@@ -68,7 +68,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isMobile = false, onClose }) 
          animate={{ opacity: 1, y: 0 }}
          exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
          whileTap={isMobile ? { scale: 0.98 } : {}}
-         transition={{ type: "spring", stiffness: 400, damping: 30 }}
+         transition={{ type: "spring" as const, stiffness: 400, damping: 30 }}
          className="relative group shrink-0"
         >
          {isMobile && (
