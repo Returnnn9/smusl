@@ -115,6 +115,15 @@ export class UserStore extends EventEmitter {
    ...this.notifications,
   ];
 
+  // Persist order globally to backend
+  if (typeof window !== "undefined") {
+   fetch('/api/orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(order)
+   }).catch(err => console.error("Failed to persist order globally:", err));
+  }
+
   this.saveOrders();
   this.emitChange();
   return true;
