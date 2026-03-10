@@ -4,7 +4,7 @@ import React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { User, MapPin, Search, ChevronDown } from "lucide-react"
-import { useApp } from "@/store/AppContext"
+import { useUIStore, useUserStore, useStoreData } from "@/store/hooks"
 import { useSession } from "next-auth/react"
 import { cn } from "@/lib/utils"
 
@@ -19,15 +19,17 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
- const {
-  setAddressModalOpen,
-  address,
-  deliveryType,
-  activeCategory,
-  setActiveCategory,
-  searchQuery,
-  setSearchQuery,
- } = useApp()
+ const uiStore = useUIStore()
+ const userStore = useUserStore()
+
+ const address = useStoreData(userStore, s => s.getAddress())
+ const deliveryType = useStoreData(userStore, s => s.getDeliveryType())
+ const activeCategory = useStoreData(uiStore, s => s.getActiveCategory())
+ const searchQuery = useStoreData(uiStore, s => s.getSearchQuery())
+
+ const setAddressModalOpen = (o: boolean) => uiStore.setAddressModalOpen(o)
+ const setActiveCategory = (c: string) => uiStore.setActiveCategory(c)
+ const setSearchQuery = (q: string) => uiStore.setSearchQuery(q)
 
  const { status } = useSession()
  const isAuthenticated = status === "authenticated"

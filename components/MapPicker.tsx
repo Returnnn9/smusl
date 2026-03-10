@@ -556,7 +556,7 @@ export default function MapPicker({ initialAddress, onAddressSelect, onAddressDe
    {useYandex ? (
     <div className="relative flex-1 rounded-[2.5rem] overflow-hidden border-2 border-smusl-light-gray/30 bg-[#f8f6f2] z-0">
      {!isLoaded && (
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-smusl-beige/50 backdrop-blur-sm">
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-smusl-beige/80">
        <Loader2 className="w-10 h-10 text-smusl-terracotta animate-spin" />
        <span className="text-sm font-bold text-smusl-terracotta">Загрузка карты...</span>
       </div>

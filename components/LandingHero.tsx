@@ -11,7 +11,31 @@ const LandingHero = () => {
 
  return (
   <section className="relative pt-24 pb-32 bg-[#FAF8F5] overflow-hidden">
-   <div className="w-full px-4 md:px-10 lg:px-16">
+   {/* Decorative breathing elements */}
+   <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    <motion.div
+     animate={{
+      scale: [1, 1.2, 1],
+      opacity: [0.1, 0.2, 0.1],
+      x: [0, 50, 0],
+      y: [0, -30, 0],
+     }}
+     transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+     className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-smusl-terracotta/20 rounded-full blur-[120px]"
+    />
+    <motion.div
+     animate={{
+      scale: [1, 1.3, 1],
+      opacity: [0.05, 0.15, 0.05],
+      x: [0, -40, 0],
+      y: [0, 60, 0],
+     }}
+     transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+     className="absolute bottom-[-10%] right-[-5%] w-[700px] h-[700px] bg-smusl-red/10 rounded-full blur-[140px]"
+    />
+   </div>
+
+   <div className="w-full px-4 md:px-10 lg:px-16 relative z-10">
     <motion.div
      initial={{ opacity: 0, y: 30 }}
      animate={{ opacity: 1, y: 0 }}
@@ -28,29 +52,37 @@ const LandingHero = () => {
      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/5" />
     </motion.div>
 
-    {/* Headline */}
-    <div className="mt-16 md:mt-24 w-full flex flex-col items-center text-center lg:items-start lg:text-left h-auto">
-     <div className="flex flex-col space-y-4 md:space-y-6 lg:space-y-8 w-full">
+    {/* Headline Container */}
+    <div className="mt-16 md:mt-24 w-full flex flex-col items-center text-center lg:items-start lg:text-left h-auto relative">
+     <div className="flex flex-col space-y-2 md:space-y-4 lg:space-y-6 w-full">
       {/* Row 1 */}
       <motion.div
        style={{ y: y1 }}
-       initial={{ opacity: 0, x: -50 }}
+       initial={{ opacity: 0, x: -30 }}
        whileInView={{ opacity: 1, x: 0 }}
-       transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+       transition={{ duration: 1.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
        className="flex flex-col lg:flex-row items-center lg:items-baseline justify-between w-full"
       >
-       <h1 className="text-[36px] md:text-[64px] lg:text-[100px] xl:text-[140px] font-extrabold text-smusl-red uppercase tracking-tighter leading-[1.1] md:leading-[0.9]">
-        БЕЗГЛЮТЕНОВЫЙ
-       </h1>
-       <div className="flex items-center relative mt-4 lg:mt-0 lg:ml-8">
+       <div className="relative group">
+        <h1 className="text-[36px] md:text-[70px] lg:text-[110px] xl:text-[150px] font-extrabold text-smusl-red uppercase tracking-[-0.04em] leading-[0.9] relative z-10">
+         БЕЗГЛЮТЕНОВЫЙ
+        </h1>
+        {/* Subtle glow behind text */}
+        <div className="absolute inset-0 bg-smusl-red/5 blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+       </div>
+
+       <div className="flex items-center relative mt-4 lg:mt-0 lg:ml-8 translate-y-2">
         <motion.span
-         animate={{ y: [0, -10, 0] }}
-         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-         className="font-script text-[60px] md:text-[100px] lg:text-[140px] xl:text-[160px] text-smusl-red leading-none select-none pointer-events-none drop-shadow-sm origin-bottom translate-y-2 lg:translate-y-4"
+         animate={{
+          y: [0, -15, 0],
+          rotate: [-2, 2, -2]
+         }}
+         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+         className="font-script text-[60px] md:text-[110px] lg:text-[150px] xl:text-[170px] text-smusl-red leading-none select-none pointer-events-none drop-shadow-sm origin-bottom translate-y-4"
         >
          Х
         </motion.span>
-        <h1 className="text-[36px] md:text-[64px] lg:text-[100px] xl:text-[140px] font-extrabold text-smusl-red uppercase tracking-tighter leading-[1.1] md:leading-[0.9] -ml-2 lg:-ml-4 relative z-10">
+        <h1 className="text-[36px] md:text-[70px] lg:text-[110px] xl:text-[150px] font-extrabold text-smusl-red uppercase tracking-[-0.04em] leading-[0.9] -ml-2 lg:-ml-4 relative z-10">
          ЛЕБ
         </h1>
        </div>
@@ -59,33 +91,47 @@ const LandingHero = () => {
       {/* Row 2 */}
       <motion.div
        style={{ y: y2 }}
-       initial={{ opacity: 0, x: 50 }}
+       initial={{ opacity: 0, x: 30 }}
        whileInView={{ opacity: 1, x: 0 }}
-       transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+       transition={{ duration: 1.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
        className="flex flex-col lg:flex-row items-center lg:items-baseline justify-between w-full"
       >
-       <h1 className="text-[36px] md:text-[64px] lg:text-[100px] xl:text-[140px] font-extrabold text-smusl-red uppercase tracking-tighter leading-[1.1] md:leading-[0.9] hidden lg:block">
+       <h1 className="text-[36px] md:text-[70px] lg:text-[110px] xl:text-[150px] font-extrabold text-smusl-red uppercase tracking-[-0.04em] leading-[0.9] hidden lg:block">
         И
        </h1>
-       <div className="flex items-center mt-4 lg:mt-0">
-        <h1 className="text-[36px] md:text-[64px] lg:text-[100px] xl:text-[140px] font-extrabold text-smusl-red uppercase tracking-tighter leading-[1.1] md:leading-[0.9] lg:hidden mr-4">
+       <div className="flex items-center mt-4 lg:mt-0 lg:translate-y-2">
+        <h1 className="text-[36px] md:text-[70px] lg:text-[110px] xl:text-[150px] font-extrabold text-smusl-red uppercase tracking-[-0.04em] leading-[0.9] lg:hidden mr-4">
          И
         </h1>
-        <div className="relative isolate translate-y-2 lg:translate-y-4 pr-2 md:pr-4">
+        <div className="relative isolate translate-y-4 pr-2 md:pr-6">
          <motion.span
-          animate={{ y: [0, -12, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="font-script text-[70px] md:text-[110px] lg:text-[150px] xl:text-[180px] text-smusl-red leading-none select-none pointer-events-none drop-shadow-sm inline-block translate-y-2 lg:translate-y-4"
+          animate={{
+           y: [0, -20, 0],
+           scale: [1, 1.05, 1]
+          }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+          className="font-script text-[70px] md:text-[120px] lg:text-[160px] xl:text-[190px] text-smusl-red leading-none select-none pointer-events-none drop-shadow-sm inline-block translate-y-4"
          >
           Д
          </motion.span>
         </div>
-        <h1 className="text-[36px] md:text-[64px] lg:text-[100px] xl:text-[140px] font-extrabold text-smusl-red uppercase tracking-tighter leading-[1.1] md:leading-[0.9] -ml-2 lg:-ml-4 relative z-10">
+        <h1 className="text-[36px] md:text-[70px] lg:text-[110px] xl:text-[150px] font-extrabold text-smusl-red uppercase tracking-[-0.04em] leading-[0.9] -ml-2 lg:-ml-4 relative z-10">
          ЕСЕРТЫ В МОСКВЕ
         </h1>
        </div>
       </motion.div>
      </div>
+
+     {/* Floating glass call to action hint */}
+     <motion.div
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      transition={{ delay: 1 }}
+      className="mt-12 hidden lg:flex items-center gap-4 text-smusl-red/40 font-bold tracking-widest text-[11px] uppercase"
+     >
+      <div className="w-12 h-[1px] bg-smusl-red/20" />
+      Scroll to discover
+     </motion.div>
     </div>
    </div>
   </section>

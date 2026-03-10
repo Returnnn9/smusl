@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Lock, User, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
-import { useApp } from "@/store/AppContext";
+import { useUIStore, useUserStore, useStoreData } from "@/store/hooks";
 
 // --- Local user store (localStorage) ---
 interface LocalUser { name: string; email: string; passwordHash: string; }
@@ -33,7 +33,13 @@ function saveUsers(users: LocalUser[]) {
 // ----------------------------------------
 
 const LoginModal: React.FC = () => {
- const { isAuthModalOpen, setAuthModalOpen, setUserName } = useApp();
+ const uiStore = useUIStore();
+ const userStore = useUserStore();
+
+ const isAuthModalOpen = useStoreData(uiStore, s => s.getIsAuthModalOpen());
+ const setAuthModalOpen = (open: boolean) => uiStore.setAuthModalOpen(open);
+ const setUserName = (name: string) => userStore.setUserName(name);
+
  const [isLogin, setIsLogin] = useState(true);
  const [isLoading, setIsLoading] = useState(false);
  const [error, setError] = useState("");
@@ -124,14 +130,14 @@ const LoginModal: React.FC = () => {
      animate={{ opacity: 1 }}
      exit={{ opacity: 0 }}
      onClick={() => setAuthModalOpen(false)}
-     className="fixed inset-0 bg-[#4A403A]/40 backdrop-blur-sm"
+     className="fixed inset-0 bg-[#3A332E]/60"
     />
 
     <motion.div
      initial={{ opacity: 0, scale: 0.9, y: 20 }}
      animate={{ opacity: 1, scale: 1, y: 0 }}
      exit={{ opacity: 0, scale: 0.9, y: 20 }}
-     className="relative w-full max-w-[440px] bg-white/97 backdrop-blur-xl rounded-[40px] shadow-2xl overflow-hidden border border-white/20 my-auto"
+     className="relative w-full max-w-[440px] bg-white rounded-[40px] shadow-2xl overflow-hidden border border-white/20 my-auto"
     >
      <button
       onClick={() => setAuthModalOpen(false)}
@@ -158,10 +164,23 @@ const LoginModal: React.FC = () => {
       <button
        type="button"
        disabled
-       className="w-full flex items-center justify-center gap-3 py-3.5 bg-white border-2 border-[#EBEBEB] rounded-2xl font-bold text-[14px] text-[#4A403A]/40 cursor-not-allowed mb-6"
+       className="w-full flex items-center justify-center gap-3 py-3.5 bg-white border-2 border-[#EBEBEB] rounded-2xl font-bold text-[14px] text-[#4A403A]/40 cursor-not-allowed mb-3"
       >
        <GoogleIcon />
        <span>Продолжить через Google</span>
+       <span className="text-[11px] font-normal ml-1">(скоро)</span>
+      </button>
+
+      {/* Apple button (visual only — real OAuth requires server) */}
+      <button
+       type="button"
+       disabled
+       className="w-full flex items-center justify-center gap-3 py-3.5 bg-black border-2 border-black rounded-2xl font-bold text-[14px] text-[#A1A1A1] cursor-not-allowed mb-6"
+      >
+       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-[#A1A1A1]">
+        <path d="M16.364 12.879c-.024-2.585 2.112-3.83 2.208-3.886-1.206-1.763-3.078-2.002-3.744-2.032-1.587-.16-3.096.936-3.912.936-.816 0-2.064-.912-3.384-.888-1.728.024-3.324.996-4.212 2.544-1.812 3.132-.468 7.764 1.308 10.32 .864 1.248 1.908 2.652 3.252 2.604 1.296-.048 1.788-.828 3.324-.828 1.524 0 1.98.828 3.336.804 1.404-.024 2.292-1.272 3.144-2.52.984-1.44 1.392-2.832 1.416-2.904-.036-.012-2.712-1.044-2.736-4.152zM14.904 8.783c.708-.852 1.188-2.04 1.056-3.216-1.008.036-2.256.672-2.988 1.536-.576.66-1.152 1.884-.996 3.036 1.128.084 2.22-.552 2.928-1.356z" />
+       </svg>
+       <span>Продолжить через Apple</span>
        <span className="text-[11px] font-normal ml-1">(скоро)</span>
       </button>
 

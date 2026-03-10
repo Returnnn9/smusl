@@ -1,0 +1,149 @@
+import { EventEmitter } from "../core/EventEmitter";
+import { Order, CartItem, Notification } from "../types";
+import type { RootStore } from "./RootStore";
+
+export class UserStore extends EventEmitter {
+ private root: RootStore;
+
+ private balance: number = 1250;
+ private activeOrders: number = 1;
+ private address: string = "";
+ private deliveryType: "delivery" | "pickup" | null = null;
+ private hasSetAddress: boolean = false;
+
+ private notifications: Notification[] = [
+  { id: 1, message: "Заказ #4049 передан курьеру", read: false },
+ ];
+ private userName: string = "";
+ private userPhone: string = "";
+ private favorites: number[] = [];
+ private orderHistory: Order[] = [];
+
+ constructor(rootStore: RootStore) {
+  super();
+  this.root = rootStore;
+ }
+
+ init(data: {
+  favorites: number[];
+  orderHistory: Order[];
+  address: string | null;
+  deliveryType: "delivery" | "pickup" | null;
+  userName: string | null;
+  userPhone: string | null;
+  hasSetAddress: boolean;
+ }) {
+  this.favorites = data.favorites;
+  this.orderHistory = data.orderHistory;
+  if (data.address) this.address = data.address;
+  if (data.deliveryType) this.deliveryType = data.deliveryType;
+  if (data.userName) this.userName = data.userName;
+  if (data.userPhone) this.userPhone = data.userPhone;
+  this.hasSetAddress = data.hasSetAddress;
+  this.emitChange();
+ }
+
+ // Getters
+ getBalance() { return this.balance; }
+ getActiveOrders() { return this.activeOrders; }
+ getAddress() { return this.address; }
+ getDeliveryType() { return this.deliveryType; }
+ getHasSetAddress() { return this.hasSetAddress; }
+ getNotifications() { return this.notifications; }
+ getUserName() { return this.userName; }
+ getUserPhone() { return this.userPhone; }
+ getFavorites() { return this.favorites; }
+ getOrderHistory() { return this.orderHistory; }
+
+ // Actions
+ topUpBalance(amount: number) {
+  this.balance += amount;
+  this.emitChange();
+ }
+
+ updateAddress(newAddress: string, type: "delivery" | "pickup") {
+  this.address = newAddress;
+  this.deliveryType = type;
+  this.hasSetAddress = true;
+  this.saveAddress();
+  this.emitChange();
+ }
+
+ setHasSetAddress(val: boolean) {
+  this.hasSetAddress = val;
+  this.saveAddress();
+  this.emitChange();
+ }
+
+ setUserName(name: string) {
+  this.userName = name;
+  this.saveUser();
+  this.emitChange();
+ }
+
+ setUserPhone(phone: string) {
+  this.userPhone = phone;
+  this.saveUser();
+  this.emitChange();
+ }
+
+ toggleFavorite(productId: number) {
+  if (this.favorites.includes(productId)) {
+   this.favorites = this.favorites.filter((id) => id !== productId);
+  } else {
+   this.favorites = [...this.favorites, productId];
+  }
+  this.saveFavorites();
+  this.emitChange();
+ }
+
+ checkout(cartItems: CartItem[], total: number): boolean {
+  if (cartItems.length === 0) return false;
+
+  const order: Order = {
+   id: Date.now(),
+   items: [...cartItems],
+   total,
+   date: new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" }),
+   address: this.address,
+  };
+
+  this.orderHistory = [order, ...this.orderHistory];
+  this.activeOrders += 1;
+  this.notifications = [
+   { id: Date.now(), message: `Заказ на сумму ${total} ₽ успешно оформлен`, read: false },
+   ...this.notifications,
+  ];
+
+  this.saveOrders();
+  this.emitChange();
+  return true;
+ }
+
+ private saveAddress() {
+  if (typeof window !== "undefined") {
+   localStorage.setItem("smuslest_address", this.address);
+   localStorage.setItem("smuslest_delivery_type", this.deliveryType || "");
+   localStorage.setItem("smuslest_has_set_address", String(this.hasSetAddress));
+  }
+ }
+
+ private saveUser() {
+  if (typeof window !== "undefined") {
+   localStorage.setItem("smuslest_name", this.userName);
+   localStorage.setItem("smuslest_phone", this.userPhone);
+  }
+ }
+
+ private saveFavorites() {
+  if (typeof window !== "undefined") {
+   localStorage.setItem("smuslest_favorites", JSON.stringify(this.favorites));
+  }
+ }
+
+ private saveOrders() {
+  if (typeof window !== "undefined") {
+   localStorage.setItem("smuslest_orders", JSON.stringify(this.orderHistory));
+  }
+ }
+}

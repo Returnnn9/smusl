@@ -3,12 +3,22 @@
 import React, { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, ShoppingBag, Heart } from "lucide-react"
-import { useApp } from "@/store/AppContext"
+import { useUIStore, useCartStore, useUserStore, useStoreData } from "@/store/hooks"
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function ProductDetailsModal() {
- const { selectedProduct, setSelectedProduct, addToCart, favorites, toggleFavorite } = useApp()
+ const uiStore = useUIStore()
+ const cartStore = useCartStore()
+ const userStore = useUserStore()
+
+ const selectedProduct = useStoreData(uiStore, s => s.getSelectedProduct())
+ const favorites = useStoreData(userStore, s => s.getFavorites())
+
+ const setSelectedProduct = (p: any) => uiStore.setSelectedProduct(p)
+ const addToCart = (p: any, q?: number) => cartStore.addToCart(p, q)
+ const toggleFavorite = (id: number) => userStore.toggleFavorite(id)
+
  const [quantity, setQuantity] = useState(1)
 
  const handleClose = () => {
@@ -18,7 +28,7 @@ export default function ProductDetailsModal() {
 
  const handleAddToCart = () => {
   if (!selectedProduct) return
-  for (let i = 0; i < quantity; i++) addToCart(selectedProduct)
+  addToCart(selectedProduct, quantity)
   handleClose()
  }
 
@@ -32,7 +42,7 @@ export default function ProductDetailsModal() {
   return (
    <>
     {/* Image & Buttons */}
-    <div className="w-full bg-[#EBE7E2] overflow-hidden aspect-[4/3] sm:aspect-[16/9] relative shrink-0 flex items-center justify-center group">
+    <div className="w-full bg-[#EBE7E2] overflow-hidden aspect-[4/3] sm:aspect-[16/9] relative shrink-0 flex items-center justify-center group rounded-t-[2rem] sm:rounded-t-none">
      {selectedProduct.image ? (
       <motion.img
        src={selectedProduct.image}
@@ -49,7 +59,7 @@ export default function ProductDetailsModal() {
      {/* Close Button */}
      <button
       onClick={handleClose}
-      className="absolute top-4 left-4 sm:top-5 sm:left-5 h-10 w-10 rounded-full bg-white/90 backdrop-blur-md shadow-xl flex items-center justify-center text-[#4A403A] hover:bg-[#FDF4EE] transition-colors z-10"
+      className="absolute top-4 left-4 sm:top-5 sm:left-5 h-10 w-10 rounded-full bg-[#EBE7E2]/50 border border-[#4A403A]/10 shadow-sm flex items-center justify-center text-[#4A403A] hover:bg-[#EBE7E2] transition-colors z-10"
      >
       <X className="w-5 h-5 sm:w-6 sm:h-6" />
      </button>
@@ -57,7 +67,7 @@ export default function ProductDetailsModal() {
      {/* Favorite Button */}
      <button
       onClick={(e) => { e.stopPropagation(); toggleFavorite(selectedProduct.id); }}
-      className={`absolute top-4 right-4 sm:top-5 sm:right-5 h-10 w-10 rounded-full bg-white/90 backdrop-blur-md shadow-xl flex items-center justify-center transition-colors z-10 ${isFavorite ? "text-[#e94e4e]" : "text-[#D8D8D8] hover:text-[#CF8F73]"
+      className={`absolute top-4 right-4 sm:top-5 sm:right-5 h-10 w-10 rounded-full bg-[#EBE7E2]/50 border border-[#4A403A]/10 shadow-sm flex items-center justify-center transition-colors z-10 ${isFavorite ? "text-[#e94e4e] bg-[#EBE7E2]" : "text-[#4A403A]/40 hover:text-[#CF8F73] hover:bg-[#EBE7E2]"
        }`}
      >
       <Heart className="w-5 h-5" fill={isFavorite ? "currentColor" : "none"} />
@@ -164,7 +174,7 @@ export default function ProductDetailsModal() {
      {/* Overlay */}
      <motion.div
       key="overlay"
-      className="fixed inset-0 z-[100] bg-[#4A403A]/40 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] bg-[#3A332E]/60"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -181,10 +191,10 @@ export default function ProductDetailsModal() {
       exit={{ y: "100%" }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
      >
-      <div className="relative bg-white rounded-t-[2rem] shadow-2xl w-full max-h-[92dvh] overflow-y-auto flex flex-col font-montserrat">
+      <div className="relative bg-[#F5E6DA] rounded-t-[2.5rem] shadow-2xl w-full max-h-[92dvh] overflow-y-auto flex flex-col font-montserrat pb-20">
        {/* Drag handle */}
-       <div className="sticky top-0 z-20 flex justify-center pt-3 pb-1 bg-white/80 backdrop-blur-sm">
-        <div className="w-10 h-1 rounded-full bg-[#4A403A]/15" />
+       <div className="sticky top-0 z-20 flex justify-center pt-3 pb-2 bg-[#F5E6DA]/95">
+        <div className="w-12 h-1.5 rounded-full bg-[#4A403A]/15" />
        </div>
        {renderContent()}
       </div>
@@ -199,7 +209,7 @@ export default function ProductDetailsModal() {
       exit={{ x: "100%" }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
      >
-      <div className="relative bg-white shadow-2xl w-[min(680px,100vw)] h-full overflow-y-auto flex flex-col font-montserrat">
+      <div className="relative bg-[#FDF8ED] shadow-2xl w-[min(680px,100vw)] h-full overflow-y-auto flex flex-col font-montserrat">
        {renderContent()}
       </div>
      </motion.div>

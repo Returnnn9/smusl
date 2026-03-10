@@ -7,7 +7,8 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowLeft, Clock, Heart, ShoppingBag, Minus, Plus, Trash2, LogOut, RotateCcw } from "lucide-react"
-import { useApp, Product, CartItem } from "@/store/AppContext"
+import { Product, CartItem } from "@/store/types"
+import { useUIStore, useCartStore, useUserStore, useStoreData } from "@/store/hooks"
 import { products } from "@/components/data"
 import ProductCard from "@/components/ProductCard"
 import { ProductCardSkeleton } from "@/components/Skeleton"
@@ -119,7 +120,19 @@ function CartItemRow({ item, index, isLast, onDecrement, onIncrement, onRemove }
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
- const { addToCart, addMultipleToCart, updateQuantity, setAuthModalOpen, setUserName, favorites, orderHistory, cart } = useApp()
+ const uiStore = useUIStore()
+ const cartStore = useCartStore()
+ const userStore = useUserStore()
+
+ const cart = useStoreData(cartStore, s => s.getCart())
+ const favorites = useStoreData(userStore, s => s.getFavorites())
+ const orderHistory = useStoreData(userStore, s => s.getOrderHistory())
+
+ const setAuthModalOpen = (o: boolean) => uiStore.setAuthModalOpen(o)
+ const setUserName = (n: string) => userStore.setUserName(n)
+ const addToCart = (p: Product) => cartStore.addToCart(p)
+ const addMultipleToCart = (p: Product[]) => cartStore.addMultipleToCart(p)
+ const updateQuantity = (id: number, d: number) => cartStore.updateQuantity(id, d)
  const [localSession, setLocalSession] = useState<LocalSession | null>(null)
  const [activeTab, setActiveTab] = useState<TabLabel>("История заказов")
  const [isLoading, setIsLoading] = useState(true)

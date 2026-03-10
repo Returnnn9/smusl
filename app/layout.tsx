@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope, Great_Vibes } from "next/font/google";
 import "./globals.css";
-import { AppProvider } from "@/store/AppContext";
+import { StoreProvider } from "@/store/StoreProvider";
 import { Providers } from "@/components/Providers";
 import dynamic from "next/dynamic";
 const LoginModal = dynamic(() => import("@/components/LoginModal"));
@@ -61,11 +61,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
    <body className="antialiased font-manrope bg-[#FDF8ED]">
 
     <Providers>
-     <AppProvider>
+     <StoreProvider>
       {children}
       <LoginModal />
       <AddressModal />
-     </AppProvider>
+     </StoreProvider>
     </Providers>
    </body>
   </html>

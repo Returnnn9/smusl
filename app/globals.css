@@ -30,6 +30,15 @@
 }
 
 @layer base {
+
+ /* Hide Vercel/Next.js Dev Toolbars and Analytics badges */
+ #vercel-live-feedback,
+ [data-vercel-toolbar],
+ .vercel-analytics-badge,
+ #vercel-analytics-badge {
+  display: none !important;
+ }
+
  html {
   scroll-behavior: smooth;
  }

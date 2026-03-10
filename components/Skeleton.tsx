@@ -6,20 +6,30 @@ export const Skeleton = ({ className }: { className?: string }) => (
 )
 
 export const ProductCardSkeleton = () => (
- <div className="bg-white rounded-[2.5rem] border border-smusl-light-gray p-6 flex flex-col gap-6">
-  <Skeleton className="aspect-square w-full rounded-[2rem]" />
-  <div className="flex-1 space-y-4">
-   <div className="flex justify-between items-start gap-4">
-    <div className="flex-1 space-y-2">
-     <Skeleton className="h-5 w-3/4" />
-     <Skeleton className="h-4 w-1/2" />
+ <div className="bg-[#FAF7F5] rounded-[1.2rem] sm:rounded-[1.5rem] border border-[#F2F2F2] h-full flex flex-col p-1.5 sm:p-3 shadow-sm">
+  <div className="p-1">
+   <Skeleton className="aspect-[4/3] w-full rounded-[0.8rem] sm:rounded-[1.1rem] bg-[#F0EAE4] mb-2 sm:mb-2" />
+  </div>
+
+
+  <div className="flex-1 flex flex-col gap-3 sm:gap-4 px-2 xs:px-3 sm:px-4 pb-3 sm:pb-4">
+   <div className="space-y-1.5 sm:space-y-2">
+    <div className="flex flex-col xl:flex-row xl:items-baseline justify-between gap-1.5 xl:gap-3">
+     <div className="space-y-1.5 w-full xl:w-2/3 min-h-[2.4em] flex flex-col justify-center">
+      <Skeleton className="h-4 xs:h-4 sm:h-4 xl:h-5 w-full bg-[#F0EAE4] rounded-[4px]" />
+      <Skeleton className="h-4 xs:h-4 sm:h-4 xl:h-5 w-2/3 bg-[#F0EAE4] rounded-[4px]" />
+     </div>
+     <Skeleton className="h-4 xs:h-[18px] sm:h-[18px] xl:h-[22px] w-20 bg-[#F0EAE4] rounded-[4px] mt-1" />
     </div>
-    <div className="text-right space-y-2">
-     <Skeleton className="h-5 w-16" />
-     <Skeleton className="h-3 w-12 ml-auto" />
+
+    {/* Row 2: Weight & Stock */}
+    <div className="flex items-center justify-between mt-1">
+     <Skeleton className="h-3 xs:h-3.5 sm:h-3.5 xl:h-4 w-8 bg-[#F0EAE4] rounded-[4px]" />
+     <Skeleton className="h-3 xs:h-3.5 sm:h-[13px] xl:h-4 w-20 bg-[#F0EAE4] rounded-[4px]" />
     </div>
    </div>
-   <Skeleton className="h-14 w-full rounded-[1.2rem]" />
+
+   <Skeleton className="w-full h-11 xs:h-12 sm:h-13 xl:h-14 mt-auto bg-[#F0EAE4] rounded-[0.8rem] sm:rounded-[0.9rem]" />
   </div>
  </div>
 )

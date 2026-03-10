@@ -11,21 +11,24 @@ const ProductDetailsModal = dynamic(() => import("@/components/ProductDetailsMod
 const AddressModal = dynamic(() => import("@/components/AddressModal"), { ssr: false })
 import { Search, ShoppingCart, X } from "lucide-react"
 import { products } from "@/components/data"
-import { useApp } from "@/store/AppContext"
+import { useUIStore, useCartStore, useStoreData } from "@/store/hooks"
 import { ProductCardSkeleton } from "@/components/Skeleton"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function Home() {
- const {
-  addToCart,
-  isCartOpen,
-  setCartOpen,
-  cart,
-  activeCategory,
-  setActiveCategory,
-  searchQuery,
-  selectedProduct
- } = useApp();
+ const uiStore = useUIStore()
+ const cartStore = useCartStore()
+
+ const isCartOpen = useStoreData(uiStore, s => s.getIsCartOpen())
+ const activeCategory = useStoreData(uiStore, s => s.getActiveCategory())
+ const searchQuery = useStoreData(uiStore, s => s.getSearchQuery())
+ const selectedProduct = useStoreData(uiStore, s => s.getSelectedProduct())
+
+ const cart = useStoreData(cartStore, s => s.getCart())
+
+ const setCartOpen = (o: boolean) => uiStore.setCartOpen(o)
+ const setActiveCategory = (c: string) => uiStore.setActiveCategory(c)
+ const addToCart = (p: any) => cartStore.addToCart(p)
  const [isLoading, setIsLoading] = useState(true);
 
  useEffect(() => {
@@ -51,7 +54,7 @@ export default function Home() {
   <div className="min-h-screen bg-[#F5E6DA]/40 font-montserrat flex flex-col">
    <Header />
 
-   <main className="flex-1 w-full px-8 sm:px-6 lg:px-10 pb-20 pt-2 lg:pt-6">
+   <main className="flex-1 w-full px-4 sm:px-6 lg:px-10 pb-20 pt-4 lg:pt-6">
 
     <div className="mb-8">
      <p className="text-[14px] sm:text-[16px] font-medium text-[#4A403A]/60">
@@ -106,27 +109,32 @@ export default function Home() {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={() => setCartOpen(false)}
-        className="absolute inset-0 bg-[#2A1F1A]/50 backdrop-blur-md"
+        className="absolute inset-0 bg-[#2A1F1A]/70"
        />
-       {/* Drawer Panel */}
+       {/* Bottom Sheet Panel */}
        <motion.div
-        initial={{ x: "100%" }}
-        animate={{ x: 0 }}
-        exit={{ x: "100%" }}
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="absolute right-0 top-0 h-full w-[88%] max-w-[420px] bg-[#F5E6DA] p-6 flex flex-col shadow-2xl"
+        drag="y"
+        dragConstraints={{ top: 0 }}
+        dragElastic={0.2}
+        onDragEnd={(e, { offset, velocity }) => {
+         if (offset.y > 150 || velocity.y > 500) {
+          setCartOpen(false)
+         }
+        }}
+        className="absolute bottom-0 w-full h-[88vh] bg-[#F5E6DA] rounded-t-[2.5rem] flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.1)] overflow-hidden"
        >
-        <div className="flex justify-between items-center mb-6">
-         <h3 className="text-[20px] font-black text-[#4A403A]">Ваша корзина</h3>
-         <button
-          onClick={() => setCartOpen(false)}
-          className="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-[#4A403A]/60 hover:text-[#4A403A] transition-colors"
-         >
-          <X className="w-5 h-5" />
-         </button>
+        <div
+         className="w-full pt-4 pb-2 flex items-center justify-center shrink-0 cursor-grab active:cursor-grabbing"
+         onClick={() => setCartOpen(false)}
+        >
+         <div className="w-12 h-1.5 rounded-full bg-[#4A403A]/20" />
         </div>
-        <div className="flex-1 overflow-y-auto scrollbar-hide -mx-6 px-6">
-         <CartSidebar />
+        <div className="flex-1 overflow-y-auto w-full px-2 sm:px-6 pb-6 scrollbar-hide">
+         <CartSidebar isMobile={true} onClose={() => setCartOpen(false)} />
         </div>
        </motion.div>
       </div>
@@ -142,23 +150,35 @@ export default function Home() {
        exit={{ y: 100 }}
        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-[400px] sm:hidden"
       >
-       <button
+       <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => setCartOpen(true)}
-        className="w-full bg-[#CD8B70] text-white px-5 py-3.5 rounded-full shadow-[0_8px_30px_rgb(205,139,112,0.4)] flex relative items-center justify-between active:scale-[0.98] transition-transform"
+        className="w-full bg-[#CD8B70] text-white px-5 py-3.5 rounded-full shadow-[0_8px_30px_rgb(205,139,112,0.4)] flex relative items-center justify-between transition-colors overflow-hidden group"
        >
-        <div className="flex items-center gap-3">
+        <motion.div
+         className="absolute inset-0 bg-white/20"
+         animate={{ opacity: [0, 0.4, 0] }}
+         transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+        />
+        <div className="flex items-center gap-3 relative z-10">
          <div className="relative">
           <ShoppingCart className="w-6 h-6" />
-          <div className="absolute -top-1.5 -right-2 bg-white text-[#CD8B70] text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+          <motion.div
+           initial={{ scale: 0 }}
+           animate={{ scale: 1 }}
+           key={cart.length}
+           className="absolute -top-1.5 -right-2 bg-[#F5E6DA] text-[#CD8B70] text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm"
+          >
            {cart.reduce((sum, item) => sum + item.quantity, 0)}
-          </div>
+          </motion.div>
          </div>
          <span className="font-bold text-[17px]">В корзину</span>
         </div>
-        <span className="font-black text-[18px]">
-         {cart.reduce((sum, item) => sum + item.price * item.quantity, 0)} ₽
+        <span className="font-black text-[18px] relative z-10">
+         {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString("ru-RU")} ₽
         </span>
-       </button>
+       </motion.button>
       </motion.div>
      )}
     </AnimatePresence>

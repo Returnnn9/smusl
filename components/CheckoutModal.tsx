@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { useApp } from "@/store/AppContext"
+import { useUIStore, useCartStore, useUserStore, useStoreData, useRootStore } from "@/store/hooks"
 import { X, ChevronRight, ChevronDown, Truck, MapPin, ArrowLeft, User, Phone, CheckCircle2, XCircle, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSession } from "next-auth/react"
@@ -22,17 +22,20 @@ const PICKUP_POINTS = [
 type PickupPoint = typeof PICKUP_POINTS[number];
 
 export default function CheckoutModal() {
- const {
-  isCheckoutOpen,
-  setCheckoutOpen,
-  updateAddress,
-  address,
-  userName,
-  setUserName,
-  userPhone,
-  setUserPhone,
-  checkout
- } = useApp()
+ const uiStore = useUIStore()
+ const userStore = useUserStore()
+ const rootStore = useRootStore()
+
+ const isCheckoutOpen = useStoreData(uiStore, s => s.getIsCheckoutOpen())
+ const address = useStoreData(userStore, s => s.getAddress())
+ const userName = useStoreData(userStore, s => s.getUserName())
+ const userPhone = useStoreData(userStore, s => s.getUserPhone())
+
+ const setCheckoutOpen = (o: boolean) => uiStore.setCheckoutOpen(o)
+ const setUserName = (n: string) => userStore.setUserName(n)
+ const setUserPhone = (p: string) => userStore.setUserPhone(p)
+ const updateAddress = (a: string, t: "delivery" | "pickup") => userStore.updateAddress(a, t)
+ const checkout = () => rootStore.checkout()
  const { data: session, status } = useSession()
 
  const [step, setStep] = useState<1 | 2 | 3 | 4>(1)
@@ -68,43 +71,21 @@ export default function CheckoutModal() {
   try {
    const cfg = CITY_CONFIG[selectedCity]
    const params = new URLSearchParams({
-    q: `${query}, ${selectedCity}`,
+    q: query,
     format: 'json',
     addressdetails: '1',
     limit: '15',
     'accept-language': 'ru',
-    countrycodes: 'ru',
-    viewbox: cfg.viewbox,
-    bounded: '1',
    })
    const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
     headers: { 'Accept-Language': 'ru', 'User-Agent': 'smuslest-app/1.0' }
    })
    const data = await res.json()
 
-   // Strict client-side filtering by city
-   const filtered = data.filter((item: any) => {
-    const addr = item.address || {}
-    const city = addr.city || addr.town || addr.village || ""
-    const displayName = item.display_name || ""
-
-    if (selectedCity === "Москва") {
-     return city.includes("Москва") || displayName.includes("Москва")
-    } else if (selectedCity === "Санкт-Петербург") {
-     return (
-      city.includes("Санкт-Петербург") ||
-      city.includes("Петербург") ||
-      displayName.includes("Санкт-Петербург") ||
-      displayName.includes("Петербург")
-     )
-    }
-    return true
-   })
-
    const uniqueSuggestions = []
    const seen = new Set<string>()
 
-   for (const s of filtered) {
+   for (const s of data) {
     const road = (s.address?.road || s.address?.pedestrian || s.address?.suburb || s.display_name.split(',')[0] || "").trim()
     const houseNum = (s.address?.house_number || "").trim()
     const title = houseNum ? `${road}, ${houseNum}` : road
@@ -209,7 +190,7 @@ export default function CheckoutModal() {
     apartment && `кв. ${apartment}`
    ].filter(Boolean).join(', ')
 
-   updateAddress(fullAddress)
+   updateAddress(fullAddress, "delivery")
    if (status === "authenticated") {
     handleFinalCheckout()
    } else {
@@ -220,7 +201,7 @@ export default function CheckoutModal() {
 
  const handleNextFromPickup = () => {
   if (selectedPickup) {
-   updateAddress(`${selectedPickup.city}, ${selectedPickup.address}`)
+   updateAddress(`${selectedPickup.city}, ${selectedPickup.address}`, "pickup")
    if (status === "authenticated") {
     handleFinalCheckout()
    } else {
@@ -277,7 +258,7 @@ export default function CheckoutModal() {
      initial={{ opacity: 0 }}
      animate={{ opacity: 1 }}
      exit={{ opacity: 0 }}
-     className="absolute inset-0 bg-[#3A332E]/35 backdrop-blur-[5px]"
+     className="absolute inset-0 bg-[#3A332E]/60"
      onClick={handleClose}
     />
 
@@ -495,10 +476,8 @@ export default function CheckoutModal() {
             <span className="block text-[7px] min-[375px]:text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-normal sm:tracking-[0.1em] mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis">Дом</span>
             <input
              type="text"
-             inputMode="numeric"
-             pattern="[0-9]*"
              value={house}
-             onChange={(e) => setHouse(e.target.value.replace(/\D/g, ''))}
+             onChange={(e) => setHouse(e.target.value)}
              placeholder="1"
              className="bg-transparent border-none outline-none text-[13px] sm:text-[15px] font-extrabold text-smusl-brown placeholder:text-[#BDBDBD] placeholder:font-normal w-full min-w-0"
             />
@@ -507,10 +486,8 @@ export default function CheckoutModal() {
             <span className="block text-[7px] min-[375px]:text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-normal sm:tracking-[0.1em] mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis">Подъезд</span>
             <input
              type="text"
-             inputMode="numeric"
-             pattern="[0-9]*"
              value={entrance}
-             onChange={(e) => setEntrance(e.target.value.replace(/\D/g, ''))}
+             onChange={(e) => setEntrance(e.target.value)}
              placeholder="1"
              className="bg-transparent border-none outline-none text-[13px] sm:text-[15px] font-extrabold text-smusl-brown placeholder:text-[#BDBDBD] placeholder:font-normal w-full min-w-0"
             />
@@ -519,10 +496,8 @@ export default function CheckoutModal() {
             <span className="block text-[7px] min-[375px]:text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-normal sm:tracking-[0.1em] mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis">Этаж</span>
             <input
              type="text"
-             inputMode="numeric"
-             pattern="[0-9]*"
              value={floor}
-             onChange={(e) => setFloor(e.target.value.replace(/\D/g, ''))}
+             onChange={(e) => setFloor(e.target.value)}
              placeholder="1"
              className="bg-transparent border-none outline-none text-[13px] sm:text-[15px] font-extrabold text-smusl-brown placeholder:text-[#BDBDBD] placeholder:font-normal w-full min-w-0"
             />
@@ -531,10 +506,8 @@ export default function CheckoutModal() {
             <span className="block text-[7px] min-[375px]:text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-normal sm:tracking-[0.1em] mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis" title="Кв. / Офис">Кв. / Офис</span>
             <input
              type="text"
-             inputMode="numeric"
-             pattern="[0-9]*"
              value={apartment}
-             onChange={(e) => setApartment(e.target.value.replace(/\D/g, ''))}
+             onChange={(e) => setApartment(e.target.value)}
              placeholder="1"
              className="bg-transparent border-none outline-none text-[13px] sm:text-[15px] font-extrabold text-smusl-brown placeholder:text-[#BDBDBD] placeholder:font-normal w-full min-w-0"
             />
@@ -647,20 +620,20 @@ export default function CheckoutModal() {
             key={p.address}
             onClick={() => setSelectedPickup(p)}
             className={cn(
-             "w-full h-[64px] px-6 rounded-[1.2rem] border transition-all flex items-center justify-between group",
+             "w-full h-[72px] px-6 rounded-[1.5rem] border transition-all flex items-center justify-between group",
              selectedPickup?.address === p.address
               ? "border-smusl-terracotta bg-white"
               : "border-gray-200 bg-white hover:border-smusl-terracotta/50"
             )}
            >
             <span className={cn(
-             "text-[15px] font-extrabold transition-colors",
+             "text-[17px] font-extrabold transition-colors",
              selectedPickup?.address === p.address ? "text-smusl-brown" : "text-smusl-brown/80"
             )}>
              {p.address}
             </span>
             <div className={cn(
-             "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors px-0.5",
+             "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors px-0.5",
              selectedPickup?.address === p.address ? "border-smusl-terracotta" : "border-gray-200 group-hover:border-smusl-terracotta/50"
             )}>
              <div className={cn(
@@ -724,9 +697,9 @@ export default function CheckoutModal() {
              value={userName}
              onChange={(e) => setUserName(e.target.value)}
              placeholder="Иван"
-             className="w-full bg-[#FAF6F3] border-2 border-transparent rounded-[1rem] sm:rounded-[1.2rem] pl-11 sm:pl-14 pr-4 py-3 sm:py-4
-																			text-[14px] sm:text-[16px] font-[800] text-[#4A3F39] placeholder:text-[#6C5B52]/20
-																			focus:outline-none focus:border-[#CF8F73] transition-all shadow-sm focus:bg-white"
+             className="w-full bg-[#FAF6F3] border-2 border-[#4A3F39]/5 rounded-[1.2rem] pl-11 sm:pl-14 pr-4 py-4 sm:py-5
+																			text-[15px] sm:text-[16px] font-[800] text-[#4A3F39] placeholder:text-[#6C5B52]/20
+																			focus:outline-none focus:border-[#CF8F73] focus:bg-white transition-all shadow-sm"
             />
            </div>
           </div>
@@ -740,9 +713,9 @@ export default function CheckoutModal() {
              value={userPhone}
              onChange={(e) => setUserPhone(e.target.value)}
              placeholder="+7 (999) 000-00-00"
-             className="w-full bg-[#FAF6F3] border-2 border-transparent rounded-[1rem] sm:rounded-[1.2rem] pl-11 sm:pl-14 pr-4 py-3 sm:py-4
-																			text-[14px] sm:text-[16px] font-[800] text-[#4A3F39] placeholder:text-[#6C5B52]/20
-																			focus:outline-none focus:border-[#CF8F73] transition-all shadow-sm focus:bg-white"
+             className="w-full bg-[#FAF6F3] border-2 border-[#4A3F39]/5 rounded-[1.2rem] pl-11 sm:pl-14 pr-4 py-4 sm:py-5
+																			text-[15px] sm:text-[16px] font-[800] text-[#4A3F39] placeholder:text-[#6C5B52]/20
+																			focus:outline-none focus:border-[#CF8F73] focus:bg-white transition-all shadow-sm"
             />
            </div>
           </div>
@@ -753,8 +726,8 @@ export default function CheckoutModal() {
            onClick={handleFinalCheckout}
            disabled={!userName || !userPhone}
            className="w-full bg-[#CF8F73] disabled:bg-[#CF8F73]/40 disabled:cursor-not-allowed
-																rounded-[1.2rem] h-[52px] sm:h-[60px] text-white font-[800] text-[15px] sm:text-[17px]
-																hover:bg-[#b87a60] transition-all shadow-xl shadow-[#CF8F73]/20"
+																rounded-[1.2rem] h-[60px] sm:h-[72px] text-white font-[800] text-[16px] sm:text-[18px]
+																hover:bg-[#b87a60] transition-all shadow-xl shadow-[#CF8F73]/20 active:scale-[0.98] mb-4 sm:mb-0"
           >
            Оформить заказ
           </button>

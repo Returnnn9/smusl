@@ -36,23 +36,36 @@ const LandingProducts = () => {
 
     {/* Section Header */}
     <div className="flex flex-col xl:flex-row items-center justify-between mb-24 lg:mb-32 gap-12 relative w-full">
-
-     {/* Title */}
-     <div className="flex items-center gap-4 md:gap-8 mx-auto xl:mx-0 xl:absolute xl:left-1/2 xl:-translate-x-1/2">
-      <span className="font-manrope text-[40px] md:text-[64px] lg:text-[90px] font-thin text-[#B54442]/60 select-none translate-y-2">(</span>
-      <h2 className="font-script text-[60px] md:text-[90px] lg:text-[130px] font-bold text-[#B54442] lowercase leading-none drop-shadow-sm pt-4 tracking-[0.08em]" style={{ display: 'inline-block', transform: 'scaleX(1.2)', transformOrigin: 'center' }}>наша выпечка</h2>
-      <span className="font-manrope text-[40px] md:text-[64px] lg:text-[90px] font-thin text-[#B54442]/60 select-none translate-y-2">)</span>
+     {/* Title with decorative elements */}
+     <div className="flex items-center gap-4 md:gap-8 mx-auto xl:mx-0 xl:absolute xl:left-1/2 xl:-translate-x-1/2 group">
+      <motion.span
+       animate={{ x: [-5, 0, -5] }}
+       transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+       className="font-manrope text-[40px] md:text-[64px] lg:text-[90px] font-thin text-[#B54442]/30 select-none translate-y-2"
+      >
+       (
+      </motion.span>
+      <h2 className="font-script text-[60px] md:text-[90px] lg:text-[130px] font-bold text-[#B54442] lowercase leading-none drop-shadow-sm pt-4 tracking-[0.08em] transition-all duration-700 group-hover:tracking-[0.12em]" style={{ display: 'inline-block', transform: 'scaleX(1.15)', transformOrigin: 'center' }}>
+       наша выпечка
+      </h2>
+      <motion.span
+       animate={{ x: [5, 0, 5] }}
+       transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+       className="font-manrope text-[40px] md:text-[64px] lg:text-[90px] font-thin text-[#B54442]/30 select-none translate-y-2"
+      >
+       )
+      </motion.span>
      </div>
 
-     {/* Filters - Right Aligned on Desktop */}
+     {/* Filters - Glassmorphism Style */}
      <div className="flex gap-4 md:gap-6 xl:ml-auto z-10 w-full xl:w-auto justify-center xl:justify-end flex-wrap pt-8 xl:pt-0">
       {categories.map((cat) => (
        <button
         key={cat.id}
         onClick={() => setActiveTab(cat.id)}
-        className={`px-8 md:px-10 py-2 md:py-2.5 rounded-full text-[14px] md:text-[16px] xl:text-[20px] font-medium transition-all duration-300 border-[1.5px] ${activeTab === cat.id
-         ? 'bg-white text-[#B54442] border-[#B54442]'
-         : 'bg-white text-[#A68064] border-[#A68064] hover:border-[#B54442]/40'
+        className={`px-8 md:px-12 py-2.5 rounded-full text-[14px] md:text-[16px] xl:text-[18px] font-bold transition-all duration-500 border-2 active:scale-95 ${activeTab === cat.id
+         ? 'bg-[#B54442] text-white border-[#B54442] shadow-[0_10px_25px_-5px_rgba(181,68,66,0.3)]'
+         : 'bg-white/50 backdrop-blur-sm text-[#A68064] border-[#A68064]/20 hover:border-[#B54442]/40'
          }`}
        >
         {cat.label}
@@ -72,21 +85,31 @@ const LandingProducts = () => {
         <motion.div
          key={product.id}
          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-         animate={{ opacity: 1, scale: 1, y: 0 }}
+         whileInView={{ opacity: 1, scale: 1, y: 0 }}
+         viewport={{ once: true }}
          exit={{ opacity: 0, scale: 0.9 }}
-         transition={{ duration: 0.5, delay: idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
+         transition={{ duration: 0.8, delay: idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
          className={`group cursor-pointer ${product.gridArea}`}
         >
-         <div className={`relative rounded-[24px] overflow-hidden bg-white shadow-sm group-hover:shadow-md transition-all duration-500 ease-[0.16,1,0.3,1] aspect-square w-full`}>
+         <div className={`relative rounded-[24px] overflow-hidden bg-white shadow-sm group-hover:shadow-2xl transition-all duration-700 ease-[0.16,1,0.3,1] aspect-square w-full ring-1 ring-[#4A403A]/5`}>
           <Image
            src={product.image || ''}
            alt={product.name}
            fill
            priority={idx < 4}
            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
-           className="object-cover group-hover:scale-[1.03] transition-transform duration-700"
+           className="object-cover group-hover:scale-[1.1] transition-transform duration-1000"
           />
+          {/* Subtle overlay on hover */}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
          </div>
+         <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          className="mt-4 text-center"
+         >
+          <span className="text-[12px] font-bold text-smusl-red/40 uppercase tracking-widest">{product.name}</span>
+         </motion.div>
         </motion.div>
        );
       })}

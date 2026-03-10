@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from "react"
-import { useApp } from "@/store/AppContext"
+import { useUIStore, useUserStore, useStoreData } from "@/store/hooks"
 import { X, ChevronDown, MapPin, ArrowLeft, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import MapPicker from "./MapPicker"
@@ -23,12 +23,14 @@ const PICKUP_POINTS = [
 type PickupPoint = typeof PICKUP_POINTS[number];
 
 export default function AddressModal() {
- const {
-  isAddressModalOpen,
-  setAddressModalOpen,
-  updateAddress,
-  address,
- } = useApp()
+ const uiStore = useUIStore()
+ const userStore = useUserStore()
+
+ const isAddressModalOpen = useStoreData(uiStore, s => s.getIsAddressModalOpen())
+ const address = useStoreData(userStore, s => s.getAddress())
+
+ const setAddressModalOpen = (o: boolean) => uiStore.setAddressModalOpen(o)
+ const updateAddress = (a: string, t: "delivery" | "pickup") => userStore.updateAddress(a, t)
 
  const [step, setStep] = useState<1 | 2>(1)
  const [deliveryType, setDeliveryType] = useState<DeliveryType>(null)
@@ -63,43 +65,21 @@ export default function AddressModal() {
   try {
    const cfg = CITY_CONFIG[selectedCity]
    const params = new URLSearchParams({
-    q: `${query}, ${selectedCity}`,
+    q: query,
     format: 'json',
     addressdetails: '1',
     limit: '15',
     'accept-language': 'ru',
-    countrycodes: 'ru',
-    viewbox: cfg.viewbox,
-    bounded: '1',
    })
    const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
     headers: { 'Accept-Language': 'ru', 'User-Agent': 'smuslest-app/1.0' }
    })
    const data = await res.json()
 
-   // Strict client-side filtering by city
-   const filtered = data.filter((item: any) => {
-    const addr = item.address || {}
-    const city = addr.city || addr.town || addr.village || ""
-    const displayName = item.display_name || ""
-
-    if (selectedCity === "Москва") {
-     return city.includes("Москва") || displayName.includes("Москва")
-    } else if (selectedCity === "Санкт-Петербург") {
-     return (
-      city.includes("Санкт-Петербург") ||
-      city.includes("Петербург") ||
-      displayName.includes("Санкт-Петербург") ||
-      displayName.includes("Петербург")
-     )
-    }
-    return true
-   })
-
    const uniqueSuggestions = []
    const seen = new Set<string>()
 
-   for (const s of filtered) {
+   for (const s of data) {
     const road = (s.address?.road || s.address?.pedestrian || s.address?.suburb || s.display_name.split(',')[0] || "").trim()
     const houseNum = (s.address?.house_number || "").trim()
     const title = houseNum ? `${road}, ${houseNum}` : road
@@ -168,6 +148,7 @@ export default function AddressModal() {
   navigator.geolocation.getCurrentPosition(
    async (pos) => {
     try {
+     setSelectedCoords([pos.coords.latitude, pos.coords.longitude])
      const res = await fetch(
       `https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&accept-language=ru`,
       { headers: { 'Accept-Language': 'ru' } }
@@ -234,7 +215,7 @@ export default function AddressModal() {
      initial={{ opacity: 0 }}
      animate={{ opacity: 1 }}
      exit={{ opacity: 0 }}
-     className="absolute inset-0 bg-[#3A332E]/35 backdrop-blur-[5px]"
+     className="absolute inset-0 bg-[#3A332E]/60"
      onClick={handleClose}
     />
 
@@ -462,10 +443,8 @@ export default function AddressModal() {
             <span className="block text-[7px] min-[375px]:text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-normal sm:tracking-[0.1em] mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis">Дом</span>
             <input
              type="text"
-             inputMode="numeric"
-             pattern="[0-9]*"
              value={house}
-             onChange={(e) => setHouse(e.target.value.replace(/\D/g, ''))}
+             onChange={(e) => setHouse(e.target.value)}
              placeholder="1"
              className="bg-transparent border-none outline-none text-[13px] sm:text-[15px] font-extrabold text-smusl-brown placeholder:text-[#BDBDBD] placeholder:font-normal w-full min-w-0"
             />
@@ -474,10 +453,8 @@ export default function AddressModal() {
             <span className="block text-[7px] min-[375px]:text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-normal sm:tracking-[0.1em] mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis">Подъезд</span>
             <input
              type="text"
-             inputMode="numeric"
-             pattern="[0-9]*"
              value={entrance}
-             onChange={(e) => setEntrance(e.target.value.replace(/\D/g, ''))}
+             onChange={(e) => setEntrance(e.target.value)}
              placeholder="1"
              className="bg-transparent border-none outline-none text-[13px] sm:text-[15px] font-extrabold text-smusl-brown placeholder:text-[#BDBDBD] placeholder:font-normal w-full min-w-0"
             />
@@ -486,10 +463,8 @@ export default function AddressModal() {
             <span className="block text-[7px] min-[375px]:text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-normal sm:tracking-[0.1em] mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis">Этаж</span>
             <input
              type="text"
-             inputMode="numeric"
-             pattern="[0-9]*"
              value={floor}
-             onChange={(e) => setFloor(e.target.value.replace(/\D/g, ''))}
+             onChange={(e) => setFloor(e.target.value)}
              placeholder="1"
              className="bg-transparent border-none outline-none text-[13px] sm:text-[15px] font-extrabold text-smusl-brown placeholder:text-[#BDBDBD] placeholder:font-normal w-full min-w-0"
             />
@@ -498,10 +473,8 @@ export default function AddressModal() {
             <span className="block text-[7px] min-[375px]:text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-normal sm:tracking-[0.1em] mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis" title="Кв. / Офис">Кв. / Офис</span>
             <input
              type="text"
-             inputMode="numeric"
-             pattern="[0-9]*"
              value={apartment}
-             onChange={(e) => setApartment(e.target.value.replace(/\D/g, ''))}
+             onChange={(e) => setApartment(e.target.value)}
              placeholder="1"
              className="bg-transparent border-none outline-none text-[13px] sm:text-[15px] font-extrabold text-smusl-brown placeholder:text-[#BDBDBD] placeholder:font-normal w-full min-w-0"
             />
@@ -614,20 +587,20 @@ export default function AddressModal() {
             key={p.address}
             onClick={() => setSelectedPickup(p)}
             className={cn(
-             "w-full h-[60px] px-6 rounded-[1.2rem] border transition-all flex items-center justify-between group",
+             "w-full h-[72px] px-6 rounded-[1.5rem] border transition-all flex items-center justify-between group",
              selectedPickup?.address === p.address
               ? "border-[#E8DFD8] bg-white shadow-sm"
               : "border-gray-100 bg-white hover:border-smusl-terracotta/20"
             )}
            >
             <span className={cn(
-             "text-[16px] font-[700] transition-colors",
+             "text-[18px] font-[800] transition-colors",
              selectedPickup?.address === p.address ? "text-[#3A332E]" : "text-[#3A332E]/60"
             )}>
              {p.address}
             </span>
             <div className={cn(
-             "w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
+             "w-6 h-6 rounded-full border flex items-center justify-center transition-colors",
              selectedPickup?.address === p.address ? "border-smusl-terracotta" : "border-gray-200"
             )}>
              <div className={cn(

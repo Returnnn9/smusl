@@ -155,7 +155,7 @@ const LandingHeader: React.FC = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed inset-0 z-[200] bg-[#FAF8F5]/90 backdrop-blur-2xl flex flex-col font-manrope overflow-hidden"
+      className="fixed inset-0 z-[200] bg-[#FAF8F5]/98 flex flex-col font-manrope overflow-hidden"
      >
       {/* Background blobs */}
       <motion.div
