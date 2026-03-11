@@ -42,6 +42,30 @@ const itemVariants = {
  }
 }
 
+const stepVariants: any = {
+ initial: { opacity: 0, x: 30, scale: 0.98 },
+ animate: { 
+  opacity: 1, 
+  x: 0, 
+  scale: 1,
+  transition: { 
+   type: "spring" as const, 
+   damping: 28, 
+   stiffness: 240,
+   duration: 0.5
+  }
+ },
+ exit: { 
+  opacity: 0, 
+  x: -30, 
+  scale: 0.98,
+  transition: { 
+   duration: 0.3,
+   ease: "easeInOut"
+  }
+ }
+}
+
 export default function CheckoutModal() {
  const uiStore = useUIStore()
  const userStore = useUserStore()
@@ -195,7 +219,7 @@ export default function CheckoutModal() {
    setStep(5)
    setTimeout(() => {
     handleClose()
-   }, 3000)
+   }, 3500)
   }
  }
 
@@ -293,9 +317,10 @@ export default function CheckoutModal() {
       {step === 1 && (
        <motion.div
         key="step1"
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.98 }}
+        variants={stepVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
         className="flex flex-col sm:flex-row h-full w-full"
        >
         <div className="flex-1 p-5 sm:p-10 flex flex-col justify-center overflow-y-auto min-h-0 max-w-2xl mx-auto w-full">
@@ -329,9 +354,10 @@ export default function CheckoutModal() {
       {step === 1.5 && deliveryType === "delivery" && (
        <motion.div
         key="step1.5-saved"
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
+        variants={stepVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
         className="flex flex-col h-full w-full p-6 sm:p-12"
        >
         <div className="flex items-center justify-between mb-8">
@@ -406,9 +432,10 @@ export default function CheckoutModal() {
       {step === 2 && deliveryType === "delivery" && (
        <motion.div
         key="step2-delivery"
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
+        variants={stepVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
         className="flex flex-col sm:flex-row h-full w-full relative"
        >
         <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[55%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
@@ -427,26 +454,42 @@ export default function CheckoutModal() {
 
         <motion.div
          layout="position"
+         drag="y"
+         dragConstraints={{ top: 0, bottom: 0 }}
+         dragElastic={0.06}
+         onDragEnd={(e, { offset, velocity }) => {
+          if (offset.y > 100 || velocity.y > 500) {
+           if (isEditingAddress) {
+            setIsEditingAddress(false);
+           } else {
+            handleClose();
+           }
+          } else if (offset.y < -100 || velocity.y < -400) {
+           setIsEditingAddress(true);
+          }
+         }}
          initial={{ y: "100%" }}
          animate={{ y: 0 }}
          className={cn(
-          "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto flex-1 bg-white sm:bg-transparent z-10 flex flex-col rounded-t-[2rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.1)] sm:shadow-none overflow-hidden sm:overflow-y-auto no-scrollbar",
-          isEditingAddress ? "h-[85vh] sm:h-full p-5 sm:p-10" : "p-5 pb-[env(safe-area-inset-bottom)] sm:h-full sm:p-10"
+          "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto flex-1 bg-white sm:bg-transparent z-10 flex flex-col rounded-t-[2.5rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.12)] sm:shadow-none overflow-hidden sm:overflow-y-auto no-scrollbar touch-pan-y",
+          isEditingAddress ? "h-[85vh] sm:h-full p-6 sm:p-10" : "p-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:h-full sm:p-10"
          )}
-         transition={{ type: "spring" as const, damping: 25, stiffness: 180 }}
+         transition={{ type: "spring" as const, damping: 28, stiffness: 220 }}
         >
+         {/* Drag Handle for Mobile */}
+         <div className="w-12 h-1.5 bg-gray-200/50 rounded-full mx-auto mb-4 sm:hidden shrink-0 cursor-grab active:cursor-grabbing" />
+         
          {/* Mobile Compact View */}
          <div className={cn("sm:hidden flex flex-col gap-4", isEditingAddress ? "hidden" : "flex")}>
-          <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto my-1" />
           <motion.button
-           whileHover={{ scale: 1.02 }}
+           whileHover={{ scale: 1.01 }}
            whileTap={{ scale: 0.98 }}
            onClick={() => setIsEditingAddress(true)}
-           className="w-full p-4 bg-[#F8F8F8] rounded-[1.2rem] border border-gray-100 flex items-center justify-between shadow-sm active:scale-[0.98] transition-all cursor-text"
+           className="w-full p-5 bg-[#F8F8F8] rounded-[1.5rem] border border-gray-100 flex items-center justify-between shadow-sm active:scale-[0.98] transition-all cursor-text"
           >
            <div className="flex flex-col gap-1 overflow-hidden pr-4">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Куда везем?</span>
-            <span className="text-[15px] font-extrabold text-[#3A332E] truncate">
+            <span className="text-[16px] font-extrabold text-[#3A332E] truncate">
              {tempAddress || "Укажите на карте..."} {house ? `, д. ${house}` : ''}
             </span>
            </div>
@@ -457,7 +500,7 @@ export default function CheckoutModal() {
           <button
            onClick={handleNextFromDelivery}
            disabled={!tempAddress}
-           className="w-full h-[64px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mt-1 mb-2"
+           className="w-full h-[68px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mt-1"
           >
            Всё верно
           </button>
@@ -488,7 +531,7 @@ export default function CheckoutModal() {
           <motion.div layout className="flex-1 overflow-y-auto no-scrollbar pb-6 mt-4 space-y-4">
            <div className="relative">
             <div
-             className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-4.5 sm:py-4 cursor-pointer select-none border border-transparent hover:border-gray-200 transition-colors"
+             className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-4 cursor-pointer select-none border border-transparent hover:border-gray-200 transition-colors"
              onClick={() => setShowCityDropdown(v => !v)}
             >
              <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-1">Город</span>
@@ -516,7 +559,7 @@ export default function CheckoutModal() {
            </div>
 
            <div className="relative">
-            <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-4.5 sm:py-4 flex flex-col justify-center border border-transparent focus-within:border-gray-300 transition-all">
+            <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-4 flex flex-col justify-center border border-transparent focus-within:border-gray-300 transition-all">
              <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-1">Улица и дом</span>
              <div className="flex items-center gap-2">
               <input
@@ -573,49 +616,47 @@ export default function CheckoutModal() {
            </div>
 
            <div className="grid grid-cols-4 gap-2 sm:gap-4">
-            <div className="bg-[#F8F8F8] rounded-[1rem] px-2 sm:px-5 py-3.5 sm:py-3 flex flex-col justify-center overflow-hidden border border-transparent focus-within:border-gray-300">
+            <div className="bg-[#F8F8F8] rounded-[1rem] px-2 sm:px-5 py-3.5 flex flex-col justify-center overflow-hidden border border-transparent focus-within:border-gray-300">
              <span className="block text-[8px] min-[375px]:text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-normal sm:tracking-[0.1em] mb-1 whitespace-nowrap overflow-hidden text-ellipsis">Дом</span>
              <input
               type="text"
               value={house}
               onChange={(e) => setHouse(e.target.value)}
               placeholder="1"
-              className="w-full bg-transparent border-none outline-none text-[15px] sm:text-[15px] font-extrabold text-[#3A332E] placeholder:text-[#3A332E]/20"
+              className="w-full bg-transparent border-none outline-none text-[15px] font-extrabold text-[#3A332E] placeholder:text-[#3A332E]/20"
              />
             </div>
-            <div className="bg-[#F8F8F8] rounded-[1rem] px-2 sm:px-5 py-3.5 sm:py-3 flex flex-col justify-center overflow-hidden border border-transparent focus-within:border-gray-300">
+            <div className="bg-[#F8F8F8] rounded-[1rem] px-2 sm:px-5 py-3.5 flex flex-col justify-center overflow-hidden border border-transparent focus-within:border-gray-300">
              <span className="block text-[8px] min-[375px]:text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-normal sm:tracking-[0.1em] mb-1 whitespace-nowrap overflow-hidden text-ellipsis">Подъезд</span>
              <input
               type="text"
               value={entrance}
               onChange={(e) => setEntrance(e.target.value)}
               placeholder="1"
-              className="w-full bg-transparent border-none outline-none text-[15px] sm:text-[15px] font-extrabold text-[#3A332E] placeholder:text-[#3A332E]/20"
+              className="w-full bg-transparent border-none outline-none text-[15px] font-extrabold text-[#3A332E] placeholder:text-[#3A332E]/20"
              />
             </div>
-            <div className="bg-[#F8F8F8] rounded-[1rem] px-2 sm:px-5 py-3.5 sm:py-3 flex flex-col justify-center overflow-hidden border border-transparent focus-within:border-gray-300">
+            <div className="bg-[#F8F8F8] rounded-[1rem] px-2 sm:px-5 py-3.5 flex flex-col justify-center overflow-hidden border border-transparent focus-within:border-gray-300">
              <span className="block text-[8px] min-[375px]:text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-normal sm:tracking-[0.1em] mb-1 whitespace-nowrap overflow-hidden text-ellipsis">Этаж</span>
              <input
               type="text"
               value={floor}
               onChange={(e) => setFloor(e.target.value)}
               placeholder="1"
-              className="w-full bg-transparent border-none outline-none text-[15px] sm:text-[15px] font-extrabold text-[#3A332E] placeholder:text-[#3A332E]/20"
+              className="w-full bg-transparent border-none outline-none text-[15px] font-extrabold text-[#3A332E] placeholder:text-[#3A332E]/20"
              />
             </div>
-            <div className="bg-[#F8F8F8] rounded-[1rem] px-2 sm:px-5 py-3.5 sm:py-3 flex flex-col justify-center overflow-hidden border border-transparent focus-within:border-gray-300">
+            <div className="bg-[#F8F8F8] rounded-[1rem] px-2 sm:px-5 py-3.5 flex flex-col justify-center overflow-hidden border border-transparent focus-within:border-gray-300">
              <span className="block text-[8px] min-[375px]:text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-normal sm:tracking-[0.1em] mb-1 whitespace-nowrap overflow-hidden text-ellipsis">кв. / офис</span>
              <input
               type="text"
               value={apartment}
               onChange={(e) => setApartment(e.target.value)}
               placeholder="1"
-              className="w-full bg-transparent border-none outline-none text-[15px] sm:text-[15px] font-extrabold text-[#3A332E] placeholder:text-[#3A332E]/20"
+              className="w-full bg-transparent border-none outline-none text-[15px] font-extrabold text-[#3A332E] placeholder:text-[#3A332E]/20"
              />
             </div>
            </div>
-
-           {/* Geolocation moved to MapPicker */}
           </motion.div>
 
           <button
@@ -640,9 +681,10 @@ export default function CheckoutModal() {
       {step === 2 && deliveryType === "pickup" && (
        <motion.div
         key="step2-pickup"
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
+        variants={stepVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
         className="flex flex-col sm:flex-row h-full w-full relative"
        >
         <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[55%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
@@ -660,26 +702,42 @@ export default function CheckoutModal() {
 
         <motion.div
          layout="position"
+         drag="y"
+         dragConstraints={{ top: 0, bottom: 0 }}
+         dragElastic={0.08}
+         onDragEnd={(e, { offset, velocity }) => {
+          if (offset.y > 100 || velocity.y > 500) {
+           if (isEditingAddress) {
+            setIsEditingAddress(false);
+           } else {
+            handleClose();
+           }
+          } else if (offset.y < -100 || velocity.y < -400) {
+           setIsEditingAddress(true);
+          }
+         }}
          initial={{ y: "10%" }}
          animate={{ y: 0 }}
          className={cn(
-          "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto flex-1 bg-white sm:bg-transparent z-10 flex flex-col rounded-t-[2rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.1)] sm:shadow-none overflow-hidden sm:overflow-y-auto no-scrollbar",
-          isEditingAddress ? "h-[85vh] sm:h-full p-5 sm:p-10" : "p-5 pb-[env(safe-area-inset-bottom)] sm:h-full sm:p-10"
+          "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto flex-1 bg-white sm:bg-transparent z-10 flex flex-col rounded-t-[2.5rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.12)] sm:shadow-none overflow-hidden sm:overflow-y-auto no-scrollbar touch-pan-y",
+          isEditingAddress ? "h-[85vh] sm:h-full p-6 sm:p-10" : "p-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:h-full sm:p-10"
          )}
-         transition={{ type: "spring" as const, damping: 30, stiffness: 200 }}
+         transition={{ type: "spring" as const, damping: 28, stiffness: 220 }}
         >
+         {/* Drag Handle for Mobile */}
+         <div className="w-12 h-1.5 bg-gray-200/50 rounded-full mx-auto mb-4 sm:hidden shrink-0 cursor-grab active:cursor-grabbing" />
+
          {/* Mobile Compact View */}
          <div className={cn("sm:hidden flex flex-col gap-4", isEditingAddress ? "hidden" : "flex")}>
-          <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto my-1" />
           <motion.button
-           whileHover={{ scale: 1.02 }}
+           whileHover={{ scale: 1.01 }}
            whileTap={{ scale: 0.98 }}
            onClick={() => setIsEditingAddress(true)}
-           className="w-full p-4 bg-[#F8F8F8] rounded-[1.2rem] border border-gray-100 flex items-center justify-between shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+           className="w-full p-5 bg-[#F8F8F8] rounded-[1.5rem] border border-gray-100 flex items-center justify-between shadow-sm active:scale-[0.98] transition-all cursor-pointer"
           >
            <div className="flex flex-col gap-1 overflow-hidden pr-4">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Пункт выдачи</span>
-            <span className="text-[15px] font-extrabold text-[#3A332E] truncate">
+            <span className="text-[16px] font-extrabold text-[#3A332E] truncate">
              {selectedPickup ? selectedPickup.address : "Выберите пункт или на карте"}
             </span>
            </div>
@@ -690,7 +748,7 @@ export default function CheckoutModal() {
           <button
            onClick={handleNextFromPickup}
            disabled={!selectedPickup}
-           className="w-full h-[64px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mt-1 mb-2"
+           className="w-full h-[68px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mt-1"
           >
            Всё верно
           </button>
@@ -769,20 +827,26 @@ export default function CheckoutModal() {
               layout
               onClick={() => setSelectedPickup(p)}
               className={cn(
-               "w-full px-6 py-4 rounded-[1.5rem] border transition-all flex items-center justify-between group",
+               "w-full px-6 py-4 rounded-[1.8rem] border transition-all flex items-center justify-between group",
                selectedPickup?.address === p.address
-                ? "border-[#CF8F73] bg-[#CF8F73] shadow-sm"
+                ? "border-[#CF8F73] bg-[#CF8F73] shadow-[0_8px_20px_rgba(207,141,114,0.2)]"
                 : "border-gray-100 bg-white hover:border-gray-300"
               )}
              >
-              <span className={cn(
-               "text-[18px] font-[800] transition-colors",
-               selectedPickup?.address === p.address ? "text-white" : "text-[#3A332E]"
-              )}>
-               {p.address}
-              </span>
+              <div className="flex flex-col items-start min-w-0 pr-4">
+               <span className={cn(
+                "text-[16px] font-[800] transition-colors truncate w-full text-left",
+                selectedPickup?.address === p.address ? "text-white" : "text-[#3A332E]"
+               )}>
+                {p.address}
+               </span>
+               <span className={cn(
+                "text-[12px] font-bold uppercase tracking-widest mt-1",
+                selectedPickup?.address === p.address ? "text-white/70" : "text-gray-400"
+               )}>Пункт выдачи</span>
+              </div>
               <div className={cn(
-               "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors px-0.5",
+               "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors px-0.5 shrink-0",
                selectedPickup?.address === p.address ? "border-white" : "border-gray-200 group-hover:border-gray-300"
               )}>
                <div className={cn(
@@ -804,7 +868,7 @@ export default function CheckoutModal() {
             }
            }}
            disabled={!selectedPickup}
-           className="mt-6 w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] sm:text-[20px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 shrink-0 mb-[calc(2rem+env(safe-area-inset-bottom))] sm:mb-0"
+           className="mt-6 w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[18px] sm:text-[20px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 shrink-0 mb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:mb-0"
           >
            {isEditingAddress && window.innerWidth < 640 ? 'Готово' : 'Всё верно'}
           </button>
@@ -817,16 +881,13 @@ export default function CheckoutModal() {
       {step === 3 && (
        <motion.div
         key="step3-guest"
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
+        variants={stepVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
         className="flex h-full w-full"
        >
-        <LeftPanel
-         icon={<User className="w-12 h-12 text-[#3A332E]" />}
-         text="Ваши контактные данные для уточнения деталей заказа"
-        />
-        <div className="flex-1 p-6 sm:p-12 flex flex-col justify-center">
+        <div className="flex-1 p-6 sm:p-12 flex flex-col justify-center max-w-xl mx-auto">
          <h2 className="text-[24px] sm:text-[28px] font-extrabold text-[#3A332E] mb-8 tracking-tight">
           Как к вам обращаться?
          </h2>
@@ -867,33 +928,32 @@ export default function CheckoutModal() {
       {step === 4 && (
        <motion.div
         key="step4-pay"
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
+        variants={stepVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
         className="flex h-full w-full"
        >
-        <LeftPanel
-         icon={<CheckCircle2 className="w-12 h-12 text-[#3A332E]" />}
-         text="Выберите удобный способ оплаты"
-        />
-        <div className="flex-1 p-6 sm:p-12 flex flex-col justify-center">
+        <div className="flex-1 p-6 sm:p-12 flex flex-col justify-center max-w-xl mx-auto">
          <h2 className="text-[24px] sm:text-[28px] font-extrabold text-[#3A332E] mb-8 tracking-tight">
           Оплата заказа
          </h2>
 
          <div className="space-y-4">
-          <button
+          <motion.button
+           whileHover={{ scale: 1.01 }}
+           whileTap={{ scale: 0.98 }}
            onClick={() => setPaymentMethod('sbp')}
            className={cn(
-            "w-full p-6 rounded-[1.5rem] border-2 transition-all flex items-center justify-between group",
-            paymentMethod === 'sbp' ? "border-[#CF8F73] bg-gray-50" : "border-gray-100 hover:border-gray-200"
+            "w-full p-6 rounded-[1.8rem] border-2 transition-all flex items-center justify-between group",
+            paymentMethod === 'sbp' ? "border-[#CF8F73] bg-[#CF8F73]/5" : "border-gray-100 hover:border-gray-200"
            )}
           >
            <div className="flex items-center gap-4">
             <div className="w-12 h-8 rounded-md bg-gradient-to-br from-blue-600 via-purple-600 to-orange-500 flex items-center justify-center shadow-sm">
              <span className="text-white font-extrabold text-[12px] tracking-wider">СБП</span>
             </div>
-            <span className="font-extrabold text-[#3A332E] text-[16px]">Оплата через СБП</span>
+            <span className="font-extrabold text-[#3A332E] text-[17px]">Оплата через СБП</span>
            </div>
            <div className={cn(
             "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors px-0.5",
@@ -904,20 +964,22 @@ export default function CheckoutModal() {
              paymentMethod === 'sbp' ? "scale-100 opacity-100" : "scale-0 opacity-0"
             )} />
            </div>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+           whileHover={{ scale: 1.01 }}
+           whileTap={{ scale: 0.98 }}
            onClick={() => setPaymentMethod('card')}
            className={cn(
-            "w-full p-6 rounded-[1.5rem] border-2 transition-all flex items-center justify-between group",
-            paymentMethod === 'card' ? "border-[#CF8F73] bg-gray-50" : "border-gray-100 hover:border-gray-200"
+            "w-full p-6 rounded-[1.8rem] border-2 transition-all flex items-center justify-between group",
+            paymentMethod === 'card' ? "border-[#CF8F73] bg-[#CF8F73]/5" : "border-gray-100 hover:border-gray-200"
            )}
           >
            <div className="flex items-center gap-4">
             <div className="w-12 h-8 rounded-md bg-gradient-to-br from-gray-800 to-gray-600 flex items-center justify-center shadow-sm">
              <CreditCard className="w-5 h-5 text-white" />
             </div>
-            <span className="font-extrabold text-[#3A332E] text-[16px]">Банковской картой</span>
+            <span className="font-extrabold text-[#3A332E] text-[17px]">Банковской картой</span>
            </div>
            <div className={cn(
             "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors px-0.5",
@@ -928,44 +990,44 @@ export default function CheckoutModal() {
              paymentMethod === 'card' ? "scale-100 opacity-100" : "scale-0 opacity-0"
             )} />
            </div>
-          </button>
+          </motion.button>
          </div>
 
          {paymentMethod === 'card' && (
           <motion.div
-           initial={{ opacity: 0, y: 10 }}
+           initial={{ opacity: 0, y: 15 }}
            animate={{ opacity: 1, y: 0 }}
            className="mt-6 space-y-3"
           >
-           <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-3 border border-transparent focus-within:border-gray-300 transition-colors">
-            <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Номер карты</span>
+           <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-3.5 border border-transparent focus-within:border-gray-300 transition-colors">
+            <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Номер карты</span>
             <input
              type="text"
              value={cardNumber}
              onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
              placeholder="0000 0000 0000 0000"
-             className="bg-transparent border-none outline-none text-[15px] font-extrabold text-[#3A332E] w-full"
+             className="bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] w-full"
             />
            </div>
            <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-3 border border-transparent focus-within:border-gray-300 transition-colors">
-             <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Срок</span>
+            <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-3.5 border border-transparent focus-within:border-gray-300 transition-colors">
+             <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Срок</span>
              <input
               type="text"
               value={cardExpiry}
               onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
               placeholder="ММ/ГГ"
-              className="bg-transparent border-none outline-none text-[15px] font-extrabold text-[#3A332E] w-full"
+              className="bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] w-full"
              />
             </div>
-            <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-3 border border-transparent focus-within:border-gray-300 transition-colors">
-             <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">CVC</span>
+            <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-3.5 border border-transparent focus-within:border-gray-300 transition-colors">
+             <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">CVC</span>
              <input
               type="password"
               value={cardCVC}
               onChange={(e) => setCardCVC(e.target.value.substring(0, 3))}
               placeholder="•••"
-              className="bg-transparent border-none outline-none text-[15px] font-extrabold text-[#3A332E] w-full"
+              className="bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] w-full"
              />
             </div>
            </div>
@@ -975,7 +1037,7 @@ export default function CheckoutModal() {
          <button
           onClick={handleFinalCheckout}
           disabled={!paymentMethod || (paymentMethod === 'card' && !isCardValid)}
-          className="mt-8 w-full h-[64px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
+          className="mt-8 w-full h-[68px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
          >
           Оплатить
          </button>
@@ -987,14 +1049,46 @@ export default function CheckoutModal() {
       {step === 5 && (
        <motion.div
         key="step5-success"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
+        variants={stepVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
         className="flex flex-col items-center justify-center h-full w-full p-12 text-center"
        >
-        <div className="w-24 h-24 rounded-full bg-green-50 flex items-center justify-center mb-8">
-         <CheckCircle2 className="w-12 h-12 text-green-500" />
+        <div className="relative w-32 h-32 mb-8 flex items-center justify-center">
+         <motion.div
+          initial={{ scale: 0, rotate: -45 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", damping: 12, stiffness: 200, delay: 0.2 }}
+          className="w-24 h-24 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-200"
+         >
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+           <motion.path
+            d="M20 6L9 17L4 12"
+            stroke="white"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5, ease: "easeInOut" }}
+           />
+          </svg>
+         </motion.div>
+         
+         {/* Decorative particles */}
+         {[...Array(6)].map((_, i) => (
+          <motion.div
+           key={i}
+           className="absolute w-2 h-2 rounded-full bg-green-200"
+           initial={{ scale: 0, x: 0, y: 0 }}
+           animate={{ scale: [0, 1, 0], x: (i % 2 === 0 ? 1 : -1) * (40 + i * 10), y: (i < 3 ? 1 : -1) * (40 + i * 5) }}
+           transition={{ duration: 1, delay: 0.8 + i * 0.1 }}
+          />
+         ))}
         </div>
-        <h2 className="text-[28px] sm:text-[32px] font-extrabold text-[#3A332E] mb-4 tracking-tight">
+
+        <h2 className="text-[28px] sm:text-[32px] font-extrabold text-[#3A332E] mb-4 tracking-tight" style={{ fontFeatureSettings: "'pnum' on, 'lnum' on" }}>
          Заказ принят!
         </h2>
         <p className="text-[#3A332E]/60 text-[16px] max-w-[320px] leading-relaxed mb-10">
@@ -1002,7 +1096,7 @@ export default function CheckoutModal() {
         </p>
         <button
          onClick={handleClose}
-         className="w-full max-w-[280px] h-[64px] bg-[#CF8F73] text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
+         className="w-full max-w-[280px] h-[64px] bg-[#CF8F73] text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
         >
          Отлично
         </button>

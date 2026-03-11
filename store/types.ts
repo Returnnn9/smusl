@@ -42,6 +42,9 @@ export interface Order {
  total: number
  date: string
  address: string
+ status?: 'new' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+ userName?: string
+ userPhone?: string
 }
 
 export function safeParseJSON<T>(key: string, fallback: T): T {

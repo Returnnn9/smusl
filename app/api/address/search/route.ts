@@ -18,15 +18,16 @@ export async function GET(req: NextRequest) {
 
  try {
   const coords = CITY_COORDS[city as keyof typeof CITY_COORDS] || CITY_COORDS['Москва'];
+  const cleanQ = rawQ.toLowerCase().includes(city.toLowerCase()) ? rawQ : `${city}, ${rawQ}`;
+  
   const params = new URLSearchParams({
-   q: `${city}, ${rawQ}`,
+   q: cleanQ,
    key: DGIS_KEY || '',
    location: coords,
    sort_point: coords,
    radius: '50000',
-   type: 'building,street',
-   fields: 'items.point,items.address',
-   limit: '20'
+   fields: 'items.point,items.address,items.adm_div',
+   limit: '50'
   });
 
   const url = `https://catalog.api.2gis.com/3.0/items?${params.toString()}`;
@@ -57,15 +58,21 @@ export async function GET(req: NextRequest) {
      if (streetComp) road = streetComp.street || streetComp.name || '';
      if (numberComp) houseNum = numberComp.number || '';
 
+     // SMART GUESSING: If no road/street, use the item name (perfect for metro, parks, etc.)
      if (!road) {
-      const rawName = item.address_name || item.full_name || '';
-      if (rawName) {
-       const parts = rawName.split(',').map((p: string) => p.trim());
-       const cityLower = city.toLowerCase();
-       // Skip city if it's the first part
-       const startIndex = (parts[0] && parts[0].toLowerCase().includes(cityLower)) ? 1 : 0;
-       road = parts[startIndex] || '';
-       if (parts[startIndex + 1] && !houseNum) houseNum = parts[startIndex + 1];
+      const isPlace = ['station', 'attraction', 'place', 'sights', 'park'].some(t => item.type?.includes(t));
+      if (isPlace) {
+       road = item.name || item.address_name || item.full_name || '';
+      } else {
+       const rawName = item.address_name || item.full_name || '';
+       if (rawName) {
+        const parts = rawName.split(',').map((p: string) => p.trim());
+        const cityLower = city.toLowerCase();
+        // Skip city if it's the first part
+        const startIndex = (parts[0] && parts[0].toLowerCase().includes(cityLower)) ? 1 : 0;
+        road = parts[startIndex] || '';
+        if (parts[startIndex + 1] && !houseNum) houseNum = parts[startIndex + 1];
+       }
       }
      }
 
@@ -75,9 +82,10 @@ export async function GET(req: NextRequest) {
      // Normalize road name: Preserve original type if present (проспект, шоссе, проезд, etc.)
      let displayRoad = road;
      const lowerRoad = road.toLowerCase();
-     const hasType = ['проспект', 'шоссе', 'бульвар', 'переулок', 'набережная', 'аллея', 'площадь', 'тупик', 'проезд', 'улица'].some(kw => lowerRoad.includes(kw));
+     const typeKeywords = ['проспект', 'шоссе', 'бульвар', 'переулок', 'набережная', 'аллея', 'площадь', 'тупик', 'проезд', 'тракт', 'линия', 'тупик', 'кольцо', 'метро', 'станция', 'парк', 'сквер'];
+     const hasType = typeKeywords.some(kw => lowerRoad.includes(kw));
 
-     if (!hasType) {
+     if (!hasType && item.type === 'street') {
       // Only attempt to "clean" and re-prefix if it doesn't already have a strong type
       let cleanRoad = road.replace(/(^|\s)(ул|улица|пр|пр-т|проспект|пер|переулок|б-р|бульвар|ш|шоссе|наб|набережная|аллея|тракт)\.?\s+/gi, ' ').trim();
       cleanRoad = cleanRoad.replace(/\s+(ул|улица|пр|пр-т|проспект|пер|переулок|б-р|бульвар|ш|шоссе|наб|набережная|аллея|тракт)\.?$/gi, '').trim();
@@ -87,23 +95,28 @@ export async function GET(req: NextRequest) {
        displayRoad = `улица ${cleanRoad}`;
       }
      } else {
-      // If it has a type, just ensure it's capitalized correctly
+      // If it has a type (like Metro) or isn't a street, just ensure it's capitalized correctly
       displayRoad = displayRoad.charAt(0).toUpperCase() + displayRoad.slice(1);
      }
 
      // Filter: Road after cleanup shouldn't be just the city name
      const checkRoad = displayRoad.toLowerCase();
-     if (checkRoad === city.toLowerCase() || checkRoad === 'москва' || checkRoad === 'санкт-петербург') {
+     if (checkRoad === city.toLowerCase() || checkRoad === 'москва' || checkRoad === 'санкт-петербург' || checkRoad === 'петербург') {
       return null;
      }
 
-     // Final Filter: Result must be relevant to the city
-     const full = (item.full_name || '').toLowerCase();
-     const cName = city.toLowerCase();
-     const isRelevant = full.includes(cName) || (cName.includes('санкт') && full.includes('петербург'));
-     if (!isRelevant) return null;
+     // Relaxed relevance: Trust API results, but ensure it's not a different major city
+     const full = (item.full_name || item.address_name || '').toLowerCase();
+     const otherCity = city === 'Москва' ? 'санкт-петербург' : 'москва';
+     if (full.includes(otherCity) && !full.includes(city.toLowerCase())) return null;
 
      const title = houseNum ? `${displayRoad}, ${houseNum}` : displayRoad;
+     
+     // Special subtitle for metro/stations
+     let subtitle = city;
+     if (item.type?.includes('station')) {
+      subtitle = `Метро, ${city}`;
+     }
 
      return {
       display_name: item.full_name || item.address_name || '',
@@ -115,7 +128,7 @@ export async function GET(req: NextRequest) {
        house_number: houseNum,
        city: city,
        title: title,
-       subtitle: city
+       subtitle: subtitle
       },
       type: item.type
      };
@@ -127,14 +140,13 @@ export async function GET(req: NextRequest) {
 
   const seen = new Set();
   const final = (suggestions as any[]).filter((s: any) => {
-   const key = `${s.address.road}|${s.address.house_number}`.toLowerCase();
+   const key = `${s.address.title}`.toLowerCase();
    if (seen.has(key)) return false;
    seen.add(key);
    return true;
-  }).slice(0, 10);
+  }).slice(0, 15);
 
   return NextResponse.json(final);
-
  } catch (error: any) {
   return NextResponse.json([]);
  }

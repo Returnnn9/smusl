@@ -46,30 +46,37 @@ export async function GET(req: NextRequest) {
    houseNum = numberComp.number || '';
   }
 
-  if (!road && item.address_name) {
-   const parts = item.address_name.split(',');
-   road = parts[0].trim();
-   if (parts.length > 1 && !houseNum) {
-    houseNum = parts[1].trim();
+  // SMART GUESSING: If no road/street, use the item name (perfect for metro, parks, etc.)
+  if (!road) {
+   const isPlace = ['station', 'attraction', 'place', 'sights', 'park'].some(t => item.type?.includes(t));
+   if (isPlace) {
+    road = item.name || item.address_name || item.full_name || '';
+   } else if (item.address_name) {
+    const parts = item.address_name.split(',');
+    road = parts[0].trim();
+    if (parts.length > 1 && !houseNum) {
+     houseNum = parts[1].trim();
+    }
    }
   }
 
-  // Clean and format road
-  let cleanRoad = road.replace(/(^|\s)(ул|улица|пр|пр-т|проспект|пер|переулок|б-р|бульвар|ш|шоссе|наб|набережная|аллея|тракт)\.?\s+/gi, '').trim();
-  if (cleanRoad.length > 0) {
-   cleanRoad = cleanRoad.charAt(0).toUpperCase() + cleanRoad.slice(1);
-  }
-
-  // Refined road normalization: prevent double "улица" and ensure proper prefix
-  let displayRoad = cleanRoad;
+  // Normalize road name: Only add "улица" if it's explicitly a street and lacks a type keyword
+  let displayRoad = road;
   if (displayRoad) {
-   // Remove common redundant prefixes if they exist at the start to ensure we don't double them
-   displayRoad = displayRoad.replace(/^(ул\.|улица|пр-т|проспект|аллея|бульвар|наб\.|набережная)\s+/i, '');
-   // Always prefix with "улица " for consistency, UNLESS it's clearly a different type (though 2GIS usually provides the base name)
-   const lowerRoad = displayRoad.toLowerCase();
-   const hasType = ['проспект', 'шоссе', 'бульвар', 'переулок', 'набережная', 'аллея', 'площадь', 'тупик', 'проезд'].some(kw => lowerRoad.includes(kw));
-   if (!hasType && !lowerRoad.includes('улица')) {
-    displayRoad = `улица ${displayRoad}`;
+   const lowerRoad = road.toLowerCase();
+   const typeKeywords = ['проспект', 'шоссе', 'бульвар', 'переулок', 'набережная', 'аллея', 'площадь', 'тупик', 'проезд', 'тракт', 'линия', 'кольцо', 'метро', 'станция', 'парк', 'сквер'];
+   const hasType = typeKeywords.some(kw => lowerRoad.includes(kw));
+
+   if (!hasType && item.type === 'street') {
+    let cleanRoad = road.replace(/(^|\s)(ул|улица|пр|пр-т|проспект|пер|переулок|б-р|бульвар|ш|шоссе|наб|набережная|аллея|тракт)\.?\s+/gi, ' ').trim();
+    cleanRoad = cleanRoad.replace(/\s+(ул|улица|пр|пр-т|проспект|пер|переулок|б-р|бульвар|ш|шоссе|наб|набережная|аллея|тракт)\.?$/gi, '').trim();
+
+    if (cleanRoad.length > 0) {
+     cleanRoad = cleanRoad.charAt(0).toUpperCase() + cleanRoad.slice(1);
+     displayRoad = `улица ${cleanRoad}`;
+    }
+   } else {
+    displayRoad = displayRoad.charAt(0).toUpperCase() + displayRoad.slice(1);
    }
   }
 
