@@ -217,15 +217,19 @@ export default function AddressModal() {
      animate={{ opacity: 1, y: 0 }}
      exit={{ opacity: 0, y: "100%" }}
      transition={{ type: "spring" as const, damping: 32, stiffness: 280 }}
-     className="relative z-10 bg-white sm:bg-white/95 sm:backdrop-blur-[20px] rounded-t-[2rem] sm:rounded-[3rem] shadow-[0_-8px_40px_rgba(0,0,0,0.12)] sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] overflow-hidden flex w-full max-w-[900px] h-[95vh] sm:h-full font-manrope sm:border-l sm:border-white/20 mt-auto sm:mt-0"
+     className="relative z-10 bg-white sm:bg-white/95 sm:backdrop-blur-[20px] rounded-t-[2rem] sm:rounded-[3rem] shadow-[0_-8px_40px_rgba(0,0,0,0.12)] sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] overflow-hidden flex w-full max-w-[1240px] h-[95vh] sm:h-full font-manrope sm:border-l sm:border-white/20 mt-auto sm:mt-0"
     >
      <button onClick={handleClose} className="absolute top-6 right-6 z-50 p-2.5 bg-gray-50/80 backdrop-blur-md rounded-full text-[#3A332E] hover:bg-gray-100 transition-all sm:hidden shadow-sm">
       <X className="w-5 h-5" />
      </button>
 
-     {step > 1 && (!isEditingAddress) && (
+     {step > 1 && (
       <button
        onClick={() => {
+        if (isEditingAddress) {
+         setIsEditingAddress(false);
+         return;
+        }
         if (step === 3 && userStore.getSavedAddresses().length > 0) {
          setStep(2);
         } else {
@@ -238,7 +242,7 @@ export default function AddressModal() {
       </button>
      )}
 
-     <AnimatePresence mode="popLayout" initial={false}>
+     <AnimatePresence mode="wait">
 
       {/* ───── STEP 1: Способ получения ───── */}
       {step === 1 && (
@@ -248,7 +252,7 @@ export default function AddressModal() {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="flex flex-col sm:flex-row h-full w-full"
+        className="flex flex-col sm:flex-row h-full w-full flex-1"
        >
         <div className="flex-1 p-5 sm:p-10 flex flex-col justify-center overflow-y-auto max-w-2xl mx-auto w-full">
          <div className="flex items-center justify-between mb-8">
@@ -358,9 +362,9 @@ export default function AddressModal() {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="flex flex-col sm:flex-row h-full w-full relative"
+        className="flex flex-col sm:flex-row h-full w-full relative flex-1"
        >
-        <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[55%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
+        <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[70%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
          <div className="w-full h-full sm:rounded-[2rem] overflow-hidden sm:border border-gray-100 relative">
           <MapPicker
            hideSearch={true}
@@ -481,9 +485,9 @@ export default function AddressModal() {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="flex flex-col sm:flex-row h-full w-full relative"
+        className="flex flex-col sm:flex-row h-full w-full relative flex-1"
        >
-        <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[55%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
+        <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[70%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
          <div className="w-full h-full sm:rounded-[2rem] overflow-hidden sm:border border-gray-100 relative">
           <MapPicker
            hideSearch={true}
