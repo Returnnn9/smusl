@@ -239,10 +239,26 @@ export default function CheckoutModal() {
    if (matchedCity) setSelectedCity(matchedCity);
   }
 
-  const road = details.road || details.full.split(',')[0];
+  let road = details.road || details.full.split(',')[0];
   const house = details.house || '';
+
+  // If the road extracted is just the city name, try to get a more specific name from 'full' or title
+  if (road === selectedCity || road === 'Москва' || road === 'Санкт-Петербург') {
+     const parts = details.full.split(',').map((p: string) => p.trim());
+     // Try to find a part that isn't the city
+     const streetPart = parts.find((p: string) => p !== selectedCity && p !== 'Москва' && p !== 'Санкт-Петербург');
+     if (streetPart) road = streetPart;
+  }
+
   const displayAddr = house ? `${road}, ${house}` : road;
-  setTempAddress(displayAddr.replace(`${selectedCity}, `, '').replace('Москва, ', '').replace('Санкт-Петербург, ', ''));
+  // Aggressively strip city name from the start
+  const cleanAddr = displayAddr
+    .replace(new RegExp(`^${selectedCity},?\\s*`, 'i'), '')
+    .replace(/^Москва,?\\s*/i, '')
+    .replace(/^Санкт-Петербург,?\\s*/i, '')
+    .trim();
+
+  setTempAddress(cleanAddr);
   setHouse(house);
   if (details.coords) {
    setSelectedCoords(details.coords);
@@ -383,12 +399,12 @@ export default function CheckoutModal() {
          </button>
         </div>
 
-        <motion.div
-         variants={containerVariants}
-         initial="hidden"
-         animate="visible"
-         className="flex-1 overflow-y-auto pr-1 no-scrollbar space-y-3"
-        >
+         <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="flex-1 overflow-y-auto px-1 no-scrollbar space-y-3"
+         >
          <AnimatePresence mode="popLayout">
           {userStore.getSavedAddresses().map((addr, idx) => (
            <motion.button
@@ -409,9 +425,9 @@ export default function CheckoutModal() {
              address === addr ? "border-[#CF8F73] bg-[#CF8F73]/5 shadow-sm" : "border-gray-100 bg-white hover:border-gray-200"
             )}
            >
-            <div className="flex flex-col items-start gap-1">
+            <div className="flex flex-col items-start gap-1 flex-1 min-w-0 mr-4">
              <span className={cn(
-              "text-[16px] font-[800] transition-colors text-left",
+              "text-[16px] font-[800] transition-colors text-left truncate w-full",
               address === addr ? "text-[#CF8F73]" : "text-[#3A332E]"
              )}>{addr}</span>
              <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Москва</span>
@@ -448,7 +464,7 @@ export default function CheckoutModal() {
         exit="exit"
         className="flex flex-col sm:flex-row h-full w-full relative flex-1"
        >
-        <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[70%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
+        <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[50%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
          <div className="w-full h-full sm:rounded-[1.5rem] overflow-hidden sm:border border-gray-100 shadow-inner relative">
           <MapPicker
            hideSearch={true}
@@ -480,7 +496,7 @@ export default function CheckoutModal() {
          animate={{ y: 0 }}
          className={cn(
           "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto bg-white sm:bg-transparent z-10 flex flex-col rounded-t-[2.5rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.12)] sm:shadow-none overflow-hidden sm:overflow-y-auto no-scrollbar touch-pan-y",
-          isEditingAddress ? "h-[85vh] sm:h-full p-6 sm:p-10" : "p-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:h-full sm:p-10"
+          isEditingAddress ? "max-h-[85vh] sm:h-full px-4 pt-6 sm:p-10" : "px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-6 sm:h-full sm:p-10"
          )}
          transition={{ type: "spring" as const, damping: 28, stiffness: 220 }}
         >
@@ -701,7 +717,7 @@ export default function CheckoutModal() {
         exit="exit"
         className="flex flex-col sm:flex-row h-full w-full relative flex-1"
        >
-        <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[70%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
+        <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[50%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
          <div className="w-full h-full sm:rounded-[1.5rem] overflow-hidden border border-gray-100 shadow-inner relative">
           <MapPicker
            hideSearch={true}
@@ -732,8 +748,8 @@ export default function CheckoutModal() {
          initial={{ y: "100%" }}
          animate={{ y: 0 }}
          className={cn(
-          "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto bg-white sm:bg-transparent z-10 flex flex-col rounded-t-[2.5rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.12)] sm:shadow-none overflow-hidden sm:overflow-y-auto no-scrollbar touch-pan-y",
-          isEditingAddress ? "h-[85vh] sm:h-full p-6 sm:p-10" : "p-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:h-full sm:p-10"
+          "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto bg-white sm:bg-transparent z-10 flex flex-col sm:flex-1 rounded-t-[2.5rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.12)] sm:shadow-none overflow-hidden sm:overflow-y-auto no-scrollbar touch-pan-y",
+          isEditingAddress ? "max-h-[85vh] sm:h-full px-4 pt-6 sm:px-10 sm:py-10" : "px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-6 sm:h-full sm:px-10 sm:py-10"
          )}
          transition={{ type: "spring" as const, damping: 28, stiffness: 220 }}
         >

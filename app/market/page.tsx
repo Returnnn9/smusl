@@ -24,10 +24,10 @@ export default function Home() {
  const cartStore = useCartStore()
  const productStore = useProductStore()
 
- const isCartOpen = useStoreData(uiStore, s => s.getIsCartOpen())
- const activeCategory = useStoreData(uiStore, s => s.getActiveCategory())
- const searchQuery = useStoreData(uiStore, s => s.getSearchQuery())
- const selectedProduct = useStoreData(uiStore, s => s.getSelectedProduct())
+  const isCartOpen = useStoreData(uiStore, s => s.getIsCartOpen())
+  const activeCategory = useStoreData(uiStore, s => s.getActiveCategory())
+  const searchQuery = useStoreData(uiStore, s => s.getSearchQuery())
+  const selectedProduct = useStoreData(uiStore, s => s.getSelectedProduct())
 
  const cart = useStoreData(cartStore, s => s.getCart())
  const products = useStoreData(productStore, s => s.getProducts()) || []
@@ -50,17 +50,6 @@ export default function Home() {
    productStore.fetchProducts()
   }
  }, [])
-
- useEffect(() => {
-  if (isCartOpen) {
-   document.body.style.overflow = 'hidden'
-  } else {
-   document.body.style.overflow = 'unset'
-  }
-  return () => {
-   document.body.style.overflow = 'unset'
-  }
- }, [isCartOpen])
 
  const filteredProducts = products.filter((p: any) => {
   const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase())

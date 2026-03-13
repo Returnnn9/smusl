@@ -55,15 +55,18 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
-    // Find the first building item
-    const item: DGISItem = data.result.items.find((i: DGISItem) => i.type === 'building') || data.result.items[0];
+    // Find the best item: building first, then street, then first available
+    const item: DGISItem = data.result.items.find((i: DGISItem) => i.type === 'building') || 
+                           data.result.items.find((i: DGISItem) => i.type === 'street') ||
+                           data.result.items[0];
+
     const addressObj = item.address || {};
     const components: DGISAddressComponent[] = addressObj.components || [];
 
     let road = '';
     let houseNum = '';
 
-    // Fix redundant OR: find component by type directly
+    // Find component by type directly
     const streetComp = components.find((c: DGISAddressComponent) => c.type === 'street');
     const numberComp = components.find((c: DGISAddressComponent) => c.type === 'street_number');
 
@@ -74,16 +77,20 @@ export async function GET(req: NextRequest) {
       houseNum = numberComp.number || '';
     }
 
-    // SMART GUESSING: If no road/street, use the item name (perfect for metro, parks, etc.)
+    // SMART GUESSING: If no road/street from components, use item details
     if (!road) {
-      const isPlace = ['station', 'attraction', 'place', 'sights', 'park'].some(t => item.type?.includes(t));
-      if (isPlace) {
-        road = item.name || item.address_name || item.full_name || '';
-      } else if (item.address_name) {
-        const parts = item.address_name.split(',');
-        road = parts[0].trim();
-        if (parts.length > 1 && !houseNum) {
-          houseNum = parts[1].trim();
+      if (item.type === 'street') {
+        road = item.name || item.address_name || '';
+      } else {
+        const isPlace = ['station', 'attraction', 'place', 'sights', 'park'].some(t => item.type?.includes(t));
+        if (isPlace) {
+          road = item.name || item.address_name || item.full_name || '';
+        } else if (item.address_name) {
+          const parts = item.address_name.split(',');
+          road = parts[0].trim();
+          if (parts.length > 1 && !houseNum) {
+            houseNum = parts[1].trim();
+          }
         }
       }
     }

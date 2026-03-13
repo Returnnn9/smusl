@@ -11,6 +11,33 @@ export const StoreProvider = ({ children }: { children: React.ReactNode }) => {
  useEffect(() => {
   rootStore.hydrate();
   setIsHydrated(true);
+
+  const uiStore = rootStore.uiStore;
+  const updateScrollLock = () => {
+    const isAnyModalOpen = uiStore.getIsCartOpen() || 
+                         uiStore.getIsCheckoutOpen() || 
+                         uiStore.getIsAddressModalOpen() || 
+                         !!uiStore.getSelectedProduct() || 
+                         uiStore.getIsAuthModalOpen();
+    
+    if (typeof document !== 'undefined') {
+      if (isAnyModalOpen) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = 'unset';
+      }
+    }
+  };
+
+  const unsubscribe = uiStore.subscribe(updateScrollLock);
+  updateScrollLock();
+
+  return () => {
+    unsubscribe();
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = 'unset';
+    }
+  };
  }, []);
 
  return (

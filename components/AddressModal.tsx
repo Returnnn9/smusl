@@ -188,17 +188,31 @@ export default function AddressModal() {
  const onAddressDetailsSelect = useCallback((details: any) => {
   skipNextFetch.current = true;
 
-
   if (details.city) {
    const matchedCity = details.city.includes('Санкт-Петербург') ? 'Санкт-Петербург' :
     details.city.includes('Москва') ? 'Москва' : null;
    if (matchedCity) setSelectedCity(matchedCity);
   }
 
-  const road = details.road || details.full.split(',')[0];
+  let road = details.road || details.full.split(',')[0];
   const house = details.house || '';
+
+  // If the road extracted is just the city name, try to get a more specific name
+  if (road === selectedCity || road === 'Москва' || road === 'Санкт-Петербург') {
+   const parts = details.full.split(',').map((p: string) => p.trim());
+   const streetPart = parts.find((p: string) => p !== selectedCity && p !== 'Москва' && p !== 'Санкт-Петербург');
+   if (streetPart) road = streetPart;
+  }
+
   const displayAddr = house ? `${road}, ${house}` : road;
-  setTempAddress(displayAddr.replace(`${selectedCity}, `, '').replace('Москва, ', '').replace('Санкт-Петербург, ', ''));
+  // Aggressively strip city name from the start
+  const cleanAddr = displayAddr
+   .replace(new RegExp(`^${selectedCity},?\\s*`, 'i'), '')
+   .replace(/^Москва,?\\s*/i, '')
+   .replace(/^Санкт-Петербург,?\\s*/i, '')
+   .trim();
+
+  setTempAddress(cleanAddr);
   setHouse(house);
   if (details.coords) {
    setSelectedCoords(details.coords);
@@ -315,7 +329,7 @@ export default function AddressModal() {
          variants={containerVariants}
          initial="hidden"
          animate="visible"
-         className="flex-1 overflow-y-auto pr-1 no-scrollbar space-y-3"
+         className="flex-1 overflow-y-auto px-1 no-scrollbar space-y-3"
         >
          <AnimatePresence mode="popLayout">
           {userStore.getSavedAddresses().map((addr, idx) => (
@@ -333,9 +347,9 @@ export default function AddressModal() {
              address === addr ? "border-[#CF8F73] bg-[#CF8F73]/5 shadow-sm" : "border-gray-100 bg-white hover:border-gray-200"
             )}
            >
-            <div className="flex flex-col items-start gap-1">
+            <div className="flex flex-col items-start gap-1 flex-1 min-w-0 mr-4">
              <span className={cn(
-              "text-[16px] font-[800] transition-colors text-left",
+              "text-[16px] font-[800] transition-colors text-left truncate w-full",
               address === addr ? "text-[#CF8F73]" : "text-[#3A332E]"
              )}>{addr}</span>
              <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Москва</span>
@@ -372,7 +386,7 @@ export default function AddressModal() {
         exit="exit"
         className="flex flex-col sm:flex-row h-full w-full relative flex-1"
        >
-        <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[70%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
+        <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[50%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
          <div className="w-full h-full sm:rounded-[2rem] overflow-hidden sm:border border-gray-100 relative">
           <MapPicker
            hideSearch={true}
@@ -496,7 +510,7 @@ export default function AddressModal() {
         exit="exit"
         className="flex flex-col sm:flex-row h-full w-full relative flex-1"
        >
-        <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[70%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
+        <div className="absolute inset-0 sm:relative sm:inset-auto sm:w-[50%] sm:h-full p-0 sm:p-6 sm:pb-6 z-0">
          <div className="w-full h-full sm:rounded-[2rem] overflow-hidden sm:border border-gray-100 relative">
           <MapPicker
            hideSearch={true}
