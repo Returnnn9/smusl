@@ -292,7 +292,7 @@ export default function MapPicker({
     setIsLocating(false);
    },
    (err) => {
-    console.error("Geolocation error:", err);
+    console.error("Geolocation error:", err.message || JSON.stringify(err) || err);
     setError("Не удалось определить местоположение. Проверьте разрешения в браузере.");
     setIsLocating(false);
    },
@@ -309,7 +309,7 @@ export default function MapPicker({
        <Search className="w-5 h-5 text-gray-400 group-focus-within:text-[#9146ff] transition-colors" />
       </div>
       <input
-       ref={inputRef}
+       ref= {inputRef}
        type="text"
        value={searchQuery}
        onChange={(e) => handleInputChange(e.target.value)}
@@ -377,40 +377,43 @@ export default function MapPicker({
    <div className="flex-1 w-full bg-[#f3f0ea] rounded-2xl overflow-hidden relative border border-gray-100 shadow-inner">
 
     <div ref={mapRef} className="absolute inset-0 z-0" />
-    {interactive && (
-     <div className="absolute right-4 top-1/2 -translate-y-1/2 z-[500] flex flex-col items-center shadow-[0_4px_12px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden bg-white/95 backdrop-blur-sm border border-black/5">
-      <button
-       onClick={handleZoomIn}
-       className="w-10 h-10 flex items-center justify-center bg-transparent hover:bg-gray-50 transition-colors border-b border-black/5 text-[#333]"
-       title="Приблизить"
-      >
-       <Plus className="w-5 h-5 stroke-[2.5px]" />
-      </button>
-      <button
-       onClick={handleZoomOut}
-       className="w-10 h-10 flex items-center justify-center bg-transparent hover:bg-gray-50 transition-colors text-[#333]"
-       title="Отдалить"
-      >
-       <Minus className="w-5 h-5 stroke-[2.5px]" />
-      </button>
-     </div>
-    )}
+    
+    {/* Map Controls (Zoom + Geolocate) */}
+    <div className="absolute right-4 top-1/2 -translate-y-1/2 z-[1000] flex flex-col items-center gap-3">
+     {interactive && (
+      <div className="flex flex-col items-center shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-2xl overflow-hidden bg-white/95 backdrop-blur-sm border border-black/5">
+       <button
+        onClick={handleZoomIn}
+        className="w-12 h-12 flex items-center justify-center bg-transparent hover:bg-gray-50 transition-colors border-b border-black/5 text-[#3A332E]"
+        title="Приблизить"
+       >
+        <Plus className="w-5 h-5 stroke-[3px]" />
+       </button>
+       <button
+        onClick={handleZoomOut}
+        className="w-12 h-12 flex items-center justify-center bg-transparent hover:bg-gray-50 transition-colors text-[#3A332E]"
+        title="Отдалить"
+       >
+        <Minus className="w-5 h-5 stroke-[3px]" />
+       </button>
+      </div>
+     )}
 
-    {/* Floating Geolocation Button */}
-    {showGeolocate && interactive && (
-     <button
-      onClick={geolocate}
-      disabled={isLocating}
-      className="absolute right-4 bottom-6 z-[500] w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg border border-black/5 hover:bg-gray-50 active:scale-95 transition-all text-[#3A332E] disabled:opacity-50"
-      title="Где я"
-     >
-      {isLocating ? (
-       <Loader2 className="w-6 h-6 animate-spin text-[#3A332E]" />
-      ) : (
-       <Navigation className="w-6 h-6 fill-current" />
-      )}
-     </button>
-    )}
+     {showGeolocate && (
+      <button
+       onClick={geolocate}
+       disabled={isLocating}
+       className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-black/5 hover:bg-gray-50 active:scale-95 transition-all text-[#3A332E] disabled:opacity-50"
+       title="Где я"
+      >
+       {isLocating ? (
+        <Loader2 className="w-6 h-6 animate-spin text-[#3A332E]" />
+       ) : (
+        <Navigation className="w-6 h-6 fill-current" />
+       )}
+      </button>
+     )}
+    </div>
 
     {/* Static Center Pin Overlay */}
     {interactive && (

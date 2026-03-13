@@ -187,7 +187,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isMobile = false, onClose }) 
         setCheckoutOpen(true)
         if (onClose) onClose()
        }}
-       className="w-full bg-[#CF8D72] rounded-[2rem] px-8 h-[74px] flex items-center justify-between text-white shadow-[0_12px_40px_rgba(207,141,114,0.3)] group relative overflow-hidden"
+       className="w-full bg-[#CF8F73] rounded-[2rem] px-8 h-[74px] flex items-center justify-between text-white shadow-[0_12px_40px_rgba(207,143,115,0.3)] group relative overflow-hidden"
       >
        {/* Button shimmer effect */}
        <motion.div

@@ -43,22 +43,22 @@ const itemVariants = {
 
 const stepVariants: any = {
  initial: { opacity: 0, x: 30, scale: 0.98 },
- animate: { 
-  opacity: 1, 
-  x: 0, 
+ animate: {
+  opacity: 1,
+  x: 0,
   scale: 1,
-  transition: { 
-   type: "spring" as const, 
-   damping: 28, 
+  transition: {
+   type: "spring" as const,
+   damping: 28,
    stiffness: 240,
    duration: 0.5
   }
  },
- exit: { 
-  opacity: 0, 
-  x: -30, 
+ exit: {
+  opacity: 0,
+  x: -30,
   scale: 0.98,
-  transition: { 
+  transition: {
    duration: 0.3
   }
  }
@@ -187,6 +187,14 @@ export default function AddressModal() {
 
  const onAddressDetailsSelect = useCallback((details: any) => {
   skipNextFetch.current = true;
+
+
+  if (details.city) {
+   const matchedCity = details.city.includes('Санкт-Петербург') ? 'Санкт-Петербург' :
+    details.city.includes('Москва') ? 'Москва' : null;
+   if (matchedCity) setSelectedCity(matchedCity);
+  }
+
   const road = details.road || details.full.split(',')[0];
   const house = details.house || '';
   const displayAddr = house ? `${road}, ${house}` : road;
@@ -347,14 +355,14 @@ export default function AddressModal() {
          whileHover={{ scale: 1.02 }}
          whileTap={{ scale: 0.98 }}
          onClick={() => setStep(3)}
-         className="mt-6 w-full h-[64px] bg-[#3A332E] text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#2A2420] transition-all active:scale-95 shadow-xl shadow-black/10 shrink-0"
+         className="mt-6 w-full h-[64px] bg-[#CF8F73] text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 shrink-0"
         >
          Новый адрес
         </motion.button>
        </motion.div>
       )}
 
-      {/* ───── STEP 2: Pickup selection (same pattern as saved) ───── */}
+
       {step === 2 && deliveryType === "pickup" && (
        <motion.div
         key="step2-pickup"
@@ -368,8 +376,8 @@ export default function AddressModal() {
          <div className="w-full h-full sm:rounded-[2rem] overflow-hidden sm:border border-gray-100 relative">
           <MapPicker
            hideSearch={true}
-           showGeolocate={false}
-           interactive={false}
+           showGeolocate={true}
+           interactive={true}
            initialAddress={selectedPickup ? `${selectedPickup.city}, ${selectedPickup.address}` : ""}
            onAddressSelect={() => { }}
            onError={setMapError}
@@ -400,7 +408,7 @@ export default function AddressModal() {
          transition={{ type: "spring" as const, damping: 28, stiffness: 220 }}
         >
          <div className="w-12 h-1.5 bg-gray-200/50 rounded-full mx-auto mb-4 sm:hidden shrink-0" />
-         
+
          <div className={cn("sm:hidden flex flex-col gap-4", isEditingAddress ? "hidden" : "flex")}>
           <motion.div
            whileHover={{ scale: 1.02 }}
@@ -424,7 +432,7 @@ export default function AddressModal() {
           <button
            onClick={handleSavePickup}
            disabled={!selectedPickup}
-           className="w-full h-[68px] bg-[#3A332E] disabled:bg-[#3A332E]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#2A2420] transition-all active:scale-95 shadow-xl shadow-black/10 mt-1"
+           className="w-full h-[68px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mt-1"
           >
            Да, всё верно
           </button>
@@ -439,7 +447,7 @@ export default function AddressModal() {
             <h2 className="text-[22px] sm:text-[24px] font-bold text-[#3A332E] tracking-tight">Точка самовывоза</h2>
            </div>
           </div>
-          
+
           <div className="relative mb-6 z-50">
            <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-4 cursor-pointer border border-transparent hover:border-gray-200 transition-colors" onClick={() => setShowCityDropdown(!showCityDropdown)}>
             <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">ГОРОД</span>
@@ -470,7 +478,7 @@ export default function AddressModal() {
            </AnimatePresence>
           </motion.div>
 
-          <button onClick={handleSavePickup} disabled={!selectedPickup} className="mt-6 w-full h-[64px] sm:h-[72px] bg-[#3A332E] disabled:bg-[#3A332E]/40 text-white rounded-[1.5rem] font-black text-[18px] sm:text-[20px] transition-all active:scale-95 shadow-xl shadow-[#3A332E]/20 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0">
+          <button onClick={handleSavePickup} disabled={!selectedPickup} className="mt-6 w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-black text-[18px] sm:text-[20px] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0">
            {isEditingAddress && window.innerWidth < 640 ? 'Готово' : 'Всё верно'}
           </button>
          </div>
@@ -524,7 +532,7 @@ export default function AddressModal() {
          transition={{ type: "spring" as const, damping: 28, stiffness: 220 }}
         >
          <div className="w-12 h-1.5 bg-gray-200/50 rounded-full mx-auto mb-4 sm:hidden shrink-0" />
-         
+
          <div className={cn("sm:hidden flex flex-col gap-4", isEditingAddress ? "hidden" : "flex")}>
           <motion.div
            whileHover={{ scale: 1.01 }}
@@ -548,7 +556,7 @@ export default function AddressModal() {
           <button
            onClick={handleSaveDelivery}
            disabled={!tempAddress}
-           className="w-full h-[68px] bg-[#3A332E] disabled:bg-[#3A332E]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#2A2420] transition-all active:scale-95 shadow-xl shadow-black/10 mt-1"
+           className="w-full h-[68px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mt-1"
           >
            Всё верно
           </button>
@@ -596,13 +604,13 @@ export default function AddressModal() {
              {suggestions.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-2 bg-white rounded-[1.2rem] shadow-2xl border border-gray-100 overflow-hidden max-h-[240px] overflow-y-auto absolute w-full left-0 z-50 py-1">
                {suggestions.map((s, idx) => (
-                <button key={idx} onClick={() => { 
-                  skipNextFetch.current = true; 
-                  setTempAddress(s.display_name); 
-                  setHouse((s.address as any)?.house_number || ""); 
-                  setSuggestions([]); 
-                  if (s.lat && s.lon) setSelectedCoords([parseFloat(s.lat), parseFloat(s.lon)]);
-                  setIsEditingAddress(false);
+                <button key={idx} onClick={() => {
+                 skipNextFetch.current = true;
+                 setTempAddress(s.display_name);
+                 setHouse((s.address as any)?.house_number || "");
+                 setSuggestions([]);
+                 if (s.lat && s.lon) setSelectedCoords([parseFloat(s.lat), parseFloat(s.lon)]);
+                 setIsEditingAddress(false);
                 }} className="w-full text-left px-5 py-3.5 hover:bg-gray-50 transition-colors border-b last:border-0 border-gray-50 flex flex-col">
                  <span className="text-[15px] font-extrabold text-[#333] leading-tight">{(s.address as any)?.title || s.display_name}</span>
                  <span className="text-[12px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{(s.address as any)?.subtitle || selectedCity}</span>
@@ -629,7 +637,7 @@ export default function AddressModal() {
            </div>
           </div>
 
-          <button onClick={handleSaveDelivery} disabled={!tempAddress} className="mt-auto w-full h-[64px] sm:h-[72px] bg-[#3A332E] disabled:bg-[#3A332E]/40 text-white rounded-[1.5rem] font-black text-[18px] sm:text-[20px] transition-all active:scale-95 shadow-xl shadow-black/10 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0">
+          <button onClick={handleSaveDelivery} disabled={!tempAddress} className="mt-auto w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-black text-[18px] sm:text-[20px] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0">
            {isEditingAddress && window.innerWidth < 640 ? 'Готово' : 'Всё верно'}
           </button>
          </div>

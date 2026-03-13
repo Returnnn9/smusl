@@ -231,6 +231,14 @@ export default function CheckoutModal() {
 
  const onAddressDetailsSelect = useCallback((details: any) => {
   skipNextFetch.current = true;
+  
+  // Handle potential city match from geocoding
+  if (details.city) {
+   const matchedCity = details.city.includes('Санкт-Петербург') ? 'Санкт-Петербург' : 
+                      details.city.includes('Москва') ? 'Москва' : null;
+   if (matchedCity) setSelectedCity(matchedCity);
+  }
+
   const road = details.road || details.full.split(',')[0];
   const house = details.house || '';
   const displayAddr = house ? `${road}, ${house}` : road;
@@ -423,7 +431,7 @@ export default function CheckoutModal() {
          whileHover={{ scale: 1.02 }}
          whileTap={{ scale: 0.98 }}
          onClick={() => setStep(2)}
-         className="mt-6 w-full h-[64px] bg-[#3A332E] text-white rounded-[1.2rem] font-[800] text-[18px] transition-all active:scale-95 shadow-xl shadow-black/10 shrink-0"
+         className="mt-6 w-full h-[64px] bg-[#CF8F73] text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 shrink-0"
         >
          Новый адрес
         </motion.button>
@@ -497,13 +505,6 @@ export default function CheckoutModal() {
             </span>
            </div>
            <div className="flex items-center gap-3 shrink-0">
-            <button
-             onClick={(e) => { e.stopPropagation(); handleGeolocate(); }}
-             className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm text-[#3A332E] hover:bg-gray-50 transition-colors"
-             title="Моё местоположение"
-            >
-             <Navigation className="w-4 h-4 fill-current" />
-            </button>
             <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm shrink-0 text-[#3A332E]">
              <Edit3 className="w-4 h-4" />
             </div>
@@ -512,7 +513,7 @@ export default function CheckoutModal() {
           <button
            onClick={handleNextFromDelivery}
            disabled={!tempAddress}
-           className="w-full h-[68px] bg-[#3A332E] disabled:bg-[#3A332E]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#2A2420] transition-all active:scale-95 shadow-xl shadow-black/10 mt-1"
+           className="w-full h-[68px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mt-1"
           >
            Всё верно
           </button>
@@ -681,7 +682,7 @@ export default function CheckoutModal() {
             }
            }}
            disabled={!tempAddress}
-           className="mt-4 sm:mt-auto w-full h-[64px] sm:h-[72px] bg-[#3A332E] disabled:bg-[#3A332E]/40 text-white rounded-[1.2rem] font-[800] text-[18px] sm:text-[20px] hover:bg-[#2A2420] transition-all shadow-xl shadow-black/10 active:scale-95 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0"
+           className="mt-4 sm:mt-auto w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] sm:text-[20px] hover:bg-[#b87a60] transition-all shadow-xl shadow-[#CF8F73]/20 active:scale-95 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0"
           >
            {isEditingAddress && window.innerWidth < 640 ? 'Готово' : 'Всё верно'}
           </button>
@@ -704,8 +705,8 @@ export default function CheckoutModal() {
          <div className="w-full h-full sm:rounded-[1.5rem] overflow-hidden border border-gray-100 shadow-inner relative">
           <MapPicker
            hideSearch={true}
-           showGeolocate={false}
-           interactive={false}
+           showGeolocate={true}
+           interactive={true}
            initialAddress={selectedPickup ? `${selectedPickup.city}, ${selectedPickup.address}` : ""}
            onAddressSelect={() => { }}
            onError={setMapError}
@@ -757,13 +758,6 @@ export default function CheckoutModal() {
             </span>
            </div>
            <div className="flex items-center gap-3 shrink-0">
-            <button
-             onClick={(e) => { e.stopPropagation(); handleGeolocate(); }}
-             className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm text-[#3A332E] hover:bg-gray-50 transition-colors"
-             title="Моё местоположение"
-            >
-             <Navigation className="w-4 h-4 fill-current" />
-            </button>
             <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm shrink-0 text-[#3A332E]">
              <Edit3 className="w-4 h-4" />
             </div>
@@ -772,7 +766,7 @@ export default function CheckoutModal() {
           <button
            onClick={handleNextFromPickup}
            disabled={!selectedPickup}
-           className="w-full h-[68px] bg-[#3A332E] disabled:bg-[#3A332E]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#2A2420] transition-all active:scale-95 shadow-xl shadow-black/10 mt-1"
+           className="w-full h-[68px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mt-1"
           >
            Всё верно
           </button>

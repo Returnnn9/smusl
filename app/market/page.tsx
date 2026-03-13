@@ -51,6 +51,17 @@ export default function Home() {
   }
  }, [])
 
+ useEffect(() => {
+  if (isCartOpen) {
+   document.body.style.overflow = 'hidden'
+  } else {
+   document.body.style.overflow = 'unset'
+  }
+  return () => {
+   document.body.style.overflow = 'unset'
+  }
+ }, [isCartOpen])
+
  const filteredProducts = products.filter((p: any) => {
   const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase())
   if (!matchesSearch) return false
