@@ -31,8 +31,8 @@ const itemVariants = {
   scale: 1,
   transition: {
    type: "spring" as const,
-   damping: 25,
-   stiffness: 200
+   damping: 30,
+   stiffness: 150
   }
  },
  exit: {
@@ -43,24 +43,25 @@ const itemVariants = {
 }
 
 const stepVariants: any = {
- initial: { opacity: 0, x: 30, scale: 0.98 },
+ initial: { opacity: 0, x: 40, scale: 0.98 },
  animate: {
   opacity: 1,
   x: 0,
   scale: 1,
   transition: {
    type: "spring" as const,
-   damping: 28,
-   stiffness: 240,
-   duration: 0.5
+   damping: 35,
+   stiffness: 180,
+   duration: 0.6
   }
  },
  exit: {
   opacity: 0,
-  x: -30,
+  x: -40,
   scale: 0.98,
   transition: {
-   duration: 0.3
+   duration: 0.3,
+   ease: "easeInOut"
   }
  }
 }
