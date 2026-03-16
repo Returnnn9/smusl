@@ -10,6 +10,7 @@ import { useAddressSearch } from "@/hooks/useAddressSearch"
 import { PickupPoint, CityKey } from "@/lib/types/address"
 import { PICKUP_POINTS, CITY_COORDS } from "@/lib/constants/delivery"
 import DeliveryTypeSelector from "./DeliveryTypeSelector"
+import { parseAddress, formatAddress } from "@/lib/address"
 
 const containerVariants = {
  hidden: { opacity: 0 },
@@ -63,6 +64,8 @@ const stepVariants: any = {
   }
  }
 }
+
+
 
 export default function AddressModal() {
  const uiStore = useUIStore()
@@ -159,13 +162,13 @@ export default function AddressModal() {
 
  const handleSaveDelivery = () => {
   if (tempAddress) {
-   const fullAddress = [
-    tempAddress,
-    house && `д. ${house}`,
-    entrance && `под. ${entrance}`,
-    floor && `эт. ${floor}`,
-    apartment && `кв. ${apartment}`
-   ].filter(Boolean).join(', ')
+   const fullAddress = formatAddress({
+    street: tempAddress,
+    house,
+    entrance,
+    floor,
+    apartment
+   })
 
    updateAddress(fullAddress, "delivery")
    handleClose()
@@ -276,7 +279,7 @@ export default function AddressModal() {
         exit="exit"
         className="flex flex-col sm:flex-row h-full w-full flex-1"
        >
-        <div className="flex-1 p-5 sm:p-10 flex flex-col justify-center overflow-y-auto max-w-2xl mx-auto w-full">
+        <div className="flex-1 p-5 sm:p-10 flex flex-col justify-center overflow-y-auto w-full">
          <div className="flex items-center justify-between mb-8">
           <h2 className="text-[22px] sm:text-[26px] font-extrabold text-[#3A332E] tracking-tight">
            Способ получения
@@ -339,6 +342,12 @@ export default function AddressModal() {
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
             onClick={() => {
+             const details = parseAddress(addr);
+             setTempAddress(details.street);
+             setHouse(details.house);
+             setEntrance(details.entrance);
+             setFloor(details.floor);
+             setApartment(details.apartment);
              updateAddress(addr, "delivery");
              handleClose();
             }}
@@ -586,7 +595,7 @@ export default function AddressModal() {
            </div>
           </div>
 
-          <div className="space-y-4 flex-1 overflow-y-auto no-scrollbar pb-6">
+          <div className="space-y-4 flex-1 w-full overflow-y-auto no-scrollbar pb-6">
            {/* City Selector */}
            <div className="relative z-50">
             <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-4 cursor-pointer border border-transparent hover:border-gray-200" onClick={() => setShowCityDropdown(!showCityDropdown)}>
@@ -616,7 +625,7 @@ export default function AddressModal() {
             </div>
             <AnimatePresence>
              {suggestions.length > 0 && (
-              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-2 bg-white rounded-[1.2rem] shadow-2xl border border-gray-100 overflow-hidden max-h-[240px] overflow-y-auto absolute w-full left-0 z-50 py-1">
+              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-2 bg-white rounded-[1.2rem] shadow-2xl border border-gray-100 overflow-hidden max-h-[320px] overflow-y-auto relative sm:absolute w-full left-0 z-50 py-1">
                {suggestions.map((s, idx) => (
                 <button key={idx} onClick={() => {
                  skipNextFetch.current = true;
@@ -625,30 +634,22 @@ export default function AddressModal() {
                  setSuggestions([]);
                  if (s.lat && s.lon) setSelectedCoords([parseFloat(s.lat), parseFloat(s.lon)]);
                  setIsEditingAddress(false);
-                }} className="w-full text-left px-5 py-3.5 hover:bg-gray-50 transition-colors border-b last:border-0 border-gray-50 flex flex-col">
-                 <span className="text-[15px] font-extrabold text-[#333] leading-tight">{(s.address as any)?.title || s.display_name}</span>
-                 <span className="text-[12px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{(s.address as any)?.subtitle || selectedCity}</span>
-                </button>
+                }} className="w-full text-left px-5 py-4 hover:bg-gray-50 transition-colors border-b last:border-0 border-gray-50 flex flex-row items-center gap-4 group">
+                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#CF8F73]/10 group-hover:text-[#CF8F73] transition-colors shrink-0">
+                   <Navigation className="w-5 h-5" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                   <span className="text-[15px] sm:text-[17px] font-extrabold text-[#333] leading-tight truncate">{(s.address as any)?.title || s.display_name}</span>
+                   <span className="text-[12px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{(s.address as any)?.subtitle || selectedCity}</span>
+                  </div>
+                 </button>
                ))}
               </motion.div>
              )}
             </AnimatePresence>
            </div>
 
-           {/* Details Grid */}
-           <div className="grid grid-cols-4 gap-2">
-            {[
-             { label: 'Дом', val: house, set: setHouse, p: '1' },
-             { label: 'Подъезд', val: entrance, set: setEntrance, p: '1' },
-             { label: 'Этаж', val: floor, set: setFloor, p: '1' },
-             { label: 'Кв./Офис', val: apartment, set: setApartment, p: '1' }
-            ].map(f => (
-             <div key={f.label} className="bg-[#F8F8F8] rounded-[1rem] px-3 py-3 overflow-hidden">
-              <span className="block text-[8px] font-bold text-gray-400 uppercase mb-1 truncate">{f.label}</span>
-              <input type="text" value={f.val} onChange={(e) => f.set(e.target.value)} placeholder={f.p} className="w-full bg-transparent border-none outline-none text-[15px] font-extrabold text-[#3A332E]" />
-             </div>
-            ))}
-           </div>
+           {/* Details Grid removed */}
           </div>
 
           <button onClick={handleSaveDelivery} disabled={!tempAddress} className="mt-auto w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-black text-[18px] sm:text-[20px] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0">
