@@ -97,7 +97,8 @@ export default function CheckoutModal() {
  const [mapError, setMapError] = useState<string | null>(null)
  const [selectedCity, setSelectedCity] = useState<CityKey>('Москва')
  const [showCityDropdown, setShowCityDropdown] = useState(false)
- const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null)
+  const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null)
+  const [acceptNews, setAcceptNews] = useState(true)
 
  // Mobile WOW adaptive states
  const [isEditingAddress, setIsEditingAddress] = useState(false)
@@ -379,13 +380,37 @@ export default function CheckoutModal() {
            />
           </div>
          </div>
-         <button
-          onClick={() => setStep(2)}
-          disabled={!userName || !userPhone}
-          className="mt-10 w-full h-[64px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
-         >
-          Далее
-         </button>
+          <div className="flex items-start gap-3 mt-4">
+           <button
+            type="button"
+            onClick={() => setAcceptNews(!acceptNews)}
+            className={`w-5 h-5 rounded-md border flex-shrink-0 flex items-center justify-center transition-all ${
+             acceptNews ? "bg-[#CF8F73] border-[#CF8F73] shadow-sm shadow-[#CF8F73]/20" : "bg-white border-gray-200"
+            }`}
+           >
+            {acceptNews && <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+           </button>
+           <p className="text-[13px] font-medium text-[#3A332E]/60 leading-snug">
+            Соглашаюсь получать новости и специальные предложения
+           </p>
+          </div>
+
+          <button
+           onClick={() => setStep(2)}
+           disabled={!userName || !userPhone}
+           className="mt-8 w-full h-[64px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
+          >
+           Далее
+          </button>
+
+          <p className="mt-6 text-[12px] font-medium text-[#3A332E]/30 leading-relaxed text-center px-4">
+           Нажимая «Далее», принимаю{" "}
+           <a href="/offer" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">оферту</a>
+           {" "}и{" "}
+           <a href="/terms" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">пользовательское соглашение</a>
+           , соглашаюсь на обработку персональных данных на условиях{" "}
+           <a href="/privacy" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">политики конфиденциальности</a>
+          </p>
         </div>
        </motion.div>
       )}
@@ -1063,7 +1088,7 @@ export default function CheckoutModal() {
           initial={{ scale: 0, rotate: -45 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ type: "spring", damping: 12, stiffness: 200, delay: 0.2 }}
-          className="w-24 h-24 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-200"
+          className="w-24 h-24 rounded-full bg-[#CF8F73] flex items-center justify-center shadow-lg shadow-[#CF8F73]/20"
          >
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
            <motion.path
@@ -1083,7 +1108,7 @@ export default function CheckoutModal() {
          {[...Array(6)].map((_, i) => (
           <motion.div
            key={i}
-           className="absolute w-2 h-2 rounded-full bg-green-200"
+           className="absolute w-2 h-2 rounded-full bg-[#CF8F73]/40"
            initial={{ scale: 0, x: 0, y: 0 }}
            animate={{ scale: [0, 1, 0], x: (i % 2 === 0 ? 1 : -1) * (40 + i * 10), y: (i < 3 ? 1 : -1) * (40 + i * 5) }}
            transition={{ duration: 1, delay: 0.8 + i * 0.1 }}

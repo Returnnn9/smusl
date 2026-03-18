@@ -19,6 +19,7 @@ const LoginModal: React.FC = () => {
  const [showPass, setShowPass] = useState(false);
 
  const [formData, setFormData] = useState({ email: "", password: "", name: "" });
+ const [acceptNews, setAcceptNews] = useState(true);
 
  if (!isAuthModalOpen) return null;
 
@@ -225,10 +226,25 @@ const LoginModal: React.FC = () => {
         </motion.p>
        )}
 
+       <div className="flex items-start gap-3 mt-4">
+        <button
+         type="button"
+         onClick={() => setAcceptNews(!acceptNews)}
+         className={`w-5 h-5 rounded-md border flex-shrink-0 flex items-center justify-center transition-all ${
+          acceptNews ? "bg-smusl-terracotta border-smusl-terracotta shadow-sm shadow-smusl-terracotta/20" : "bg-white border-gray-200"
+         }`}
+        >
+         {acceptNews && <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+        </button>
+        <p className="text-[13px] font-medium text-[#4A403A]/70 leading-snug">
+         Соглашаюсь получать новости и специальные предложения
+        </p>
+       </div>
+
        <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-4 bg-smusl-terracotta text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#b87a60] transition-all transform active:scale-[0.98] disabled:opacity-60 shadow-xl shadow-smusl-terracotta/20 mt-2"
+        className="w-full py-4 bg-smusl-terracotta text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#b87a60] transition-all transform active:scale-[0.98] disabled:opacity-60 shadow-xl shadow-smusl-terracotta/20 mt-4"
        >
         {isLoading ? (
          <Loader2 className="w-5 h-5 animate-spin" />
@@ -239,6 +255,15 @@ const LoginModal: React.FC = () => {
          </>
         )}
        </button>
+       
+       <p className="mt-4 text-[12px] font-medium text-[#4A403A]/30 leading-relaxed text-center px-2">
+        Нажимая {isLogin ? "«Войти»" : "«Создать аккаунт»"}, принимаю{" "}
+        <a href="/offer" className="text-smusl-terracotta underline underline-offset-2 hover:text-[#b87a60] transition-colors">оферту</a>
+        {" "}и{" "}
+        <a href="/terms" className="text-smusl-terracotta underline underline-offset-2 hover:text-[#b87a60] transition-colors">пользовательское соглашение</a>
+        , соглашаюсь на обработку персональных данных на условиях{" "}
+        <a href="/privacy" className="text-smusl-terracotta underline underline-offset-2 hover:text-[#b87a60] transition-colors">политики конфиденциальности</a>
+       </p>
       </form>
 
       <div className="mt-6 text-center text-sm font-medium">

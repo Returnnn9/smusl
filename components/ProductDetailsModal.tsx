@@ -117,7 +117,10 @@ export default function ProductDetailsModal() {
        className="flex-1 h-[56px] sm:h-[68px] bg-[#CF8D72] text-white rounded-[1.2rem] font-bold text-[16px] sm:text-[18px] flex items-center justify-center gap-2 sm:gap-3 shadow-[0_8px_24px_rgba(207,141,114,0.35)] hover:shadow-[0_12px_32px_rgba(207,141,114,0.5)] hover:bg-[#C27E63] transition-all hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.98] select-none touch-manipulation transform-gpu"
       >
        <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 text-white" />
-       <span className="drop-shadow-sm tracking-wide pointer-events-none">Добавить в корзину</span>
+        <span className="drop-shadow-sm tracking-wide pointer-events-none">
+         <span className="sm:hidden">В корзину</span>
+         <span className="hidden sm:inline">Добавить в корзину</span>
+        </span>
       </button>
      </div>
 
