@@ -346,6 +346,15 @@ export default function AddressModal() {
           >
            Далее
           </button>
+
+          <p className="mt-6 text-[12px] font-medium text-[#3A332E]/30 leading-relaxed text-center px-4">
+           Нажимая «Далее», принимаю{" "}
+           <a href="/offer" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">оферту</a>
+           {" "}и{" "}
+           <a href="/terms" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">пользовательское соглашение</a>
+           , соглашаюсь на обработку персональных данных на условиях{" "}
+           <a href="/privacy" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">политики конфиденциальности</a>
+          </p>
          </div>
         </div>
        </motion.div>

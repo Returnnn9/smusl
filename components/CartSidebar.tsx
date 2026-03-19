@@ -180,34 +180,40 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isMobile = false, onClose }) 
        </motion.span>
       </div>
 
-      <motion.button
-       whileHover={{ scale: 1.02 }}
-       whileTap={{ scale: 0.98 }}
-       onClick={() => {
-        setCheckoutOpen(true)
-        if (onClose) onClose()
-       }}
-       className="w-full bg-[#CF8F73] rounded-[2rem] px-8 h-[74px] flex items-center justify-between text-white shadow-[0_12px_40px_rgba(207,143,115,0.3)] group relative overflow-hidden"
-      >
-       {/* Button shimmer effect */}
-       <motion.div
-        className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
-        animate={{ translateX: ["-100%", "200%"] }}
-        transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 1 }}
-       />
-       <span className="text-[21px] font-[900] relative z-10 drop-shadow-sm">Оформить</span>
-       <div className="flex items-center gap-2 relative z-10">
-        <div className="w-[1px] h-8 bg-[#FDF8ED]/30 mx-2" />
-        <motion.svg
-         width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
-         animate={{ x: [0, 5, 0] }}
-         transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-        >
-         <path d="M5 12h14m-7-7 7 7-7 7" />
-        </motion.svg>
-       </div>
-      </motion.button>
-     </div>
+       <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={() => {
+         setCheckoutOpen(true)
+         if (onClose) onClose()
+        }}
+        className="w-full bg-[#CF8F73] rounded-[2rem] px-8 h-[74px] flex items-center justify-between text-white shadow-[0_12px_40px_rgba(207,143,115,0.3)] group relative overflow-hidden"
+       >
+        {/* Button shimmer effect */}
+        <motion.div
+         className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
+         animate={{ translateX: ["-100%", "200%"] }}
+         transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 1 }}
+        />
+        <span className="text-[21px] font-[900] relative z-10 drop-shadow-sm">Оформить</span>
+        <div className="flex items-center gap-2 relative z-10">
+         <div className="w-[1px] h-8 bg-[#FDF8ED]/30 mx-2" />
+         <motion.svg
+          width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+          animate={{ x: [0, 5, 0] }}
+          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+         >
+          <path d="M5 12h14m-7-7 7 7-7 7" />
+         </motion.svg>
+        </div>
+       </motion.button>
+       <p className="mt-4 text-[11px] font-medium text-[#4A423D]/40 leading-relaxed text-center px-4">
+        Нажимая «Оформить», вы принимаете условия{" "}
+        <a href="/offer" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">оферты</a>
+        {" "}и{" "}
+        <a href="/privacy" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">политики конфиденциальности</a>
+       </p>
+      </div>
     )
    }
   </div >
