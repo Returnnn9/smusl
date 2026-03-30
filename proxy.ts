@@ -1,41 +1,40 @@
 import { NextResponse } from "next/server";
-import { withAuth } from "next-auth/middleware";
+import NextAuth from "next-auth";
+import { authConfig } from "./auth.config";
 
-export default withAuth(
- function middleware(req) {
+const { auth } = NextAuth(authConfig);
+
+export default auth((req) => {
   const { pathname } = req.nextUrl;
-  const token = req.nextauth.token;
-  const is2faEnabled = token?.twoFactorEnabled;
+  const token = req.auth;
+  const is2faEnabled = (token as any)?.twoFactorEnabled;
   const is2faVerified = req.cookies.has("admin_2fa_verified");
 
-  // If accessing admin area (but not the verify-2fa page)
-  // Note: /admin/login is now handled by the authorized callback to allow access
-  if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/verify-2fa")) {
-   // Check role
-   if (token?.role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/", req.url));
-   }
+  const isAdminArea = pathname.startsWith("/admin");
+  const isVerify2fa = pathname.startsWith("/admin/verify-2fa");
+  const isLogin = pathname === "/admin/login";
 
-   // Check 2FA if enabled
-   if (is2faEnabled && !is2faVerified) {
-    return NextResponse.redirect(new URL("/admin/verify-2fa", req.url));
-   }
+  if (isAdminArea) {
+    // 1. Unauthenticated users to login page
+    if (!token && !isLogin) {
+      return NextResponse.redirect(new URL("/admin/login", req.url));
+    }
+
+    // 2. Authenticated users checks
+    if (token) {
+      if (token.role !== "ADMIN" && !isLogin) {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+
+      if (is2faEnabled && !is2faVerified && !isVerify2fa) {
+        return NextResponse.redirect(new URL("/admin/verify-2fa", req.url));
+      }
+    }
   }
 
   return NextResponse.next();
- },
- {
-  callbacks: {
-   authorized: ({ token, req }) => {
-    const { pathname } = req.nextUrl;
-    // Always allow access to login page
-    if (pathname === "/admin/login") return true;
-    // Otherwise require a token
-    return !!token;
-   },
-  },
- }
-);
+});
+
 
 export const config = {
  matcher: ["/admin/:path*"],

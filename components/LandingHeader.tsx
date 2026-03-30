@@ -119,13 +119,12 @@ const LandingHeader: React.FC = () => {
        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
        className="relative origin-center hover:scale-105 transition-transform duration-500 ease-out py-1"
       >
-       <Image
+       <img
         src="/images/Logoo.png"
         alt="СМЫСЛ ЕСТЬ"
-        width={90}
-        height={90}
+        width="90"
+        height="90"
         className="w-[60px] md:w-[75px] lg:w-[90px] h-auto object-contain drop-shadow-sm group-hover:drop-shadow-md"
-        priority
        />
       </motion.div>
      </Link>
@@ -167,7 +166,7 @@ const LandingHeader: React.FC = () => {
       <motion.div
        initial={{ scale: 0.8, opacity: 0 }}
        animate={{ scale: 1, opacity: 1 }}
-       transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
+       transition={{ delay: 0.2, duration: 1.5, ease: "easeOut" }}
        className="absolute bottom-[-10%] left-[-10%] w-[60vh] h-[60vh] bg-[#B54442]/10 rounded-full blur-[100px] pointer-events-none"
       />
 
@@ -183,11 +182,11 @@ const LandingHeader: React.FC = () => {
         </button>
        </div>
        <div className="absolute left-1/2 -translate-x-1/2 top-4 flex items-center justify-center">
-        <Image
+        <img
          src="/photo/logo.png"
          alt="СМЫСЛ ЕСТЬ"
-         width={50}
-         height={50}
+         width="50"
+         height="50"
          className="w-[45px] h-auto object-contain drop-shadow-sm opacity-80"
         />
        </div>

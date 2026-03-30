@@ -64,10 +64,10 @@ export class RootStore {
   }
 
  // Helper method to wire up stores logic together if needed
- checkout(): boolean {
+ async checkout(): Promise<boolean> {
   const items = this.cartStore.getCart();
   const total = this.cartStore.getCartTotal();
-  const success = this.userStore.checkout(items, total);
+  const success = await this.userStore.checkout(items, total);
 
   if (success) {
    this.cartStore.clearCart();

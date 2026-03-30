@@ -1,24 +1,11 @@
 import { NextResponse } from 'next/server';
 import { sendSms } from '@/lib/alfasms';
-import { createOtp } from '@/lib/otp-store';
+import { createOtp, getOtpSendCooldown } from '@/lib/otp-store';
+import { normalizePhone } from '@/lib/phone';
 
-/** Normalize phone to 7XXXXXXXXXX (11 digits, starting with 7) */
-function normalizePhone(raw: string): string | null {
-  const digits = raw.replace(/\D/g, '');
-  if (digits.length === 11 && (digits.startsWith('7') || digits.startsWith('8'))) {
-    return '7' + digits.slice(1);
-  }
-  if (digits.length === 10 && digits.startsWith('9')) {
-    return '7' + digits;
-  }
-  if (digits.length === 11 && digits.startsWith('7')) {
-    return digits;
-  }
-  return null;
-}
+const ADMIN_PHONE = process.env.ADMIN_PHONE ?? '';
 
-// Simple rate-limit: one OTP send per phone per 60 seconds
-const lastSent = new Map<string, number>();
+export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
@@ -32,40 +19,35 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Неверный формат номера' }, { status: 400 });
     }
 
-    // Rate limiting
-    const now = Date.now();
-    const last = lastSent.get(normalized) ?? 0;
-    const wait = Math.ceil((60_000 - (now - last)) / 1000);
-    if (now - last < 60_000) {
-      return NextResponse.json(
-        { error: `Подождите ${wait} сек. перед повторной отправкой` },
-        { status: 429 }
-      );
-    }
-
-    const ADMIN_PHONE = '79222222222';
-    if (normalized === ADMIN_PHONE) {
+    // Admin shortcut — no OTP needed, password is verified in auth.ts
+    if (ADMIN_PHONE && normalized === ADMIN_PHONE) {
       return NextResponse.json({ ok: true, admin: true });
     }
 
-    const code = await createOtp(normalized);
-    lastSent.set(normalized, now);
+    // DB-based cooldown (safe for serverless — no in-memory Map)
+    const waitSeconds = await getOtpSendCooldown(normalized);
+    if (waitSeconds > 0) {
+      return NextResponse.json(
+        { error: `Подождите ${waitSeconds} сек. перед повторной отправкой` },
+        { status: 429 },
+      );
+    }
 
-    // Bypass AlfaSMS for test numbers ONLY in development (ends in 0000)
+    const code = await createOtp(normalized);
+
+    // Bypass AlfaSMS for test numbers in development only
     if (process.env.NODE_ENV !== 'production' && normalized.endsWith('0000')) {
       console.log(`[OTP] Bypass SMS for test number ${normalized}. Code: ${code}`);
       return NextResponse.json({ ok: true, dev: true });
     }
 
-    const smsText = `Ваш код подтверждения: ${code}`;
-    const smsResult = await sendSms(normalized, smsText);
+    const smsResult = await sendSms(normalized, `Ваш код подтверждения: ${code}`);
 
     if (!smsResult.success) {
       console.error('[OTP send] SMS failed:', smsResult.errorText);
-      // Return the specific error from AlfaSMS so the user knows what's wrong (e.g. "Некорректный API KEY")
       return NextResponse.json(
         { error: `Ошибка сервиса SMS: ${smsResult.errorText || 'неизвестно'} (код ${smsResult.errorCode || '?'})` },
-        { status: 500 }
+        { status: 500 },
       );
     }
 

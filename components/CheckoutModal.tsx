@@ -10,62 +10,9 @@ import { PickupPoint, CityKey } from "@/lib/types/address"
 import { PICKUP_POINTS, CITY_COORDS } from "@/lib/constants/delivery"
 import DeliveryTypeSelector from "./DeliveryTypeSelector"
 import { parseAddress, formatAddress } from "@/lib/address"
+import { containerVariants, itemVariants, stepVariants } from "@/lib/motion-variants"
 
 type DeliveryType = "delivery" | "pickup" | null
-
-const containerVariants = {
- hidden: { opacity: 0 },
- visible: {
-  opacity: 1,
-  transition: {
-   staggerChildren: 0.1,
-   delayChildren: 0.1
-  }
- }
-}
-
-const itemVariants = {
- hidden: { opacity: 0, y: 15, scale: 0.98 },
- visible: {
-  opacity: 1,
-  y: 0,
-  scale: 1,
-  transition: {
-   type: "spring" as const,
-   damping: 30,
-   stiffness: 150
-  }
- },
- exit: {
-  opacity: 0,
-  scale: 0.98,
-  transition: { duration: 0.2 }
- }
-}
-
-const stepVariants: any = {
- initial: { opacity: 0, x: 40, scale: 0.98 },
- animate: { 
-  opacity: 1, 
-  x: 0, 
-  scale: 1,
-  transition: { 
-   type: "spring" as const, 
-   damping: 35, 
-   stiffness: 180,
-   duration: 0.6
-  }
- },
- exit: { 
-  opacity: 0, 
-  x: -40, 
-  scale: 0.98,
-  transition: { 
-   duration: 0.3,
-   ease: "easeInOut"
-  }
- }
-}
 
 export default function CheckoutModal() {
  const uiStore = useUIStore()
@@ -218,10 +165,10 @@ export default function CheckoutModal() {
   cardExpiry.length === 5 &&
   cardCVC.length === 3
 
- const handleFinalCheckout = () => {
-  const success = checkout()
+ const handleFinalCheckout = async () => {
+  const success = await checkout()
   if (success) {
-   setStep(5)
+   setStep(6)
    setTimeout(() => {
     handleClose()
    }, 3500)
@@ -507,7 +454,7 @@ export default function CheckoutModal() {
               "text-[16px] font-[800] transition-colors text-left truncate w-full",
               address === addr ? "text-[#CF8F73]" : "text-[#3A332E]"
              )}>{addr}</span>
-             <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Москва</span>
+             <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">{selectedCity}</span>
             </div>
             <div className={cn(
              "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0",

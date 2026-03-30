@@ -130,10 +130,11 @@ const LoginModal: React.FC = () => {
   };
 
   const phoneDigits = rawDigits(phone);
-  const ADMIN_PHONE = '79222222222';
-  const isAdmin = phoneDigits === ADMIN_PHONE;
   const isPhoneValid = phoneDigits.length === 11;
-  const isOtpComplete = isAdmin ? otp.length >= 4 : otp.length === 4;
+  // Admin detection is handled server-side (ADMIN_PHONE env var in auth.ts)
+  const isAdmin = false;
+  const isOtpComplete = otp.length === 4;
+
 
   /* ── Step 1: send OTP ── */
   const handleSend = async () => {

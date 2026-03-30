@@ -30,7 +30,9 @@ const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
  const setSearchQuery = (q: string) => uiStore.setSearchQuery(q)
 
  const { status } = useSession()
- const isAuthenticated = status === "authenticated"
+ const [mounted, setMounted] = React.useState(false)
+ React.useEffect(() => setMounted(true), [])
+ const isAuthenticated = mounted && status === "authenticated"
 
  return (
   <header className="w-full z-[100] font-montserrat bg-[#F5E6DA]/50 pb-3 sm:pb-5 border-b border-[#4A403A]/5">
@@ -40,7 +42,7 @@ const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
     <div className="flex items-center justify-between py-3 sm:py-4">
      {/* Logo */}
      <Link href="/" className="flex items-center cursor-pointer shrink-0 select-none">
-      <Image src="/photo/logo.png" alt="СМЫСЛ ЕСТЬ" width={180} height={46} priority className="h-[30px] xs:h-[35px] sm:h-[40px] md:h-[46px] w-auto object-contain" />
+      <img src="/photo/logo.png" alt="СМЫСЛ ЕСТЬ" width="180" height="46" className="h-[30px] xs:h-[35px] sm:h-[40px] md:h-[46px] w-auto object-contain" />
      </Link>
 
      {/* Right: Address + Profile */}
@@ -54,7 +56,7 @@ const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
         {deliveryType === "pickup" ? "Самовывоз" : (deliveryType === "delivery" ? "Доставка на дом" : "Способ получения")}
        </span>
        <div className="flex items-center gap-1 sm:gap-1.5">
-        <span className="text-[13px] sm:text-[15px] font-[700] text-[#3A332E] max-w-[150px] xs:max-w-[220px] sm:max-w-[300px] md:max-w-[500px] truncate tracking-tight leading-tight">
+        <span className="text-[13px] sm:text-[15px] font-[700] text-[#3A332E] max-w-[150px] xs:max-w|220px] sm:max-w|[300px] md:max-w|[500px] truncate tracking-tight leading-tight">
          {address || "Нажмите, чтобы выбрать"}
         </span>
         <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 text-[#3A332E]/30 group-hover:text-smusl-terracotta transition-colors" />

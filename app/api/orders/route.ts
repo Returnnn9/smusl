@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Order } from '@/store/types';
 import { sendSms, buildOrderSms } from '@/lib/alfasms';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+
+export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   // Only admins can list all orders
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   
   if (!session || !session.user || session.user.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -21,6 +22,8 @@ export async function GET(req: NextRequest) {
     // Map Prisma models to the expected frontend Order type
     const orders: Order[] = dbOrders.map(dbOrder => ({
       ...dbOrder,
+      userName: dbOrder.userName ?? undefined,
+      userPhone: dbOrder.userPhone ?? undefined,
       items: JSON.parse(dbOrder.items),
       status: dbOrder.status as any,
     }));
@@ -62,6 +65,8 @@ export async function POST(req: Request) {
 
     const parsedOrder: Order = {
       ...savedOrder,
+      userName: savedOrder.userName ?? undefined,
+      userPhone: savedOrder.userPhone ?? undefined,
       items: JSON.parse(savedOrder.items),
       status: savedOrder.status as any,
     };
