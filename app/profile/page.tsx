@@ -182,7 +182,7 @@ export default function ProfilePage() {
  }
 
  return (
-  <div className="min-h-screen bg-[#FAF8F5] font-montserrat flex flex-col">
+  <div className="min-h-screen w-full bg-[#FAF8F5] font-montserrat flex flex-col">
    <Header showCategories={false} />
 
    <main className="flex-1 w-full px-4 sm:px-8 lg:px-12 pb-24 pt-8">
@@ -329,39 +329,39 @@ export default function ProfilePage() {
             </div>
 
             {/* Desktop layout */}
-            <div className="hidden sm:flex items-center gap-10 p-8 lg:p-10">
+            <div className="hidden sm:grid grid-cols-[auto_1fr_110px_minmax(140px,260px)_100px_auto] items-center gap-4 lg:gap-8 p-6 lg:p-10">
              <div className="relative w-28 h-28 rounded-[2rem] overflow-hidden bg-[#FDFBF9] shrink-0 shadow-sm">
               {firstProduct?.image
                ? <Image src={firstProduct.image} alt={firstProduct.name} fill sizes="112px" className="object-cover" />
                : <div className="w-full h-full bg-smusl-beige/60" />
               }
              </div>
-             <div className="flex-1 min-w-0">
-              <p className="text-[20px] font-bold text-[#5B5047] leading-snug">{firstItem?.name}</p>
-              <p className="text-[15px] text-smusl-gray/60 font-black mt-2">
-               {firstProduct?.weight} × {firstItem?.quantity}
-               {extraCount > 0 && <span className="ml-4 text-[#CF8F73] uppercase tracking-tighter">+{extraCount} ещё</span>}
-              </p>
-             </div>
-             <div className="shrink-0 text-center px-4">
-              <p className="text-[11px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-2">Дата</p>
-              <p className="text-[15px] text-[#5B5047] font-bold">{order.date}</p>
-             </div>
-             <div className="shrink-0 max-w-[200px] px-4">
-              <p className="text-[11px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-2">Адрес</p>
-              <p className="text-[14px] text-[#5B5047]/80 font-medium leading-relaxed line-clamp-2">{order.address}</p>
-             </div>
-             <div className="shrink-0 text-right px-4">
-              <p className="text-[11px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-2">Сумма</p>
-              <p className="text-[26px] font-black text-[#5B5047]">{order.total} ₽</p>
-             </div>
-             <button
-              onClick={() => handleRepeatOrder(order)}
-              className="flex items-center gap-3 px-8 py-4.5 bg-[#CD8B70] text-white rounded-[1.6rem] text-[15px] font-black uppercase tracking-widest hover:brightness-105 transition-all active:scale-95 shadow-xl shadow-[#CD8B70]/20"
-             >
-              <RotateCcw className="w-4 h-4" />
-              Повторить
-             </button>
+              <div className="min-w-0 pr-4">
+               <p className="text-[17px] lg:text-[20px] font-bold text-[#5B5047] leading-tight truncate">{firstItem?.name}</p>
+               <p className="text-[13px] lg:text-[15px] text-smusl-gray/60 font-black mt-1.5 line-clamp-1">
+                {firstProduct?.weight} × {firstItem?.quantity}
+                {extraCount > 0 && <span className="ml-2 lg:ml-4 text-[#CF8F73] uppercase tracking-tighter">+{extraCount} ещё</span>}
+               </p>
+              </div>
+              <div className="text-center px-1 sm:px-2">
+               <p className="text-[10px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-1.5">Дата</p>
+               <p className="text-[14px] lg:text-[15px] text-[#5B5047] font-bold whitespace-nowrap">{order.date}</p>
+              </div>
+              <div className="px-1 sm:px-2 min-w-0">
+               <p className="text-[10px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-1.5">Адрес</p>
+               <p className="text-[13px] lg:text-[14px] text-[#5B5047]/80 font-medium leading-relaxed line-clamp-2">{order.address}</p>
+              </div>
+              <div className="text-right px-1 sm:px-2">
+               <p className="text-[10px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-1.5">Сумма</p>
+               <p className="text-[20px] lg:text-[26px] font-black text-[#5B5047] whitespace-nowrap">{order.total} ₽</p>
+              </div>
+              <button
+               onClick={() => handleRepeatOrder(order)}
+               className="flex items-center gap-2 lg:gap-3 px-5 lg:px-8 py-3 lg:py-4.5 bg-[#CD8B70] text-white rounded-[1.2rem] lg:rounded-[1.6rem] text-[13px] lg:text-[15px] font-black uppercase tracking-widest hover:brightness-105 transition-all active:scale-95 shadow-xl shadow-[#CD8B70]/20 shrink-0"
+              >
+               <RotateCcw className="w-3.5 h-3.5 lg:w-4 h-4" />
+               <span className="whitespace-nowrap">Повторить</span>
+              </button>
             </div>
            </motion.div>
           )

@@ -34,7 +34,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isMobile = false, onClose }) 
      <h2 className="flex items-center gap-2 min-w-0">
       <span className="w-2 h-2 rounded-full bg-[#CF8D72] animate-pulse shrink-0" />
       <span className={cn(
-       "font-extrabold text-[#4A423D] truncate max-w-full",
+       "font-extrabold text-[#4A423D] leading-tight max-w-full",
        isMobile ? "text-[17px]" : "text-[20px]"
       )} title={address || "Адрес не выбран"}>
        {address || "Адрес не выбран"}
@@ -122,7 +122,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isMobile = false, onClose }) 
           {/* Details */}
           <div className="flex-1 flex flex-col justify-between py-1.5 min-w-0 h-full">
            <div>
-            <h4 className="text-[16px] font-black text-[#4A423D] leading-[1.2] mb-1 truncate">
+            <h4 className="text-[16px] font-black text-[#4A423D] leading-[1.2] mb-1 line-clamp-2">
              {item.name}
             </h4>
 

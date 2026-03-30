@@ -54,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
         {deliveryType === "pickup" ? "Самовывоз" : (deliveryType === "delivery" ? "Доставка на дом" : "Способ получения")}
        </span>
        <div className="flex items-center gap-1 sm:gap-1.5">
-        <span className="text-[13px] sm:text-[15px] font-[300] text-[#3A332E]/50 max-w-[140px] xs:max-w-[190px] sm:max-w-[260px] md:max-w-[340px] truncate tracking-tight leading-tight">
+        <span className="text-[13px] sm:text-[15px] font-[700] text-[#3A332E] max-w-[150px] xs:max-w-[220px] sm:max-w-[300px] md:max-w-[500px] truncate tracking-tight leading-tight">
          {address || "Нажмите, чтобы выбрать"}
         </span>
         <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 text-[#3A332E]/30 group-hover:text-smusl-terracotta transition-colors" />
