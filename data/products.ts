@@ -60,7 +60,7 @@ export const products: Product[] = [
   price: 85,
   category: "Хлеб",
   image: "/photo/bread1.jpg"
- } as any,
+ },
  {
   id: 8,
   name: "Кекс фисташковый",
@@ -68,7 +68,7 @@ export const products: Product[] = [
   price: 180,
   category: "Снеки",
   image: "/photo/snack1.jpg"
- } as any,
+ },
  {
   id: 9,
   name: "Слойка с малиной",
@@ -76,7 +76,7 @@ export const products: Product[] = [
   price: 120,
   category: "Выпечка",
   image: "/photo/snack1.jpg"
- } as any
+ }
 ];
 
 export const categories = [

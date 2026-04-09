@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const DGIS_KEY = process.env.DGIS_API_KEY_SERVER || process.env.NEXT_PUBLIC_2GIS_API_KEY;
+// Prefer server-only key (not embedded in client bundle); fall back to public key for compatibility
+const DGIS_KEY = process.env.DGIS_API_KEY || process.env.NEXT_PUBLIC_2GIS_API_KEY;
 
 interface DGISAddressComponent {
   street?: string;
@@ -48,7 +49,9 @@ export async function GET(req: NextRequest) {
       limit: '2'
     });
 
-    const response = await fetch(`https://catalog.api.2gis.com/3.0/items/geocode?${params.toString()}`);
+    const response = await fetch(`https://catalog.api.2gis.com/3.0/items/geocode?${params.toString()}`, {
+      signal: AbortSignal.timeout(8_000), // 8 second hard timeout
+    });
     const data: DGISResponse = await response.json();
 
     if (!data?.result?.items || data.result.items.length === 0) {

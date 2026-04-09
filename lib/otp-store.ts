@@ -1,14 +1,13 @@
+import { randomInt } from 'crypto';
 import { prisma } from './prisma';
 
 const CODE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const SEND_COOLDOWN_MS = 60 * 1000; // 60 seconds between sends
 const MAX_ATTEMPTS = 5;
 
-/** Generate a 4-digit numeric code using a cryptographically secure RNG */
+/** Generate a 4-digit numeric code using a cryptographically secure RNG (no modular bias) */
 function generateCode(): string {
-  const array = new Uint32Array(1);
-  crypto.getRandomValues(array);
-  return (1000 + (array[0] % 9000)).toString();
+  return randomInt(1000, 10000).toString();
 }
 
 /**
@@ -43,9 +42,9 @@ export type VerifyResult =
   | { ok: false; reason: 'not_found' | 'expired' | 'incorrect' | 'too_many_attempts' };
 
 export async function verifyOtp(phone: string, code: string): Promise<VerifyResult> {
-  // Support bypass code 1111 for the ADMIN_PHONE in development
+  // Bypass code 1111 — only available in non-production for ADMIN_PHONE
   const ADMIN_PHONE = process.env.ADMIN_PHONE ?? '';
-  if (ADMIN_PHONE && phone === ADMIN_PHONE && code === '1111') {
+  if (process.env.NODE_ENV !== 'production' && ADMIN_PHONE && phone === ADMIN_PHONE && code === '1111') {
     return { ok: true };
   }
 

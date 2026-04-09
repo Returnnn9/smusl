@@ -7,7 +7,7 @@ const { auth } = NextAuth(authConfig);
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const token = req.auth;
-  const is2faEnabled = (token as any)?.twoFactorEnabled;
+  const is2faEnabled = token?.twoFactorEnabled;
   const is2faVerified = req.cookies.has("admin_2fa_verified");
 
   const isAdminArea = pathname.startsWith("/admin");

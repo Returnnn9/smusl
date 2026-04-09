@@ -69,7 +69,7 @@ export class UserStore extends EventEmitter {
   this.hasSetAddress = true;
   
   if (type === "delivery" && !this.savedAddresses.includes(newAddress)) {
-   this.savedAddresses = [newAddress, ...this.savedAddresses];
+   this.savedAddresses = [newAddress, ...this.savedAddresses].slice(0, 10);
    this.saveSavedAddresses();
   }
 
@@ -79,7 +79,7 @@ export class UserStore extends EventEmitter {
 
  addSavedAddress(address: string) {
    if (!this.savedAddresses.includes(address)) {
-     this.savedAddresses = [address, ...this.savedAddresses];
+     this.savedAddresses = [address, ...this.savedAddresses].slice(0, 10);
      this.saveSavedAddresses();
      this.emitChange();
    }
@@ -155,6 +155,13 @@ export class UserStore extends EventEmitter {
      body: JSON.stringify(order),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    // Use the server-assigned id (DB autoincrement) to replace the temp Date.now() id
+    const savedOrder = await res.json();
+    if (savedOrder?.id) {
+     this.orderHistory = [{ ...order, id: savedOrder.id }, ...prevOrderHistory];
+     this.saveOrders();
+     this.emitChange();
+    }
    } catch (err) {
     console.error("[UserStore] Failed to persist order, rolling back:", err);
     // Rollback optimistic update

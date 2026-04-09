@@ -51,30 +51,18 @@ export default function AddressModal() {
  const {
   suggestions,
   setSuggestions,
+  clearSuggestions,
   isLoading: isLoadingSuggestions,
   isLocating,
   skipNextFetch,
   fetchSuggestions,
+  debouncedSearch,
   geolocate,
   searchTimeout
  } = useAddressSearch(selectedCity);
 
-  useEffect(() => {
-   if (skipNextFetch.current) {
-    skipNextFetch.current = false
-    return
-   }
-
-   if (step === 4 && deliveryType === "delivery" && tempAddress.length >= 2) {
-    if (searchTimeout.current) clearTimeout(searchTimeout.current)
-    searchTimeout.current = setTimeout(() => {
-     fetchSuggestions(tempAddress)
-    }, 400)
-   } else {
-    setSuggestions([])
-   }
-   return () => { if (searchTimeout.current) clearTimeout(searchTimeout.current) }
-  }, [tempAddress, step, deliveryType, selectedCity, fetchSuggestions])
+  // Debounced search is now handled inside useAddressSearch hook via debouncedSearch()
+  // We no longer need a manual setTimeout here — just call debouncedSearch on input change
 
  const reset = useCallback(() => {
   setStep(1)
@@ -163,7 +151,7 @@ export default function AddressModal() {
   setTempAddress(val);
  }, [skipNextFetch]);
 
- const onAddressDetailsSelect = useCallback((details: any) => {
+ const onAddressDetailsSelect = useCallback((details: import('./MapPicker').AddressDetails) => {
   skipNextFetch.current = true;
 
   if (details.city) {
@@ -234,7 +222,7 @@ export default function AddressModal() {
          if (step === 4 && userStore.getSavedAddresses().length > 0) {
           setStep(3);
          } else {
-          setStep(step - 1 as any);
+          setStep((step - 1) as 1 | 2 | 3 | 4 | 5);
          }
         }}
         className="absolute top-6 left-6 z-50 p-2.5 bg-gray-50/80 backdrop-blur-md rounded-full text-[#3A332E] hover:bg-gray-100 transition-all sm:hidden shadow-sm"
@@ -668,8 +656,8 @@ export default function AddressModal() {
             </div>
             {showCityDropdown && (
              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-[1.2rem] shadow-xl border border-gray-100 overflow-hidden">
-              {(['Москва', 'Санкт-Петербург'] as const).map(c => (
-               <button key={c} onClick={() => { setSelectedCity(c); setTempAddress(''); setSuggestions([]); setSelectedCoords(null); setShowCityDropdown(false) }} className={cn('w-full text-left px-5 py-3.5 text-[15px] font-bold border-b last:border-0 border-gray-50', selectedCity === c ? 'bg-gray-50' : 'hover:bg-gray-50')}>{c}</button>
+               {(['Москва', 'Санкт-Петербург'] as const).map(c => (
+                <button key={c} onClick={() => { setSelectedCity(c); setTempAddress(''); clearSuggestions(); setSelectedCoords(null); setShowCityDropdown(false) }} className={cn('w-full text-left px-5 py-3.5 text-[15px] font-bold border-b last:border-0 border-gray-50', selectedCity === c ? 'bg-gray-50' : 'hover:bg-gray-50')}>{c}</button>
               ))}
              </div>
             )}
@@ -680,7 +668,18 @@ export default function AddressModal() {
             <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-4 focus-within:border-gray-300 border border-transparent">
              <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Улица и дом</span>
              <div className="flex items-center gap-2">
-              <input type="text" value={tempAddress} onChange={(e) => setTempAddress(e.target.value)} placeholder="Введите адрес" className="w-full bg-transparent border-none outline-none text-[17px] font-extrabold text-[#3A332E] placeholder:text-gray-300" />
+              <input
+              type="text"
+              value={tempAddress}
+              onChange={(e) => {
+               setTempAddress(e.target.value);
+               debouncedSearch(e.target.value);
+              }}
+              placeholder="Введите улицу или адрес"
+              autoComplete="off"
+              spellCheck={false}
+              className="w-full bg-transparent border-none outline-none text-[17px] font-extrabold text-[#3A332E] placeholder:text-gray-300"
+             />
               {isLoadingSuggestions && <Loader2 className="w-4 h-4 animate-spin text-[#CF8F73]" />}
              </div>
             </div>
@@ -688,21 +687,23 @@ export default function AddressModal() {
              {suggestions.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-2 bg-white rounded-[1.2rem] shadow-2xl border border-gray-100 overflow-hidden max-h-[320px] overflow-y-auto relative sm:absolute w-full left-0 z-50 py-1">
                {suggestions.map((s, idx) => (
-                <button key={idx} onClick={() => {
-                 skipNextFetch.current = true;
-                 setTempAddress(s.display_name);
-                 setHouse((s.address as any)?.house_number || "");
-                 setCorpus("");
-                 setSuggestions([]);
-                 if (s.lat && s.lon) setSelectedCoords([parseFloat(s.lat), parseFloat(s.lon)]);
-                 setIsEditingAddress(false);
-                }} className="w-full text-left px-5 py-4 hover:bg-gray-50 transition-colors border-b last:border-0 border-gray-50 flex flex-row items-center gap-4 group">
+                 <button key={idx} onClick={() => {
+                  skipNextFetch.current = true;
+                  const road = s.address?.road || s.address?.title?.split(',')[0] || s.display_name;
+                  const houseFromApi = s.address?.house_number || '';
+                  // Set street (without house) in the text field, house in its own field
+                  setTempAddress(road);
+                  if (houseFromApi) setHouse(houseFromApi);
+                  clearSuggestions();
+                  if (s.lat && s.lon) setSelectedCoords([parseFloat(s.lat), parseFloat(s.lon)]);
+                  setIsEditingAddress(false);
+                 }} className="w-full text-left px-5 py-4 hover:bg-gray-50 transition-colors border-b last:border-0 border-gray-50 flex flex-row items-center gap-4 group">
                   <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#CF8F73]/10 group-hover:text-[#CF8F73] transition-colors shrink-0">
                    <Navigation className="w-5 h-5" />
                   </div>
                   <div className="flex flex-col min-w-0">
-                   <span className="text-[15px] sm:text-[17px] font-extrabold text-[#333] leading-tight truncate">{(s.address as any)?.title || s.display_name}</span>
-                   <span className="text-[12px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{(s.address as any)?.subtitle || selectedCity}</span>
+                   <span className="text-[15px] sm:text-[17px] font-extrabold text-[#333] leading-tight truncate">{s.address?.title || s.display_name}</span>
+                   <span className="text-[12px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{s.address?.subtitle || selectedCity}</span>
                   </div>
                  </button>
                ))}

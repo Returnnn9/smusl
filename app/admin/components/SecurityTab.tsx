@@ -14,7 +14,7 @@ export default function SecurityTab() {
  const [error, setError] = useState("");
  const [success, setSuccess] = useState(false);
 
- const isEnabled = (session?.user as any)?.twoFactorEnabled;
+ const isEnabled = session?.user?.twoFactorEnabled;
 
  const handleStartSetup = async () => {
   setIsLoading(true);

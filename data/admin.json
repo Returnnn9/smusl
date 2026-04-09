@@ -1,5 +1,5 @@
 {
  "username": "admin",
- "passwordHash": "$2a$10$7/O8S/qT/K0Z1J5U75X67.pD9Y9J9Y9J9Y9J9Y9J9Y9J9Y9J9Y",
+ "passwordHash": "$2b$12$nhk6CnBVxmVS.oeh4OofXOWkhOHzgeVkP9A90IzYJXSd8YkQBQGyy",
  "twoFactorSecret": "KVKFKRCPNZQUYMLXOVZGUOKBMBXPLVSA"
 }

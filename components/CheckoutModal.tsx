@@ -9,7 +9,7 @@ import { useAddressSearch } from "@/hooks/useAddressSearch"
 import { PickupPoint, CityKey } from "@/lib/types/address"
 import { PICKUP_POINTS, CITY_COORDS } from "@/lib/constants/delivery"
 import DeliveryTypeSelector from "./DeliveryTypeSelector"
-import { parseAddress, formatAddress } from "@/lib/address"
+import { parseAddress, formatAddress, extractFromQuery } from "@/lib/address"
 import { containerVariants, itemVariants, stepVariants } from "@/lib/motion-variants"
 
 type DeliveryType = "delivery" | "pickup" | null
@@ -42,14 +42,15 @@ export default function CheckoutModal() {
  const [mapError, setMapError] = useState<string | null>(null)
  const [selectedCity, setSelectedCity] = useState<CityKey>('Москва')
  const [showCityDropdown, setShowCityDropdown] = useState(false)
-  const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null)
-  const [acceptNews, setAcceptNews] = useState(true)
+ const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null)
+ const [acceptNews, setAcceptNews] = useState(true)
 
  // Mobile WOW adaptive states
  const [isEditingAddress, setIsEditingAddress] = useState(false)
 
  // Expanded address fields
  const [house, setHouse] = useState('')
+ const [corpus, setCorpus] = useState('')
  const [entrance, setEntrance] = useState('')
  const [floor, setFloor] = useState('')
  const [apartment, setApartment] = useState('')
@@ -94,25 +95,36 @@ export default function CheckoutModal() {
   return () => { if (searchTimeout.current) clearTimeout(searchTimeout.current) }
  }, [tempAddress, step, deliveryType, selectedCity, fetchSuggestions, setSuggestions])
 
- const reset = () => {
+ const reset = useCallback(() => {
   setStep(1)
   setDeliveryType(null)
   setPaymentMethod(null)
   setCardNumber('')
   setCardExpiry('')
   setCardCVC('')
-  setTempAddress(address)
+  if (address) {
+   const d = parseAddress(address)
+   setTempAddress(d.street || address)
+   setHouse(d.house || '')
+   setCorpus(d.corpus || '')
+   setEntrance(d.entrance || '')
+   setFloor(d.floor || '')
+   setApartment(d.apartment || '')
+  } else {
+   setTempAddress('')
+   setHouse('')
+   setCorpus('')
+   setEntrance('')
+   setFloor('')
+   setApartment('')
+  }
   setSelectedPickup(null)
   setMapError(null)
   setSelectedCity('Москва')
   setShowCityDropdown(false)
   setSelectedCoords(null)
-  setHouse('')
-  setEntrance('')
-  setFloor('')
-  setApartment('')
   setIsEditingAddress(false)
- }
+ }, [address])
 
  const handleGeolocate = () => {
   geolocate((addr, coords, matchedCity) => {
@@ -132,6 +144,7 @@ export default function CheckoutModal() {
    const fullAddress = formatAddress({
     street: tempAddress,
     house,
+    corpus,
     entrance,
     floor,
     apartment
@@ -181,13 +194,13 @@ export default function CheckoutModal() {
   setTempAddress(val);
  }, [skipNextFetch]);
 
- const onAddressDetailsSelect = useCallback((details: any) => {
+ const onAddressDetailsSelect = useCallback((details: import('./MapPicker').AddressDetails) => {
   skipNextFetch.current = true;
-  
+
   // Handle potential city match from geocoding
   if (details.city) {
-   const matchedCity = details.city.includes('Санкт-Петербург') ? 'Санкт-Петербург' : 
-                      details.city.includes('Москва') ? 'Москва' : null;
+   const matchedCity = details.city.includes('Санкт-Петербург') ? 'Санкт-Петербург' :
+    details.city.includes('Москва') ? 'Москва' : null;
    if (matchedCity) setSelectedCity(matchedCity);
   }
 
@@ -196,22 +209,29 @@ export default function CheckoutModal() {
 
   // If the road extracted is just the city name, try to get a more specific name from 'full' or title
   if (road === selectedCity || road === 'Москва' || road === 'Санкт-Петербург') {
-     const parts = details.full.split(',').map((p: string) => p.trim());
-     // Try to find a part that isn't the city
-     const streetPart = parts.find((p: string) => p !== selectedCity && p !== 'Москва' && p !== 'Санкт-Петербург');
-     if (streetPart) road = streetPart;
+   const parts = details.full.split(',').map((p: string) => p.trim());
+   // Try to find a part that isn't the city
+   const streetPart = parts.find((p: string) => p !== selectedCity && p !== 'Москва' && p !== 'Санкт-Петербург');
+   if (streetPart) road = streetPart;
   }
 
   const displayAddr = house ? `${road}, ${house}` : road;
   // Aggressively strip city name from the start
   const cleanAddr = displayAddr
-    .replace(new RegExp(`^${selectedCity},?\\s*`, 'i'), '')
-    .replace(/^Москва,?\\s*/i, '')
-    .replace(/^Санкт-Петербург,?\\s*/i, '')
-    .trim();
+   .replace(new RegExp(`^${selectedCity},?\\s*`, 'i'), '')
+   .replace(/^Москва,?\\s*/i, '')
+   .replace(/^Санкт-Петербург,?\\s*/i, '')
+   .trim();
+
+  const extracted = extractFromQuery(tempAddress, house);
 
   setTempAddress(cleanAddr);
-  setHouse(house);
+  setHouse(extracted.house);
+  setCorpus(extracted.corpus);
+  if (extracted.entrance) setEntrance(extracted.entrance);
+  if (extracted.floor) setFloor(extracted.floor);
+  if (extracted.apartment) setApartment(extracted.apartment);
+
   if (details.coords) {
    setSelectedCoords(details.coords);
   }
@@ -238,7 +258,7 @@ export default function CheckoutModal() {
    </p>
    {step > 1 && step < 6 && (
     <button
-     onClick={() => setStep((step - 1) as any)}
+     onClick={() => setStep((step - 1) as 1 | 2 | 3 | 4 | 5 | 6)}
      className="flex items-center gap-2 text-[12px] font-bold text-[#3A332E]/40 hover:text-[#3A332E] transition-colors mt-2"
     >
      <ArrowLeft className="w-3.5 h-3.5" /> Назад
@@ -278,7 +298,7 @@ export default function CheckoutModal() {
          setIsEditingAddress(false);
          return;
         }
-        setStep((step - 1) as any);
+        setStep((step - 1) as 1 | 2 | 3 | 4 | 5 | 6);
        }}
        className="absolute top-6 left-6 z-50 p-2.5 bg-gray-50/80 backdrop-blur-md rounded-full text-[#3A332E] hover:bg-gray-100 transition-colors sm:hidden shadow-sm"
       >
@@ -288,7 +308,6 @@ export default function CheckoutModal() {
 
      <AnimatePresence mode="wait">
 
-      {/* ───── STEP 1: Guest Contact Info ───── */}
       {step === 1 && (
        <motion.div
         key="step1-guest"
@@ -325,37 +344,36 @@ export default function CheckoutModal() {
            />
           </div>
          </div>
-          <div className="flex items-start gap-3 mt-4">
-           <button
-            type="button"
-            onClick={() => setAcceptNews(!acceptNews)}
-            className={`w-5 h-5 rounded-md border flex-shrink-0 flex items-center justify-center transition-all ${
-             acceptNews ? "bg-[#CF8F73] border-[#CF8F73] shadow-sm shadow-[#CF8F73]/20" : "bg-white border-gray-200"
-            }`}
-           >
-            {acceptNews && <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-           </button>
-           <p className="text-[13px] font-medium text-[#3A332E]/60 leading-snug">
-            Соглашаюсь получать новости и специальные предложения
-           </p>
-          </div>
-
+         <div className="flex items-start gap-3 mt-4">
           <button
-           onClick={() => setStep(2)}
-           disabled={!userName || !userPhone}
-           className="mt-8 w-full h-[64px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
+           type="button"
+           onClick={() => setAcceptNews(!acceptNews)}
+           className={`w-5 h-5 rounded-md border flex-shrink-0 flex items-center justify-center transition-all ${acceptNews ? "bg-[#CF8F73] border-[#CF8F73] shadow-sm shadow-[#CF8F73]/20" : "bg-white border-gray-200"
+            }`}
           >
-           Далее
+           {acceptNews && <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
           </button>
-
-          <p className="mt-6 text-[12px] font-medium text-[#3A332E]/30 leading-relaxed text-center px-4">
-           Нажимая «Далее», принимаю{" "}
-           <a href="/offer" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">оферту</a>
-           {" "}и{" "}
-           <a href="/terms" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">пользовательское соглашение</a>
-           , соглашаюсь на обработку персональных данных на условиях{" "}
-           <a href="/privacy" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">политики конфиденциальности</a>
+          <p className="text-[13px] font-medium text-[#3A332E]/60 leading-snug">
+           Соглашаюсь получать новости и специальные предложения
           </p>
+         </div>
+
+         <button
+          onClick={() => setStep(2)}
+          disabled={!userName || !userPhone}
+          className="mt-8 w-full h-[64px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
+         >
+          Далее
+         </button>
+
+         <p className="mt-6 text-[12px] font-medium text-[#3A332E]/30 leading-relaxed text-center px-4">
+          Нажимая «Далее», принимаю{" "}
+          <a href="/offer" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">оферту</a>
+          {" "}и{" "}
+          <a href="/terms" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">пользовательское соглашение</a>
+          , соглашаюсь на обработку персональных данных на условиях{" "}
+          <a href="/privacy" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">политики конфиденциальности</a>
+         </p>
         </div>
        </motion.div>
       )}
@@ -384,16 +402,16 @@ export default function CheckoutModal() {
          </div>
 
          <div className="space-y-4">
-          <DeliveryTypeSelector 
-            selectedType={deliveryType}
-            onSelect={(type) => {
-           setDeliveryType(type);
-           if (type === "delivery" && userStore.getSavedAddresses().length > 0) {
-            setStep(3);
-           } else {
-            setStep(4);
-           }
-          }} />
+          <DeliveryTypeSelector
+           selectedType={deliveryType}
+           onSelect={(type) => {
+            setDeliveryType(type);
+            if (type === "delivery" && userStore.getSavedAddresses().length > 0) {
+             setStep(3);
+            } else {
+             setStep(4);
+            }
+           }} />
          </div>
         </div>
        </motion.div>
@@ -421,12 +439,12 @@ export default function CheckoutModal() {
          </button>
         </div>
 
-         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="flex-1 overflow-y-auto px-1 no-scrollbar space-y-3"
-         >
+        <motion.div
+         variants={containerVariants}
+         initial="hidden"
+         animate="visible"
+         className="flex-1 overflow-y-auto px-1 no-scrollbar space-y-3"
+        >
          <AnimatePresence mode="popLayout">
           {userStore.getSavedAddresses().map((addr, idx) => (
            <motion.button
@@ -438,6 +456,7 @@ export default function CheckoutModal() {
              const details = parseAddress(addr);
              setTempAddress(details.street);
              setHouse(details.house);
+             setCorpus(details.corpus || '');
              setEntrance(details.entrance);
              setFloor(details.floor);
              setApartment(details.apartment);
@@ -470,7 +489,15 @@ export default function CheckoutModal() {
         <motion.button
          whileHover={{ scale: 1.02 }}
          whileTap={{ scale: 0.98 }}
-         onClick={() => setStep(4)}
+         onClick={() => {
+          setTempAddress('');
+          setHouse('');
+          setCorpus('');
+          setEntrance('');
+          setFloor('');
+          setApartment('');
+          setStep(4);
+         }}
          className="mt-6 w-full h-[64px] bg-[#CF8F73] text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 shrink-0"
         >
          Новый адрес
@@ -503,7 +530,7 @@ export default function CheckoutModal() {
         </div>
 
         <motion.div
-         
+
          drag="y"
          dragConstraints={{ top: 0, bottom: 0 }}
          dragElastic={0.06}
@@ -511,7 +538,7 @@ export default function CheckoutModal() {
           if (offset.y > 100 || velocity.y > 500) {
            if (isEditingAddress) {
             setIsEditingAddress(false);
-           } 
+           }
           } else if (offset.y < -100 || velocity.y < -400) {
            setIsEditingAddress(true);
           }
@@ -526,7 +553,7 @@ export default function CheckoutModal() {
         >
          {/* Drag Handle for Mobile */}
          <div className="w-12 h-1.5 bg-gray-200/50 rounded-full mx-auto mb-4 sm:hidden shrink-0 cursor-grab active:cursor-grabbing" />
-         
+
          {/* Mobile Compact View */}
          <div className={cn("sm:hidden flex flex-col gap-4", isEditingAddress ? "hidden" : "flex")}>
           <motion.div
@@ -552,7 +579,7 @@ export default function CheckoutModal() {
           </motion.div>
           <button
            onClick={handleNextFromDelivery}
-           disabled={!tempAddress}
+           disabled={!tempAddress || !house || !entrance || !apartment}
            className="w-full h-[68px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mt-1"
           >
            Всё верно
@@ -640,18 +667,25 @@ export default function CheckoutModal() {
               className="mt-2 bg-white rounded-[1.2rem] shadow-[0_16px_48px_rgba(0,0,0,0.12)] border border-gray-100 overflow-hidden max-h-[340px] overflow-y-auto no-scrollbar relative sm:absolute w-full left-0 py-1.5 z-50"
              >
               {suggestions.map((s, idx) => {
-               const title = (s.address as any)?.title || s.display_name;
-               const subtitle = (s.address as any)?.subtitle || selectedCity;
-               const road = (s.address as any)?.road || title;
-               const houseNum = (s.address as any)?.house_number || "";
+               const title = s.address?.title || s.display_name;
+               const subtitle = s.address?.subtitle || selectedCity;
+               const road = s.address?.road || title;
+               const houseNum = s.address?.house_number || "";
 
                return (
                 <button
                  key={idx}
                  onClick={() => {
                   skipNextFetch.current = true;
+                  const extracted = extractFromQuery(tempAddress, houseNum);
+
                   setTempAddress(road);
-                  setHouse(houseNum);
+                  setHouse(extracted.house);
+                  setCorpus(extracted.corpus);
+                  if (extracted.entrance) setEntrance(extracted.entrance);
+                  if (extracted.floor) setFloor(extracted.floor);
+                  if (extracted.apartment) setApartment(extracted.apartment);
+
                   if (s.lat && s.lon) {
                    setSelectedCoords([parseFloat(s.lat), parseFloat(s.lon)]);
                   }
@@ -659,14 +693,14 @@ export default function CheckoutModal() {
                   setIsEditingAddress(false);
                  }}
                  className="w-full text-left px-5 py-4 flex flex-row items-center gap-4 group hover:bg-[#F8F9FA] transition-colors border-b border-gray-50 last:border-0"
-                 >
-                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#CF8F73]/10 group-hover:text-[#CF8F73] transition-colors shrink-0">
-                   <Navigation className="w-5 h-5" />
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                   <span className="text-[15px] sm:text-[17px] font-[800] text-[#333333] leading-tight group-hover:text-[#3A332E] transition-colors truncate">{title}</span>
-                   <span className="text-[12px] font-[600] text-[#999999] mt-0.5 uppercase tracking-wider">{subtitle}</span>
-                  </div>
+                >
+                 <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#CF8F73]/10 group-hover:text-[#CF8F73] transition-colors shrink-0">
+                  <Navigation className="w-5 h-5" />
+                 </div>
+                 <div className="flex flex-col min-w-0">
+                  <span className="text-[15px] sm:text-[17px] font-[800] text-[#333333] leading-tight group-hover:text-[#3A332E] transition-colors truncate">{title}</span>
+                  <span className="text-[12px] font-[600] text-[#999999] mt-0.5 uppercase tracking-wider">{subtitle}</span>
+                 </div>
                 </button>
                );
               })}
@@ -674,7 +708,34 @@ export default function CheckoutModal() {
             )}
            </div>
 
-           </motion.div>
+           <div className="flex flex-col gap-4 mt-2 mb-2 pb-4">
+            <div className="flex gap-4">
+             <div className="flex-1 bg-[#F8F8F8] rounded-[1.2rem] px-5 py-3 focus-within:border-gray-300 border border-transparent transition-all">
+              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Дом *</span>
+              <input type="text" value={house} onChange={(e) => setHouse(e.target.value)} placeholder="1" className="w-full bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] placeholder:text-gray-300" />
+             </div>
+             <div className="flex-1 bg-[#F8F8F8] rounded-[1.2rem] px-5 py-3 focus-within:border-gray-300 border border-transparent transition-all">
+              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Корпус</span>
+              <input type="text" value={corpus} onChange={(e) => setCorpus(e.target.value)} placeholder="А" className="w-full bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] placeholder:text-gray-300" />
+             </div>
+            </div>
+            <div className="flex gap-3">
+             <div className="flex-1 bg-[#F8F8F8] rounded-[1.2rem] px-4 py-3 focus-within:border-gray-300 border border-transparent transition-all">
+              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Подъезд *</span>
+              <input type="text" value={entrance} onChange={(e) => setEntrance(e.target.value)} placeholder="1" className="w-full bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] placeholder:text-gray-300" />
+             </div>
+             <div className="flex-[0.8] bg-[#F8F8F8] rounded-[1.2rem] px-4 py-3 focus-within:border-gray-300 border border-transparent transition-all">
+              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Этаж</span>
+              <input type="text" value={floor} onChange={(e) => setFloor(e.target.value)} placeholder="0" className="w-full bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] placeholder:text-gray-300" />
+             </div>
+             <div className="flex-1 bg-[#F8F8F8] rounded-[1.2rem] px-4 py-3 focus-within:border-gray-300 border border-transparent transition-all">
+              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Кв. *</span>
+              <input type="text" value={apartment} onChange={(e) => setApartment(e.target.value)} placeholder="10" className="w-full bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] placeholder:text-gray-300" />
+             </div>
+            </div>
+           </div>
+
+          </motion.div>
 
           <button
            onClick={() => {
@@ -684,7 +745,7 @@ export default function CheckoutModal() {
              handleNextFromDelivery();
             }
            }}
-           disabled={!tempAddress}
+           disabled={!tempAddress || !house || !entrance || !apartment}
            className="mt-4 sm:mt-auto w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] sm:text-[20px] hover:bg-[#b87a60] transition-all shadow-xl shadow-[#CF8F73]/20 active:scale-95 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0"
           >
            {isEditingAddress && window.innerWidth < 640 ? 'Готово' : 'Всё верно'}
@@ -719,7 +780,7 @@ export default function CheckoutModal() {
         </div>
 
         <motion.div
-         
+
          drag="y"
          dragConstraints={{ top: 0, bottom: 0 }}
          dragElastic={0.08}
@@ -727,7 +788,7 @@ export default function CheckoutModal() {
           if (offset.y > 100 || velocity.y > 500) {
            if (isEditingAddress) {
             setIsEditingAddress(false);
-           } 
+           }
           } else if (offset.y < -100 || velocity.y < -400) {
            setIsEditingAddress(true);
           }
@@ -1049,7 +1110,7 @@ export default function CheckoutModal() {
            />
           </svg>
          </motion.div>
-         
+
          {/* Decorative particles */}
          {[...Array(6)].map((_, i) => (
           <motion.div

@@ -153,25 +153,25 @@ export default function ProfilePage() {
   }
  }, [])
 
-  let displayName = isAuthenticated ? (session?.user?.name || "Пользователь") : "Гость";
-  const localName = userStore.getUserName();
-  if (isAuthenticated && displayName && /^[\d\s\-\+\(\)]+$/.test(displayName)) {
-    displayName = localName || "Пользователь";
-  } else if (isAuthenticated && localName && localName !== displayName && !/^[\d\s\-\+\(\)]+$/.test(localName)) {
-    displayName = localName;
-  }
-  const isLoading = isLoadingSession || (isPageLoading && !isAuthenticated)
-  const favoriteProducts = products.filter((p: Product) => favorites.includes(p.id))
+ let displayName = isAuthenticated ? (session?.user?.name || "Пользователь") : "Гость";
+ const localName = userStore.getUserName();
+ if (isAuthenticated && displayName && /^[\d\s\-\+\(\)]+$/.test(displayName)) {
+  displayName = localName || "Пользователь";
+ } else if (isAuthenticated && localName && localName !== displayName && !/^[\d\s\-\+\(\)]+$/.test(localName)) {
+  displayName = localName;
+ }
+ const isLoading = isLoadingSession || (isPageLoading && !isAuthenticated)
+ const favoriteProducts = products.filter((p: Product) => favorites.includes(p.id))
  const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
  const handleLogout = async () => {
   await signOut({ callbackUrl: "/" })
  }
 
- const handleRepeatOrder = (order: any) => {
+ const handleRepeatOrder = (order: { items: CartItem[] }) => {
   const productsToAdd: Product[] = []
   order.items.forEach((item: CartItem) => {
-   const product = products.find((p: any) => p.id === item.id)
+   const product = products.find((p: Product) => p.id === item.id)
    if (product) productsToAdd.push(product)
   })
 
@@ -188,7 +188,7 @@ export default function ProfilePage() {
    <main className="flex-1 w-full px-4 sm:px-8 lg:px-12 pb-24 pt-8">
 
     {/* Back */}
-    <Link href="/market" className="inline-flex items-center gap-2 text-[#4A403A]/40 hover:text-smusl-terracotta transition-all mb-10 text-[15px] sm:text-[17px] font-black uppercase tracking-[0.1em] group">
+    <Link href="/market" className="inline-flex items-center gap-2 text-[#4A403A]/40 hover:text-smusl-terracotta transition-all mb-10 text-[15px] sm:text-[17px] font-black uppercase tracking-[0.1em] ">
      <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
      Назад в магазин
     </Link>
@@ -213,7 +213,7 @@ export default function ProfilePage() {
        )}
        {isAuthenticated && (
         <div className="flex items-center gap-3">
-         {(session?.user as any)?.role === "ADMIN" && (
+         {session?.user?.role === "ADMIN" && (
           <Link
            href="/admin"
            className="px-6 py-2.5 sm:px-8 sm:py-3 rounded-full bg-[#3A332E] text-white text-[14px] sm:text-[16px] font-bold hover:bg-black transition-colors shadow-sm active:scale-95"
@@ -336,32 +336,32 @@ export default function ProfilePage() {
                : <div className="w-full h-full bg-smusl-beige/60" />
               }
              </div>
-              <div className="min-w-0 pr-4">
-               <p className="text-[17px] lg:text-[20px] font-bold text-[#5B5047] leading-tight truncate">{firstItem?.name}</p>
-               <p className="text-[13px] lg:text-[15px] text-smusl-gray/60 font-black mt-1.5 line-clamp-1">
-                {firstProduct?.weight} × {firstItem?.quantity}
-                {extraCount > 0 && <span className="ml-2 lg:ml-4 text-[#CF8F73] uppercase tracking-tighter">+{extraCount} ещё</span>}
-               </p>
-              </div>
-              <div className="text-center px-1 sm:px-2">
-               <p className="text-[10px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-1.5">Дата</p>
-               <p className="text-[14px] lg:text-[15px] text-[#5B5047] font-bold whitespace-nowrap">{order.date}</p>
-              </div>
-              <div className="px-1 sm:px-2 min-w-0">
-               <p className="text-[10px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-1.5">Адрес</p>
-               <p className="text-[13px] lg:text-[14px] text-[#5B5047]/80 font-medium leading-relaxed line-clamp-2">{order.address}</p>
-              </div>
-              <div className="text-right px-1 sm:px-2">
-               <p className="text-[10px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-1.5">Сумма</p>
-               <p className="text-[20px] lg:text-[26px] font-black text-[#5B5047] whitespace-nowrap">{order.total} ₽</p>
-              </div>
-              <button
-               onClick={() => handleRepeatOrder(order)}
-               className="flex items-center gap-2 lg:gap-3 px-5 lg:px-8 py-3 lg:py-4.5 bg-[#CD8B70] text-white rounded-[1.2rem] lg:rounded-[1.6rem] text-[13px] lg:text-[15px] font-black uppercase tracking-widest hover:brightness-105 transition-all active:scale-95 shadow-xl shadow-[#CD8B70]/20 shrink-0"
-              >
-               <RotateCcw className="w-3.5 h-3.5 lg:w-4 h-4" />
-               <span className="whitespace-nowrap">Повторить</span>
-              </button>
+             <div className="min-w-0 pr-4">
+              <p className="text-[17px] lg:text-[20px] font-bold text-[#5B5047] leading-tight truncate">{firstItem?.name}</p>
+              <p className="text-[13px] lg:text-[15px] text-smusl-gray/60 font-black mt-1.5 line-clamp-1">
+               {firstProduct?.weight} × {firstItem?.quantity}
+               {extraCount > 0 && <span className="ml-2 lg:ml-4 text-[#CF8F73] uppercase tracking-tighter">+{extraCount} ещё</span>}
+              </p>
+             </div>
+             <div className="text-center px-1 sm:px-2">
+              <p className="text-[10px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-1.5">Дата</p>
+              <p className="text-[14px] lg:text-[15px] text-[#5B5047] font-bold whitespace-nowrap">{order.date}</p>
+             </div>
+             <div className="px-1 sm:px-2 min-w-0">
+              <p className="text-[10px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-1.5">Адрес</p>
+              <p className="text-[13px] lg:text-[14px] text-[#5B5047]/80 font-medium leading-relaxed line-clamp-2">{order.address}</p>
+             </div>
+             <div className="text-right px-1 sm:px-2">
+              <p className="text-[10px] text-smusl-gray/30 font-black uppercase tracking-[0.2em] mb-1.5">Сумма</p>
+              <p className="text-[20px] lg:text-[26px] font-black text-[#5B5047] whitespace-nowrap">{order.total} ₽</p>
+             </div>
+             <button
+              onClick={() => handleRepeatOrder(order)}
+              className="flex items-center gap-2 lg:gap-3 px-5 lg:px-8 py-3 lg:py-4.5 bg-[#CD8B70] text-white rounded-[1.2rem] lg:rounded-[1.6rem] text-[13px] lg:text-[15px] font-black uppercase tracking-widest hover:brightness-105 transition-all active:scale-95 shadow-xl shadow-[#CD8B70]/20 shrink-0"
+             >
+              <RotateCcw className="w-3.5 h-3.5 lg:w-4 h-4" />
+              <span className="whitespace-nowrap">Повторить</span>
+             </button>
             </div>
            </motion.div>
           )
@@ -413,7 +413,7 @@ export default function ProfilePage() {
           {/* Decorative background elements */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#CD8B70]/10 rounded-full blur-[90px] -mr-32 -mt-32 transition-transform duration-700 group-hover:scale-110" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#CF8F73]/5 rounded-full blur-[70px] -ml-24 -mb-24" />
-          
+
           <div className="relative z-10 flex flex-col justify-center">
            <span className="block text-[11px] font-[800] text-[#4A403A]/30 uppercase tracking-[0.4em] mb-3 px-1">итого к оплате</span>
            <div className="flex items-baseline gap-1.5 px-1 animate-in slide-in-from-left duration-700">

@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export async function GET() {
  try {
   const session = await auth();
-  if (!session || !session.user || (session.user as any).role !== "ADMIN") {
+  if (!session?.user || session.user.role !== "ADMIN") {
    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -24,7 +24,7 @@ export async function GET() {
 
   // Temporarily save secret to user in DB but don't enable yet
   await prisma.user.update({
-   where: { id: (session.user as any).id },
+   where: { id: session.user.id },
    data: { twoFactorSecret: secret }
   });
 
@@ -37,17 +37,17 @@ export async function GET() {
 export async function POST(req: Request) {
  try {
   const session = await auth();
-  if (!session || !session.user) {
+  if (!session?.user) {
    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { code } = await req.json();
   const user = await prisma.user.findUnique({
-   where: { id: (session.user as any).id },
-   select: { twoFactorSecret: true } as any
-  }) as any;
+   where: { id: session.user.id },
+   select: { twoFactorSecret: true }
+  });
 
-  if (!user || !user.twoFactorSecret) {
+  if (!user?.twoFactorSecret) {
    return NextResponse.json({ error: "No secret found" }, { status: 400 });
   }
 
@@ -62,8 +62,8 @@ export async function POST(req: Request) {
 
   // Enable 2FA permanently
   await prisma.user.update({
-   where: { id: (session.user as any).id },
-   data: { twoFactorEnabled: true } as any
+   where: { id: session.user.id },
+   data: { twoFactorEnabled: true }
   });
 
   return NextResponse.json({ success: true });

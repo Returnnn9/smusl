@@ -1,14 +1,12 @@
 /**
- * AlfaSMS (alfaooo.ru) SMS sending utility.
- * API docs: https://alfaooo.ru/api
- * Endpoint: https://ssl.bs00.ru/?method=push_msg
+ * SMS.RU SMS sending utility.
+ * API docs: https://sms.ru/api/send
+ * Endpoint: https://sms.ru/sms/send
  */
 
 import { normalizePhone } from './phone';
 
-const ALFASMS_API_KEY = process.env.ALFASMS_API_KEY || '';
-const ALFASMS_SENDER = process.env.ALFASMS_SENDER || 'Smusl';
-
+const SMSRU_API_ID = process.env.SMSRU_API_ID || '';
 
 interface SmsSendResult {
  success: boolean;
@@ -18,10 +16,9 @@ interface SmsSendResult {
  errorText?: string;
 }
 
-
 export async function sendSms(phone: string, text: string): Promise<SmsSendResult> {
- if (!ALFASMS_API_KEY) {
-  console.warn('[AlfaSMS] ALFASMS_API_KEY is not set. Skipping SMS.');
+ if (!SMSRU_API_ID) {
+  console.warn('[SMS.RU] SMSRU_API_ID is not set. Skipping SMS.');
   return { success: false, errorText: 'API key not set' };
  }
 
@@ -31,16 +28,13 @@ export async function sendSms(phone: string, text: string): Promise<SmsSendResul
  }
 
  const params = new URLSearchParams({
-
-  method: 'push_msg',
-  key: ALFASMS_API_KEY,
-  text: text,
-  phone: normalizedPhone,
-  sender_name: ALFASMS_SENDER,
-  format: 'JSON',
+  api_id: SMSRU_API_ID,
+  to: normalizedPhone,
+  msg: text,
+  json: '1',
  });
 
- const url = `https://ssl.bs00.ru/?${params.toString()}`;
+ const url = `https://sms.ru/sms/send?${params.toString()}`;
 
  try {
   const res = await fetch(url, {
@@ -51,23 +45,26 @@ export async function sendSms(phone: string, text: string): Promise<SmsSendResul
   });
 
   const json = await res.json() as {
-   response: {
-    msg: { err_code: string; text: string; type: string };
-    data: { id: number; credits: string; n_raw_sms: number; sender_name: string } | null;
-   };
+   status: string;
+   status_code: number;
+   sms?: Record<string, { status: string; status_code: number; sms_id?: string; cost?: string; status_text?: string }>;
+   balance?: number;
   };
 
-  const { msg, data } = json.response;
-
-  if (msg.err_code === '0') {
-   console.log(`[AlfaSMS] ✅ SMS sent to ${normalizedPhone} | id=${data?.id} | cost=${data?.credits} credits`);
-   return { success: true, smsId: data?.id, credits: data?.credits };
+  // status_code 100 = success
+  if (json.status_code === 100) {
+   const smsEntry = json.sms ? Object.values(json.sms)[0] : undefined;
+   const smsId = smsEntry?.sms_id ? Number(smsEntry.sms_id) : undefined;
+   const cost = smsEntry?.cost;
+   console.log(`[SMS.RU] ✅ SMS sent to ${normalizedPhone} | id=${smsId} | cost=${cost ?? '?'}`);
+   return { success: true, smsId, credits: cost };
   } else {
-   console.error(`[AlfaSMS] ❌ Error ${msg.err_code}: ${msg.text}`);
-   return { success: false, errorCode: msg.err_code, errorText: msg.text };
+   const errText = json.sms ? Object.values(json.sms)[0]?.status_text ?? 'Unknown error' : 'Unknown error';
+   console.error(`[SMS.RU] ❌ Error ${json.status_code}: ${errText}`);
+   return { success: false, errorCode: String(json.status_code), errorText: errText };
   }
  } catch (err) {
-  console.error('[AlfaSMS] ❌ Request failed:', err);
+  console.error('[SMS.RU] ❌ Request failed:', err);
   return { success: false, errorText: String(err) };
  }
 }

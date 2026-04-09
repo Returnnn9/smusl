@@ -3,6 +3,7 @@
 import React from "react"
 import { motion } from "framer-motion"
 import { Heart, ShoppingBag } from "lucide-react"
+import Image from "next/image"
 import { Product } from "@/store/types"
 import { useUIStore, useUserStore, useStoreData } from "@/store/hooks"
 
@@ -24,7 +25,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ onAdd, index = 0, ...product 
  const favorites = useStoreData(userStore, s => s.getFavorites())
  const isFavorite = favorites.includes(id)
 
- const setSelectedProduct = (p: any) => uiStore.setSelectedProduct(p)
+ const setSelectedProduct = (p: Product) => uiStore.setSelectedProduct(p)
  const toggleFavorite = (id: number) => userStore.toggleFavorite(id)
 
  return (
@@ -37,12 +38,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ onAdd, index = 0, ...product 
   >
    {/* Image */}
    <div className="relative aspect-[4/3] w-full rounded-[0.8rem] sm:rounded-[1.1rem] bg-[#F3ECE4] overflow-hidden mb-2 sm:mb-2">
-    <motion.img
+    <Image
      src={image}
      alt={name}
-     loading="lazy"
-     decoding="async"
-     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+     fill
+     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+     priority={index <= 1} // First 2 images are treated as LCP / priority
+     className="object-cover transition-transform duration-500 group-hover:scale-105"
     />
     <motion.button
      whileHover={{ scale: 1.1 }}

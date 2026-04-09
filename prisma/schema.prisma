@@ -1,6 +1,5 @@
 generator client {
-  provider   = "prisma-client-js"
-  engineType = "library"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -80,8 +79,19 @@ model Order {
   status    String   @default("new")
   userName  String?
   userPhone String?
-  items     String   // Stored as JSON string due to SQLite limitations
+  items     Json     // Native PostgreSQL JSON type
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+/// Хранит использованные TOTP-коды для защиты от replay-атак.
+/// Записи автоматически устаревают через 90 секунд (2 TOTP-окна).
+model TotpUsed {
+  id        String   @id @default(cuid())
+  secret    String   // SHA-256 хэш секрета (не сам секрет)
+  code      String
+  usedAt    DateTime @default(now())
+
+  @@unique([secret, code])
+  @@index([usedAt])
+}

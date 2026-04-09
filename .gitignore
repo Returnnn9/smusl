@@ -41,3 +41,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Sensitive data files — NEVER commit these
+/data/admin.json
+/data/users.json
+/data/orders.json
+
+# SQLite dev database
+/prisma/dev.db
+/prisma/*.db-journal

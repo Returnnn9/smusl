@@ -66,14 +66,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             data: {
               loginAttempts: attempts,
               lockUntil: isLocking ? new Date(Date.now() + 15 * 60000) : null
-            } as any
+            }
           });
           throw new Error(isLocking ? "Слишком много попыток. Аккаунт заблокирован." : "Неверный пароль");
         }
 
         await prisma.user.update({
           where: { id: user.id },
-          data: { loginAttempts: 0, lockUntil: null } as any
+          data: { loginAttempts: 0, lockUntil: null }
         });
 
         return {

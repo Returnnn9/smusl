@@ -4,9 +4,9 @@ import { verify } from "otplib";
 import fs from "fs/promises";
 import path from "path";
 
-const SECRET = new TextEncoder().encode(
-  process.env.ADMIN_JWT_SECRET || "default-secret-change-me"
-);
+const jwtSecretStr = process.env.ADMIN_JWT_SECRET;
+if (!jwtSecretStr) throw new Error('[admin-auth] ADMIN_JWT_SECRET env variable is required');
+const SECRET = new TextEncoder().encode(jwtSecretStr);
 const ADMIN_DATA_PATH = path.join(process.cwd(), "data", "admin.json");
 
 // ------- Brute-force protection -------

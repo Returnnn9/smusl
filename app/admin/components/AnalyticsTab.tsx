@@ -15,6 +15,7 @@ import {
  Filler,
 } from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';
+import type { ChartOptions, TooltipItem } from 'chart.js';
 import { TrendingUp, ShoppingBag, CreditCard, RotateCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -91,7 +92,7 @@ export default function AnalyticsTab() {
   };
  }, [orders]);
 
- const chartOptions = {
+ const chartOptions: ChartOptions<'line'> = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
@@ -108,7 +109,7 @@ export default function AnalyticsTab() {
     titleFont: { family: 'Manrope', size: 14, weight: 'bold' as const },
     bodyFont: { family: 'Manrope', size: 16, weight: 'bold' as const },
     callbacks: {
-     label: function (context: any) {
+     label: function (context: TooltipItem<'line'>) {
       return context.parsed.y + ' ₽';
      }
     }
@@ -117,11 +118,11 @@ export default function AnalyticsTab() {
   scales: {
    y: {
     beginAtZero: true,
-    grid: { color: '#f3f4f6', drawBorder: false },
+    grid: { color: '#f3f4f6' },
     ticks: { font: { family: 'Manrope' } }
    },
    x: {
-    grid: { display: false, drawBorder: false },
+    grid: { display: false },
     ticks: { font: { family: 'Manrope' } }
    }
   },
@@ -188,7 +189,7 @@ export default function AnalyticsTab() {
 
     <div className="h-[300px] w-full">
      {analyticsData.labels.length > 0 ? (
-      <Line data={analyticsData} options={chartOptions as any} />
+      <Line data={analyticsData} options={chartOptions} />
      ) : (
       <div className="h-full flex items-center justify-center text-[#9C9188] font-medium">
        {isLoading ? "Загрузка данных..." : "Пока нет данных для графика"}
