@@ -122,7 +122,7 @@ const LandingProducts = () => {
      className="relative max-w-4xl mx-auto text-center space-y-8 md:space-y-12 py-12 md:py-20"
     >
      <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] -z-10 pointer-events-none">
-      <Image src="/images/Logoo.png" alt="Watermark" width={400} height={400} />
+      <Image src="/images/Logoo.png" alt="Watermark" width={400} height={400} style={{ width: 400, height: 'auto' }} />
      </div>
 
      <motion.h3

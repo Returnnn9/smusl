@@ -47,15 +47,15 @@ export default function MarketPage() {
   })
 
   return (
-    <div className="min-h-screen bg-[#F9EFDA] font-montserrat flex flex-col">
+    <div className="min-h-screen bg-[#FDF9F6] transition-colors duration-500 font-montserrat flex flex-col">
       <Header />
 
-      <main className="flex-1 w-full px-4 sm:px-6 lg:px-10 pb-32 pt-4 lg:pt-6">
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-10 pb-40 lg:pb-32 pt-4 lg:pt-6">
 
-        <div className="mb-8">
-          <p className="text-[16px] font-medium text-[#4A403A]/60">
-            всего товаров в этой категории {filteredProducts.length}
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <span className="text-[10px] font-[800] text-[#A19C98] uppercase tracking-[0.16em]">
+            Товаров в категории: <span className="text-[#CA8A70] pl-1 text-[11px] font-[900]">{filteredProducts.length}</span>
+          </span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_500px] gap-4 items-start">
@@ -76,9 +76,9 @@ export default function MarketPage() {
                       <ProductCard key={p.id} {...p} onAdd={() => addToCart(p)} index={i} />
                     ))
                   ) : (
-                    <div className="col-span-full py-20 flex flex-col items-center justify-center text-center bg-white/40 rounded-[3rem] border-2 border-dashed border-[#E8E8E8]">
-                      <Search className="w-12 h-12 text-[#4A403A]/10 mb-4" />
-                      <p className="text-[#4A403A]/40 font-bold">Ничего не найдено</p>
+                    <div className="col-span-full py-20 flex flex-col items-center justify-center text-center bg-white rounded-[2rem] border border-[#F2F2F2] shadow-[0_4px_20px_rgba(202,138,112,0.05)]">
+                      <Search className="w-10 h-10 text-[#CA8A70]/30 mb-4" />
+                      <p className="text-[#A19C98] font-[800] uppercase tracking-widest text-[11px]">Ничего не найдено</p>
                     </div>
                   )
                 }
@@ -118,16 +118,21 @@ export default function MarketPage() {
                     setCartOpen(false)
                   }
                 }}
-                className="absolute bottom-0 w-full h-[88vh] bg-[#F5E6DA] rounded-t-[2.5rem] flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.1)] overflow-hidden"
+                className="absolute bottom-0 w-full h-[88vh] bg-[#F6EDE4] rounded-t-[2.5rem] flex flex-col shadow-[0_-20px_60px_rgba(0,0,0,0.15)] overflow-hidden"
               >
                 <div
                   className="w-full pt-4 pb-2 flex items-center justify-center shrink-0 cursor-grab active:cursor-grabbing"
                   onClick={() => setCartOpen(false)}
                 >
-                  <div className="w-12 h-1.5 rounded-full bg-[#4A403A]/20" />
+                  <div className="w-12 h-1.5 rounded-full bg-[#E8E1DA]" />
                 </div>
+<<<<<<< HEAD
                 <div className="flex-1 overflow-y-auto w-full px-2 sm:px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] scrollbar-hide">
                   <CartSidebar isMobile={true} onClose={() => setCartOpen(false)} />
+=======
+                <div className="flex-1 overflow-y-auto w-full px-2 sm:px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] no-scrollbar">
+                  <CartSidebar isMobile={true} onClose={() => uiStore.setCartOpen(false)} />
+>>>>>>> 63ace912840f4aa73853efb951a605ee01f139de
                 </div>
               </motion.div>
             </div>
@@ -146,29 +151,34 @@ export default function MarketPage() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.95 }}
+<<<<<<< HEAD
                 onClick={() => setCartOpen(true)}
                 className="w-full bg-[#CD8B70] text-white px-5 py-3.5 rounded-full shadow-[0_8px_30px_rgb(205,139,112,0.4)] flex relative items-center justify-between transition-colors overflow-hidden group"
+=======
+                onClick={() => uiStore.setCartOpen(true)}
+                className="w-full bg-[#CA8A70]/90 backdrop-blur-md text-white px-6 py-4 rounded-[1.4rem] shadow-[0_8px_30px_rgb(202,138,112,0.3)] border border-[#be7e64]/30 flex relative items-center justify-between transition-all overflow-hidden group"
+>>>>>>> 63ace912840f4aa73853efb951a605ee01f139de
               >
                 <motion.div
                   className="absolute inset-0 bg-white/20"
                   animate={{ opacity: [0, 0.4, 0] }}
                   transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
                 />
-                <div className="flex items-center gap-2 sm:gap-3 relative z-10 min-w-0">
+                <div className="flex items-center gap-3 relative z-10 min-w-0">
                   <div className="relative shrink-0">
-                    <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       key={cart.length}
-                      className="absolute -top-1.5 -right-2 bg-[#F5E6DA] text-[#CD8B70] text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm"
+                      className="absolute -top-1.5 -right-2 bg-white text-[#CA8A70] text-[10px] font-[900] w-4 h-4 rounded-full flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
                     >
                       {cart.reduce((sum, item) => sum + item.quantity, 0)}
                     </motion.div>
                   </div>
-                  <span className="font-bold text-[15px] sm:text-[17px] truncate">В корзину</span>
+                  <span className="font-[800] text-[15px] sm:text-[17px] truncate tracking-wide">Корзина</span>
                 </div>
-                <span className="font-black text-[16px] sm:text-[18px] relative z-10 shrink-0 ml-2">
+                <span className="font-[900] text-[16px] sm:text-[18px] relative z-10 shrink-0 ml-2">
                   {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString("ru-RU")} ₽
                 </span>
               </motion.button>

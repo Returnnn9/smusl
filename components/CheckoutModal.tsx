@@ -234,6 +234,37 @@ export default function CheckoutModal() {
 
  if (!isCheckoutOpen) return null
 
+<<<<<<< HEAD
+=======
+ const LeftPanel = ({ icon, text }: { icon: React.ReactNode, text: React.ReactNode }) => (
+  <div className="hidden sm:flex flex-shrink-0 bg-[#F8F8F8] border-r border-gray-100 flex-col items-center justify-center gap-6
+				w-[200px] md:w-[280px]
+				py-10 px-6">
+   <div className="w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] rounded-full bg-white flex items-center justify-center shadow-sm border border-gray-100">
+    {mapError && step === 2 ? (
+     <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
+      <XCircle className="w-9 h-9 text-red-400" />
+     </div>
+    ) : icon}
+   </div>
+   <p className={cn(
+    "text-center text-[14px] sm:text-[15px] font-[800] leading-relaxed px-2",
+    mapError && step === 2 ? "text-red-500/80" : "text-[#3A332E]"
+   )}>
+    {mapError && step === 2 ? mapError : text}
+   </p>
+   {step > 1 && step < 6 && (
+    <button
+     onClick={() => setStep((step - 1) as 1 | 2 | 3 | 4 | 5 | 6)}
+     className="flex items-center gap-2 text-[12px] font-bold text-[#3A332E]/40 hover:text-[#3A332E] transition-colors mt-2"
+    >
+     <ArrowLeft className="w-3.5 h-3.5" /> Назад
+    </button>
+   )}
+  </div>
+ )
+
+>>>>>>> 63ace912840f4aa73853efb951a605ee01f139de
  return (
   <AnimatePresence>
    <div className="fixed inset-0 z-[100] flex items-stretch justify-end p-0 sm:p-6 overflow-hidden bg-black/50 backdrop-blur-sm sm:bg-transparent sm:backdrop-blur-none">
@@ -284,32 +315,45 @@ export default function CheckoutModal() {
         exit="exit"
         className="flex h-full w-full"
        >
-        <div className="flex-1 p-6 sm:p-12 flex flex-col justify-center max-w-xl mx-auto">
-         <h2 className="text-[24px] sm:text-[28px] font-extrabold text-[#3A332E] mb-8 tracking-tight">
-          Как к вам обращаться?
-         </h2>
-         <div className="space-y-4">
-          <div className="bg-[#F8F8F8] rounded-[1.2rem] px-6 py-4 border border-transparent focus-within:border-gray-300 transition-colors">
-           <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Телефон</span>
-           <input
-            ref={phoneInputRef}
-            type="tel"
-            value={userPhone}
-            onChange={(e) => setUserPhone(e.target.value)}
-            placeholder="+7 (999) 000-00-00"
-            className="bg-transparent border-none outline-none text-[16px] font-bold text-[#3A332E] placeholder:text-gray-300 w-full"
-           />
+        <div className="flex-1 p-6 sm:p-10 flex flex-col justify-center items-center py-10 max-w-4xl mx-auto w-full overflow-y-auto">
+         
+         <div className="w-full max-w-[440px] flex flex-col">
+          {/* Title */}
+          <div className="text-center mb-8 sm:mb-10">
+           <h2 className="text-[28px] sm:text-[34px] font-[800] text-[#3A332E] tracking-tight mb-2">
+            Как к вам обращаться?
+           </h2>
+           <p className="text-[14px] sm:text-[15px] text-[#A19C98] font-[500]">Введите данные для оформления заказа</p>
           </div>
-          <div className="bg-[#F8F8F8] rounded-[1.2rem] px-6 py-4 border border-transparent focus-within:border-gray-300 transition-colors">
-           <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Имя</span>
-           <input
-            type="text"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-            placeholder="Иван"
-            className="bg-transparent border-none outline-none text-[16px] font-bold text-[#3A332E] placeholder:text-gray-300 w-full"
-           />
+
+          {/* Fields */}
+          <div className="space-y-4">
+           <div className="bg-[#FCFBF9] rounded-[1.4rem] px-6 py-4 border border-[#F2EEE9] hover:border-[#E8E1DA] focus-within:border-[#D5A58D] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(213,165,141,0.1)] transition-all duration-300">
+            <span className="block text-[10px] font-[800] text-[#D5A58D] uppercase tracking-[0.16em] mb-0.5">Телефон</span>
+            <input
+             ref={phoneInputRef}
+             type="tel"
+             value={userPhone}
+             onChange={(e) => setUserPhone(e.target.value)}
+             placeholder="+7 (111) 111-11-11"
+             className="bg-transparent border-none outline-none text-[17px] sm:text-[18px] font-[700] text-[#3A332E] placeholder:text-[#3A332E]/30 w-full"
+            />
+           </div>
+           <div className="bg-[#FCFBF9] rounded-[1.4rem] px-6 py-4 border border-[#F2EEE9] hover:border-[#E8E1DA] focus-within:border-[#D5A58D] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(213,165,141,0.1)] transition-all duration-300">
+            <span className="block text-[10px] font-[800] text-[#D5A58D] uppercase tracking-[0.16em] mb-0.5">Имя</span>
+            <input
+             type="text"
+             value={userName}
+             onChange={(e) => setUserName(e.target.value)}
+             placeholder="Иван"
+             className="bg-transparent border-none outline-none text-[17px] sm:text-[18px] font-[700] text-[#3A332E] placeholder:text-[#3A332E]/30 w-full"
+            />
+           </div>
           </div>
+
+          {/* Checkbox */}
+          </div>
+<<<<<<< HEAD
          </div>
          <div className="flex items-start gap-3 mt-4 mb-8">
           <button
@@ -353,6 +397,37 @@ export default function CheckoutModal() {
           , соглашаюсь на обработку персональных данных на условиях{" "}
           <a href="/privacy" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">политики конфиденциальности</a>
          </p>
+=======
+
+          {status !== 'authenticated' && (
+           <div className="mt-8 mb-2 text-center w-full">
+            <span className="text-[14px] font-[500] text-[#A19C98]">Уже есть аккаунт? </span>
+            <button
+             onClick={() => { handleClose(); uiStore.setAuthModalOpen(true); }}
+             className="text-[14px] font-[800] text-[#CA8A70] hover:text-[#bd7d64] transition-colors"
+            >
+             Войти
+            </button>
+           </div>
+          )}
+
+          {/* CTA */}
+          <button
+           onClick={() => setStep(2)}
+           disabled={!userName || !normalizePhone(userPhone)}
+           className="w-full h-[64px] text-white disabled:text-white/60 rounded-[1.4rem] font-[800] text-[18px] transition-all active:scale-[0.98] mt-4 bg-[#CA8A70] disabled:bg-[#CA8A70]/40 hover:enabled:bg-[#be7e64]"
+          >
+           Далее
+          </button>
+
+          <p className="mt-4 text-[10.5px] font-[500] text-[#C4C4C4] leading-[1.5] text-center px-4">
+           Нажимая «Далее», принимаю{" "}
+           <a href="/offer" className="underline underline-offset-2 hover:text-[#A19C98] transition-colors">оферту</a>{" "}и{" "}
+           <a href="/terms" className="underline underline-offset-2 hover:text-[#A19C98] transition-colors">пользовательское соглашение</a>, соглашаюсь на обработку персональных данных на условиях{" "}
+           <a href="/privacy" className="underline underline-offset-2 hover:text-[#A19C98] transition-colors">политики конфиденциальности</a>
+          </p>
+         </div>
+>>>>>>> 63ace912840f4aa73853efb951a605ee01f139de
         </div>
        </motion.div>
       )}
@@ -443,22 +518,25 @@ export default function CheckoutModal() {
              setStep(5)
             }}
             className={cn(
-             "w-full px-6 py-5 rounded-[1.5rem] border transition-all flex items-center justify-between group",
-             address === addr ? "border-[#CF8F73] bg-[#CF8F73]/5 shadow-sm" : "border-gray-100 bg-white hover:border-gray-200"
+             "w-full px-6 py-5 rounded-[1.5rem] border transition-all duration-300 flex items-center justify-between group",
+             address === addr ? "border-[#CA8A70] bg-white shadow-[0_4px_20px_rgba(202,138,112,0.1)]" : "border-[#F2EEE9] bg-[#FCFBF9] hover:border-[#E8E1DA] hover:bg-white"
             )}
            >
             <div className="flex flex-col items-start gap-1 flex-1 min-w-0 mr-4">
              <span className={cn(
-              "text-[16px] font-[800] transition-colors text-left truncate w-full",
-              address === addr ? "text-[#CF8F73]" : "text-[#3A332E]"
+              "text-[17px] font-[800] transition-colors text-left truncate w-full",
+              address === addr ? "text-[#CA8A70]" : "text-[#3A332E]"
              )}>{addr}</span>
-             <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">{selectedCity}</span>
+             <span className="text-[12px] font-[800] text-[#A19C98] uppercase tracking-[0.16em] mt-0.5">{selectedCity}</span>
             </div>
             <div className={cn(
-             "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0",
-             address === addr ? "border-[#CF8F73] bg-[#CF8F73]" : "border-gray-200"
+             "w-[22px] h-[22px] rounded-full border-2 flex items-center justify-center transition-colors px-[0.1rem] shrink-0",
+             address === addr ? "border-[#CA8A70]" : "border-[#E8E1DA] group-hover:border-[#CA8A70]/50"
             )}>
-             {address === addr && <div className="w-2 h-2 rounded-full bg-white" />}
+             <div className={cn(
+              "w-2.5 h-2.5 rounded-full bg-[#CA8A70] transition-all duration-300",
+              address === addr ? "scale-100 opacity-100" : "scale-0 opacity-0"
+             )} />
             </div>
            </motion.button>
           ))}
@@ -477,7 +555,7 @@ export default function CheckoutModal() {
           setApartment('');
           setStep(4);
          }}
-         className="mt-6 w-full h-[64px] bg-[#CF8F73] text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 shrink-0"
+         className="mt-6 w-full h-[64px] bg-transparent border-2 border-[#F2EEE9] text-[#CA8A70] rounded-[1.4rem] font-[800] text-[18px] transition-all active:scale-[0.98] hover:bg-[#FCFBF9] hover:border-[#CA8A70]/40 shrink-0"
         >
          Новый адрес
         </motion.button>
@@ -525,8 +603,8 @@ export default function CheckoutModal() {
          initial={{ y: "100%" }}
          animate={{ y: 0 }}
          className={cn(
-          "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto sm:w-[50%] bg-white sm:bg-transparent z-10 flex flex-col rounded-t-[2.5rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.12)] sm:shadow-none overflow-y-auto sm:overflow-y-auto no-scrollbar touch-pan-y",
-          isEditingAddress ? "max-h-[85vh] sm:h-full px-4 pt-6 sm:p-10" : "px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-6 sm:h-full sm:p-10"
+          "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto sm:w-[50%] bg-white sm:bg-transparent z-10 flex flex-col rounded-t-[2.5rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.12)] sm:shadow-none overflow-hidden sm:overflow-y-auto no-scrollbar touch-pan-y",
+          isEditingAddress ? "max-h-[85dvh] sm:h-full px-4 pt-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:p-10" : "px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-6 sm:h-full sm:p-10"
          )}
          transition={{ type: "spring" as const, damping: 28, stiffness: 220 }}
         >
@@ -559,13 +637,13 @@ export default function CheckoutModal() {
           <button
            onClick={handleNextFromDelivery}
            disabled={!tempAddress || !house || !entrance || !apartment}
-           className="w-full h-[68px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mt-1"
+           className="w-full h-[72px] bg-[#CA8A70] disabled:bg-[#CA8A70]/40 text-white rounded-[1.5rem] font-[900] text-[20px] transition-all active:scale-[0.98] shadow-[0_12px_30px_rgba(202,138,112,0.25)] hover:bg-[#be7e64] relative overflow-hidden group flex items-center justify-center mt-1"
           >
-           Всё верно
+           <span className="relative z-10">Всё верно</span>
           </button>
          </div>
 
-         {/* Expanded / Desktop View */}
+
          <div className={cn("flex-col h-full", isEditingAddress ? "flex" : "hidden sm:flex")}>
           <div className="flex items-center gap-4 mb-6 sm:mb-8 shrink-0">
            <button
@@ -582,21 +660,21 @@ export default function CheckoutModal() {
            >
             <ArrowLeft className="w-6 h-6" />
            </button>
-           <h2 className="text-[20px] sm:text-[24px] font-extrabold text-[#3A332E] tracking-tight">
-             {isEditingAddress && isMobile ? 'Детали адреса' : 'Введите адрес'}
+           <h2 className="text-[24px] sm:text-[28px] font-[800] text-[#3A332E] tracking-tight">
+            {isEditingAddress && isMobile ? 'Детали адреса' : 'Введите адрес'}
            </h2>
           </div>
 
           <motion.div className="flex-1 overflow-y-auto no-scrollbar pb-6 mt-4 space-y-4">
            <div className="relative">
             <div
-             className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-4 cursor-pointer select-none border border-transparent hover:border-gray-200 transition-colors"
+             className="bg-[#FAF8F5] rounded-[1.4rem] px-6 py-4 cursor-pointer select-none border border-[#F2F2F2] hover:border-[#E8E1DA] transition-colors"
              onClick={() => setShowCityDropdown(v => !v)}
             >
-             <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-1">Город</span>
+             <span className="block text-[10px] font-[800] text-[#D5A58D] uppercase tracking-[0.16em] mb-1">Город</span>
              <div className="flex items-center justify-between text-[#3A332E]">
-              <span className="text-[17px] font-extrabold">{selectedCity}</span>
-              <ChevronDown className={cn("w-5 h-5 transition-transform duration-300", showCityDropdown && "rotate-180")} />
+              <span className="text-[17px] font-[700]">{selectedCity}</span>
+              <ChevronDown className={cn("w-5 h-5 text-[#D5A58D] transition-transform duration-300", showCityDropdown && "rotate-180")} />
              </div>
             </div>
             {showCityDropdown && (
@@ -618,8 +696,8 @@ export default function CheckoutModal() {
            </div>
 
            <div className="relative">
-            <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-4 flex flex-col justify-center border border-transparent focus-within:border-gray-300 transition-all">
-             <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-1">Улица и дом</span>
+            <div className="bg-[#FCFBF9] rounded-[1.4rem] px-6 py-4 flex flex-col justify-center border border-[#F2EEE9] hover:border-[#E8E1DA] focus-within:border-[#D5A58D] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(213,165,141,0.1)] transition-all duration-300">
+             <span className="block text-[10px] font-[800] text-[#D5A58D] uppercase tracking-[0.16em] mb-0.5">Улица и дом</span>
              <div className="flex items-center gap-2">
               <input
                type="text"
@@ -629,7 +707,7 @@ export default function CheckoutModal() {
                 debouncedSearch(e.target.value)
                }}
                placeholder="Введите адрес"
-               className="w-full bg-transparent border-none outline-none text-[17px] font-extrabold text-[#3A332E] placeholder:text-[#3A332E]/30"
+               className="w-full bg-transparent border-none outline-none text-[17px] sm:text-[18px] font-[700] text-[#3A332E] placeholder:text-[#3A332E]/30"
               />
               {isLoadingSuggestions && <Loader2 className="w-4 h-4 animate-spin text-[#3A332E] flex-shrink-0" />}
               {tempAddress && !isLoadingSuggestions && (
@@ -692,27 +770,27 @@ export default function CheckoutModal() {
 
            <div className="flex flex-col gap-4 mt-2 mb-2 pb-4">
             <div className="flex gap-4">
-             <div className="flex-1 bg-[#F8F8F8] rounded-[1.2rem] px-5 py-3 focus-within:border-gray-300 border border-transparent transition-all">
-              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Дом *</span>
-              <input type="text" value={house} onChange={(e) => setHouse(e.target.value)} placeholder="1" className="w-full bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] placeholder:text-gray-300" />
+             <div className="flex-1 bg-[#FCFBF9] rounded-[1.4rem] px-6 py-4 border border-[#F2EEE9] hover:border-[#E8E1DA] focus-within:border-[#D5A58D] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(213,165,141,0.1)] transition-all duration-300">
+              <span className="block text-[10px] font-[800] text-[#D5A58D] uppercase tracking-[0.16em] mb-0.5">Дом *</span>
+              <input type="text" value={house} onChange={(e) => setHouse(e.target.value)} placeholder="1" className="w-full bg-transparent border-none outline-none text-[17px] sm:text-[18px] font-[700] text-[#3A332E] placeholder:text-[#3A332E]/30" />
              </div>
-             <div className="flex-1 bg-[#F8F8F8] rounded-[1.2rem] px-5 py-3 focus-within:border-gray-300 border border-transparent transition-all">
-              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Корпус</span>
-              <input type="text" value={corpus} onChange={(e) => setCorpus(e.target.value)} placeholder="А" className="w-full bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] placeholder:text-gray-300" />
+             <div className="flex-1 bg-[#FCFBF9] rounded-[1.4rem] px-6 py-4 border border-[#F2EEE9] hover:border-[#E8E1DA] focus-within:border-[#D5A58D] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(213,165,141,0.1)] transition-all duration-300">
+              <span className="block text-[10px] font-[800] text-[#D5A58D] uppercase tracking-[0.16em] mb-0.5">Корпус</span>
+              <input type="text" value={corpus} onChange={(e) => setCorpus(e.target.value)} placeholder="А" className="w-full bg-transparent border-none outline-none text-[17px] sm:text-[18px] font-[700] text-[#3A332E] placeholder:text-[#3A332E]/30" />
              </div>
             </div>
             <div className="flex gap-3">
-             <div className="flex-1 bg-[#F8F8F8] rounded-[1.2rem] px-4 py-3 focus-within:border-gray-300 border border-transparent transition-all">
-              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Подъезд *</span>
-              <input type="text" value={entrance} onChange={(e) => setEntrance(e.target.value)} placeholder="1" className="w-full bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] placeholder:text-gray-300" />
+             <div className="flex-1 bg-[#FCFBF9] rounded-[1.4rem] px-4 py-4 border border-[#F2EEE9] hover:border-[#E8E1DA] focus-within:border-[#D5A58D] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(213,165,141,0.1)] transition-all duration-300">
+              <span className="block text-[10px] font-[800] text-[#D5A58D] uppercase tracking-[0.16em] mb-0.5">Подъезд *</span>
+              <input type="text" value={entrance} onChange={(e) => setEntrance(e.target.value)} placeholder="1" className="w-full bg-transparent border-none outline-none text-[17px] sm:text-[18px] font-[700] text-[#3A332E] placeholder:text-[#3A332E]/30" />
              </div>
-             <div className="flex-[0.8] bg-[#F8F8F8] rounded-[1.2rem] px-4 py-3 focus-within:border-gray-300 border border-transparent transition-all">
-              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Этаж</span>
-              <input type="text" value={floor} onChange={(e) => setFloor(e.target.value)} placeholder="0" className="w-full bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] placeholder:text-gray-300" />
+             <div className="flex-[0.8] bg-[#FCFBF9] rounded-[1.4rem] px-4 py-4 border border-[#F2EEE9] hover:border-[#E8E1DA] focus-within:border-[#D5A58D] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(213,165,141,0.1)] transition-all duration-300">
+              <span className="block text-[10px] font-[800] text-[#D5A58D] uppercase tracking-[0.16em] mb-0.5">Этаж</span>
+              <input type="text" value={floor} onChange={(e) => setFloor(e.target.value)} placeholder="0" className="w-full bg-transparent border-none outline-none text-[17px] sm:text-[18px] font-[700] text-[#3A332E] placeholder:text-[#3A332E]/30" />
              </div>
-             <div className="flex-1 bg-[#F8F8F8] rounded-[1.2rem] px-4 py-3 focus-within:border-gray-300 border border-transparent transition-all">
-              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Кв. *</span>
-              <input type="text" value={apartment} onChange={(e) => setApartment(e.target.value)} placeholder="10" className="w-full bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] placeholder:text-gray-300" />
+             <div className="flex-1 bg-[#FCFBF9] rounded-[1.4rem] px-4 py-4 border border-[#F2EEE9] hover:border-[#E8E1DA] focus-within:border-[#D5A58D] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(213,165,141,0.1)] transition-all duration-300">
+              <span className="block text-[10px] font-[800] text-[#D5A58D] uppercase tracking-[0.16em] mb-0.5">Кв. *</span>
+              <input type="text" value={apartment} onChange={(e) => setApartment(e.target.value)} placeholder="10" className="w-full bg-transparent border-none outline-none text-[17px] sm:text-[18px] font-[700] text-[#3A332E] placeholder:text-[#3A332E]/30" />
              </div>
             </div>
            </div>
@@ -728,7 +806,7 @@ export default function CheckoutModal() {
             }
            }}
            disabled={!tempAddress || !house || !entrance || !apartment}
-           className="mt-4 sm:mt-auto w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] sm:text-[20px] hover:bg-[#b87a60] transition-all shadow-xl shadow-[#CF8F73]/20 active:scale-95 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0"
+           className="mt-4 sm:mt-auto shrink-0 w-full h-[64px] bg-[#CA8A70] disabled:bg-[#CA8A70]/40 text-white rounded-[1.4rem] font-[800] text-[18px] hover:enabled:bg-[#be7e64] transition-all active:scale-[0.98] shadow-[0_12px_30px_rgba(202,138,112,0.25)]"
           >
            {isEditingAddress && isMobile ? 'Готово' : 'Всё верно'}
           </button>
@@ -779,7 +857,7 @@ export default function CheckoutModal() {
          animate={{ y: 0 }}
          className={cn(
           "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto bg-white sm:bg-transparent z-10 flex flex-col sm:flex-1 rounded-t-[2.5rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.12)] sm:shadow-none overflow-hidden sm:overflow-y-auto no-scrollbar touch-pan-y",
-          isEditingAddress ? "max-h-[85vh] sm:h-full px-4 pt-6 sm:px-10 sm:py-10" : "px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-6 sm:h-full sm:px-10 sm:py-10"
+          isEditingAddress ? "max-h-[85dvh] sm:h-full px-4 pt-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:px-10 sm:py-10" : "px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-6 sm:h-full sm:px-10 sm:py-10"
          )}
          transition={{ type: "spring" as const, damping: 28, stiffness: 220 }}
         >
@@ -812,9 +890,9 @@ export default function CheckoutModal() {
           <button
            onClick={handleNextFromPickup}
            disabled={!selectedPickup}
-           className="w-full h-[68px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mt-1"
+           className="w-full h-[64px] bg-[#CA8A70] disabled:bg-[#CA8A70]/40 text-white rounded-[1.4rem] font-[800] text-[18px] transition-all active:scale-[0.98] hover:enabled:bg-[#be7e64] group flex items-center justify-center mt-1 shadow-[0_12px_30px_rgba(202,138,112,0.25)]"
           >
-           Всё верно
+           <span className="relative z-10">Всё верно</span>
           </button>
          </div>
 
@@ -830,11 +908,11 @@ export default function CheckoutModal() {
                setStep(2);
               }
              }}
-             className="p-1 text-gray-400 hover:text-[#3A332E] transition-colors"
+             className="p-1 text-[#3A332E] hover:text-[#2A2420] transition-colors"
             >
              <ArrowLeft className="w-6 h-6" />
             </button>
-            <h2 className="text-[22px] sm:text-[24px] font-extrabold text-[#3A332E] tracking-tight">
+            <h2 className="text-[24px] sm:text-[28px] font-[800] text-[#3A332E] tracking-tight">
              Точка самовывоза
             </h2>
            </div>
@@ -848,13 +926,13 @@ export default function CheckoutModal() {
 
           <div className="relative mb-6">
            <div
-            className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-4 cursor-pointer select-none border border-transparent hover:border-gray-200 transition-colors"
+            className="bg-[#FCFBF9] rounded-[1.4rem] px-6 py-4 cursor-pointer select-none border border-[#F2EEE9] hover:border-[#E8E1DA] transition-colors"
             onClick={() => setShowCityDropdown(v => !v)}
            >
-            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-0.5">Город</span>
+            <span className="block text-[10px] font-[800] text-[#D5A58D] uppercase tracking-[0.16em] mb-1">Город</span>
             <div className="flex items-center justify-between">
-             <span className="text-[15px] font-extrabold text-[#3A332E]">{selectedCity}</span>
-             <ChevronDown className={cn('w-4 h-4 text-gray-400 transition-transform duration-200', showCityDropdown && 'rotate-180')} />
+             <span className="text-[17px] font-[700] text-[#3A332E]">{selectedCity}</span>
+             <ChevronDown className={cn('w-5 h-5 text-[#D5A58D] transition-transform duration-200', showCityDropdown && 'rotate-180')} />
             </div>
            </div>
            {showCityDropdown && (
@@ -891,27 +969,27 @@ export default function CheckoutModal() {
               layout
               onClick={() => setSelectedPickup(p)}
               className={cn(
-               "w-full px-6 py-4 rounded-[1.8rem] border transition-all flex items-center justify-between group",
+               "w-full px-6 py-5 rounded-[1.8rem] border transition-all duration-400 flex items-center justify-between group relative",
                selectedPickup?.address === p.address
-                ? "border-[#CF8F73] bg-[#CF8F73] shadow-[0_8px_20px_rgba(207,141,114,0.2)]"
-                : "border-gray-100 bg-white hover:border-gray-300"
+                ? "border-[#CA8A70] bg-white shadow-[0_12px_30px_rgba(202,138,112,0.12)]"
+                : "border-[#F2F2F2] bg-[#FAF8F5] hover:border-[#CA8A70]/30 hover:bg-white"
               )}
              >
               <div className="flex flex-col items-start min-w-0 pr-4">
                <span className={cn(
-                "text-[16px] font-[800] transition-colors truncate w-full text-left",
-                selectedPickup?.address === p.address ? "text-white" : "text-[#3A332E]"
+                "text-[17px] font-[800] transition-colors truncate w-full text-left leading-snug",
+                selectedPickup?.address === p.address ? "text-[#CA8A70]" : "text-[#3A332E]"
                )}>
                 {p.address}
                </span>
                <span className={cn(
-                "text-[12px] font-bold uppercase tracking-widest mt-1",
-                selectedPickup?.address === p.address ? "text-white/70" : "text-gray-400"
+                "text-[10px] font-[800] uppercase tracking-[0.16em] mt-1.5",
+                selectedPickup?.address === p.address ? "text-[#CA8A70]/60" : "text-[#A19C98]"
                )}>Пункт выдачи</span>
               </div>
               <div className={cn(
-               "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors px-0.5 shrink-0",
-               selectedPickup?.address === p.address ? "border-white" : "border-gray-200 group-hover:border-gray-300"
+               "w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center transition-all duration-400 shrink-0",
+               selectedPickup?.address === p.address ? "border-[#CA8A70] bg-[#CA8A70]/5" : "border-[#E8E1DA] group-hover:border-[#CA8A70]/40"
               )}>
                <div className={cn(
                 "w-2.5 h-2.5 rounded-full bg-white transition-all duration-300",
@@ -932,7 +1010,7 @@ export default function CheckoutModal() {
             }
            }}
            disabled={!selectedPickup}
-           className="mt-6 w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[18px] sm:text-[20px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 shrink-0 mb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:mb-0"
+           className="mt-6 w-full shrink-0 h-[64px] bg-[#CA8A70] disabled:bg-[#CA8A70]/40 text-white rounded-[1.4rem] font-[800] text-[18px] hover:enabled:bg-[#be7e64] transition-all active:scale-[0.98] shadow-[0_12px_30px_rgba(202,138,112,0.25)]"
           >
            {isEditingAddress && isMobile ? 'Готово' : 'Всё верно'}
           </button>
@@ -952,8 +1030,8 @@ export default function CheckoutModal() {
         className="flex h-full w-full"
        >
         <div className="flex-1 p-6 sm:p-12 flex flex-col justify-center max-w-xl mx-auto">
-         <h2 className="text-[24px] sm:text-[28px] font-extrabold text-[#3A332E] mb-8 tracking-tight">
-          Оплата заказа
+         <h2 className="text-[28px] sm:text-[34px] font-[800] text-[#3A332E] mb-8 sm:mb-10 text-center tracking-tight">
+          Способ оплаты
          </h2>
 
          <div className="space-y-4">
@@ -962,22 +1040,22 @@ export default function CheckoutModal() {
            whileTap={{ scale: 0.98 }}
            onClick={() => setPaymentMethod('sbp')}
            className={cn(
-            "w-full p-6 rounded-[1.8rem] border-2 transition-all flex items-center justify-between group",
-            paymentMethod === 'sbp' ? "border-[#CF8F73] bg-[#CF8F73]/5" : "border-gray-100 hover:border-gray-200"
+            "w-full p-6 rounded-[1.5rem] border transition-all duration-300 flex items-center justify-between group",
+            paymentMethod === 'sbp' ? "border-[#CA8A70] bg-white shadow-[0_0_0_4px_rgba(202,138,112,0.12)]" : "border-[#F2EEE9] bg-[#FCFBF9] hover:border-[#E8E1DA]"
            )}
           >
            <div className="flex items-center gap-4">
-            <div className="w-12 h-8 rounded-md bg-gradient-to-br from-blue-600 via-purple-600 to-orange-500 flex items-center justify-center shadow-sm">
-             <span className="text-white font-extrabold text-[12px] tracking-wider">СБП</span>
+            <div className="w-14 h-9 rounded-[0.5rem] bg-gradient-to-br from-blue-600 via-purple-600 to-orange-500 flex items-center justify-center shadow-sm">
+             <span className="text-white font-[800] text-[13px] tracking-wider">СБП</span>
             </div>
-            <span className="font-extrabold text-[#3A332E] text-[17px]">Оплата через СБП</span>
+            <span className={cn("font-[700] text-[17px] transition-colors", paymentMethod === 'sbp' ? "text-[#CA8A70]" : "text-[#3A332E]")}>Оплата через СБП</span>
            </div>
            <div className={cn(
-            "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors px-0.5",
-            paymentMethod === 'sbp' ? "border-[#CF8F73]" : "border-gray-200"
+            "w-[22px] h-[22px] rounded-full border-2 flex items-center justify-center transition-colors px-[0.1rem]",
+            paymentMethod === 'sbp' ? "border-[#CA8A70]" : "border-[#E8E1DA] group-hover:border-[#CA8A70]/50"
            )}>
             <div className={cn(
-             "w-2.5 h-2.5 rounded-full bg-[#CF8F73] transition-all",
+             "w-2.5 h-2.5 rounded-full bg-[#CA8A70] transition-all duration-300",
              paymentMethod === 'sbp' ? "scale-100 opacity-100" : "scale-0 opacity-0"
             )} />
            </div>
@@ -988,22 +1066,22 @@ export default function CheckoutModal() {
            whileTap={{ scale: 0.98 }}
            onClick={() => setPaymentMethod('card')}
            className={cn(
-            "w-full p-6 rounded-[1.8rem] border-2 transition-all flex items-center justify-between group",
-            paymentMethod === 'card' ? "border-[#CF8F73] bg-[#CF8F73]/5" : "border-gray-100 hover:border-gray-200"
+            "w-full p-6 rounded-[1.5rem] border transition-all duration-300 flex items-center justify-between group",
+            paymentMethod === 'card' ? "border-[#CA8A70] bg-white shadow-[0_0_0_4px_rgba(202,138,112,0.12)]" : "border-[#F2EEE9] bg-[#FCFBF9] hover:border-[#E8E1DA]"
            )}
           >
            <div className="flex items-center gap-4">
-            <div className="w-12 h-8 rounded-md bg-gradient-to-br from-gray-800 to-gray-600 flex items-center justify-center shadow-sm">
-             <CreditCard className="w-5 h-5 text-white" />
+            <div className="w-14 h-9 rounded-[0.5rem] bg-[#3A332E] flex items-center justify-center shadow-sm">
+             <CreditCard className="w-5 h-5 text-white/90" />
             </div>
-            <span className="font-extrabold text-[#3A332E] text-[17px]">Банковской картой</span>
+            <span className={cn("font-[700] text-[17px] transition-colors", paymentMethod === 'card' ? "text-[#CA8A70]" : "text-[#3A332E]")}>Банковской картой</span>
            </div>
            <div className={cn(
-            "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors px-0.5",
-            paymentMethod === 'card' ? "border-[#CF8F73]" : "border-gray-200"
+            "w-[22px] h-[22px] rounded-full border-2 flex items-center justify-center transition-colors px-[0.1rem]",
+            paymentMethod === 'card' ? "border-[#CA8A70]" : "border-[#E8E1DA] group-hover:border-[#CA8A70]/50"
            )}>
             <div className={cn(
-             "w-2.5 h-2.5 rounded-full bg-[#CF8F73] transition-all",
+             "w-2.5 h-2.5 rounded-full bg-[#CA8A70] transition-all duration-300",
              paymentMethod === 'card' ? "scale-100 opacity-100" : "scale-0 opacity-0"
             )} />
            </div>
@@ -1016,35 +1094,35 @@ export default function CheckoutModal() {
            animate={{ opacity: 1, y: 0 }}
            className="mt-6 space-y-3"
           >
-           <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-3.5 border border-transparent focus-within:border-gray-300 transition-colors">
-            <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Номер карты</span>
+           <div className="bg-[#FCFBF9] rounded-[1.4rem] px-6 py-4 border border-[#F2EEE9] hover:border-[#E8E1DA] focus-within:border-[#D5A58D] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(213,165,141,0.1)] transition-all duration-300">
+            <span className="block text-[10px] font-[800] text-[#D5A58D] uppercase tracking-[0.16em] mb-0.5">Номер карты</span>
             <input
              type="text"
              value={cardNumber}
              onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
              placeholder="0000 0000 0000 0000"
-             className="bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] w-full"
+             className="bg-transparent border-none outline-none text-[17px] sm:text-[18px] font-[700] text-[#3A332E] placeholder:text-[#3A332E]/30 w-full"
             />
            </div>
-           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-3.5 border border-transparent focus-within:border-gray-300 transition-colors">
-             <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Срок</span>
+           <div className="flex gap-4">
+            <div className="flex-1 bg-[#FCFBF9] rounded-[1.4rem] px-6 py-4 border border-[#F2EEE9] hover:border-[#E8E1DA] focus-within:border-[#D5A58D] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(213,165,141,0.1)] transition-all duration-300">
+             <span className="block text-[10px] font-[800] text-[#D5A58D] uppercase tracking-[0.16em] mb-0.5">Срок</span>
              <input
               type="text"
               value={cardExpiry}
               onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
               placeholder="ММ/ГГ"
-              className="bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] w-full"
+              className="bg-transparent border-none outline-none text-[17px] sm:text-[18px] font-[700] text-[#3A332E] placeholder:text-[#3A332E]/30 w-full"
              />
             </div>
-            <div className="bg-[#F8F8F8] rounded-[1.2rem] px-5 py-3.5 border border-transparent focus-within:border-gray-300 transition-colors">
-             <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">CVC</span>
+            <div className="flex-1 bg-[#FCFBF9] rounded-[1.4rem] px-6 py-4 border border-[#F2EEE9] hover:border-[#E8E1DA] focus-within:border-[#D5A58D] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(213,165,141,0.1)] transition-all duration-300">
+             <span className="block text-[10px] font-[800] text-[#D5A58D] uppercase tracking-[0.16em] mb-0.5">CVC</span>
              <input
               type="password"
               value={cardCVC}
               onChange={(e) => setCardCVC(e.target.value.substring(0, 3))}
               placeholder="•••"
-              className="bg-transparent border-none outline-none text-[16px] font-extrabold text-[#3A332E] w-full"
+              className="bg-transparent border-none outline-none text-[17px] sm:text-[18px] font-[700] text-[#3A332E] placeholder:text-[#3A332E]/30 w-full"
              />
             </div>
            </div>
@@ -1054,9 +1132,9 @@ export default function CheckoutModal() {
          <button
           onClick={handleFinalCheckout}
           disabled={!paymentMethod || (paymentMethod === 'card' && !isCardValid)}
-          className="mt-8 w-full h-[68px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
+          className="mt-8 w-full h-[64px] bg-[#CA8A70] disabled:bg-[#CA8A70]/40 text-white rounded-[1.4rem] font-[800] text-[18px] hover:enabled:bg-[#be7e64] transition-all active:scale-[0.98]"
          >
-          Оплатить
+          Оплатить {cartStore.finalTotal} ₽
          </button>
         </div>
        </motion.div>
@@ -1077,7 +1155,7 @@ export default function CheckoutModal() {
           initial={{ scale: 0, rotate: -45 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ type: "spring", damping: 12, stiffness: 200, delay: 0.2 }}
-          className="w-24 h-24 rounded-full bg-[#CF8F73] flex items-center justify-center shadow-lg shadow-[#CF8F73]/20"
+          className="w-24 h-24 rounded-full bg-[#CA8A70] flex items-center justify-center shadow-[0_8px_20px_rgba(202,138,112,0.2)]"
          >
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
            <motion.path
@@ -1097,7 +1175,7 @@ export default function CheckoutModal() {
          {[...Array(6)].map((_, i) => (
           <motion.div
            key={i}
-           className="absolute w-2 h-2 rounded-full bg-[#CF8F73]/40"
+           className="absolute w-2 h-2 rounded-full bg-[#CA8A70]/40"
            initial={{ scale: 0, x: 0, y: 0 }}
            animate={{ scale: [0, 1, 0], x: (i % 2 === 0 ? 1 : -1) * (40 + i * 10), y: (i < 3 ? 1 : -1) * (40 + i * 5) }}
            transition={{ duration: 1, delay: 0.8 + i * 0.1 }}
@@ -1105,7 +1183,7 @@ export default function CheckoutModal() {
          ))}
         </div>
 
-        <h2 className="text-[28px] sm:text-[32px] font-extrabold text-[#3A332E] mb-4 tracking-tight" style={{ fontFeatureSettings: "'pnum' on, 'lnum' on" }}>
+        <h2 className="text-[28px] sm:text-[34px] font-[800] text-[#3A332E] mb-4 tracking-tight" style={{ fontFeatureSettings: "'pnum' on, 'lnum' on" }}>
          Заказ принят!
         </h2>
         <p className="text-[#3A332E]/60 text-[16px] max-w-[320px] leading-relaxed mb-10">
@@ -1113,7 +1191,7 @@ export default function CheckoutModal() {
         </p>
         <button
          onClick={handleClose}
-         className="w-full max-w-[280px] h-[64px] bg-[#CF8F73] text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
+         className="w-full max-w-[280px] h-[64px] bg-[#CA8A70] disabled:bg-[#CA8A70]/40 text-white rounded-[1.4rem] font-[800] text-[18px] hover:enabled:bg-[#be7e64] transition-all active:scale-[0.98]"
         >
          Отлично
         </button>

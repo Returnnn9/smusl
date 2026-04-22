@@ -32,12 +32,18 @@ const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
  const isAuthenticated = mounted && status === "authenticated"
 
  return (
+<<<<<<< HEAD
   <header className="sticky top-0 w-full z-[100] font-manrope bg-[#FDF8ED]/70 backdrop-blur-xl border-b border-[#4A403A]/5 transition-all duration-300">
    <div className="w-full px-4 sm:px-8 lg:px-12">
+=======
+  <header className="w-full z-[100] font-montserrat bg-[#FCFBF9] pb-3 sm:pb-5 border-b border-[#F2EEE9]">
+   <div className="w-full px-4 sm:px-8 lg:px-10">
+>>>>>>> 63ace912840f4aa73853efb951a605ee01f139de
 
     {/* Primary Navigation Row */}
     <div className="flex items-center justify-between py-3 sm:py-5 gap-4 lg:gap-8">
 
+<<<<<<< HEAD
      {/* Left Group: Logo + Desktop Navigation */}
      <div className="flex items-center gap-6 lg:gap-10 shrink-0 min-w-0">
       <Link href="/" className="flex items-center cursor-pointer shrink-0 select-none group">
@@ -50,6 +56,35 @@ const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
         height="46"
         className="h-[30px] xs:h-[35px] sm:h-[40px] md:h-[46px] w-auto object-contain drop-shadow-sm"
        />
+=======
+     {/* Right: Address + Profile */}
+     <div className="flex items-center gap-2 sm:gap-4 lg:gap-6">
+      {/* Address Button (Custom Mockup Style) */}
+      <button
+       onClick={() => setAddressModalOpen(true)}
+       className="flex flex-col items-start text-left group transition-opacity hover:opacity-80"
+      >
+       <span className="text-[11px] sm:text-[13px] font-[900] text-[#3A332E] leading-none mb-0.5 sm:mb-1 uppercase tracking-tight">
+        {deliveryType === "pickup" ? "Самовывоз" : (deliveryType === "delivery" ? "Доставка на дом" : "Способ получения")}
+       </span>
+       <div className="flex items-center gap-1 sm:gap-1.5">
+        <span className="text-[13px] sm:text-[15px] font-[700] text-[#3A332E] max-w-[150px] sm:max-w-[300px] md:max-w-[500px] truncate tracking-tight leading-tight">
+         {address || "Нажмите, чтобы выбрать"}
+        </span>
+        <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 text-[#3A332E]/30 group-hover:text-smusl-terracotta transition-colors" />
+       </div>
+      </button>
+
+      {/* Profile Button */}
+      <Link
+       href="/profile"
+       className="flex items-center gap-2.5 sm:gap-3 px-5 sm:px-6 py-2.5 sm:py-3 bg-white border border-[#F2EEE9] rounded-[1.4rem] text-[14px] sm:text-[15px] font-[800] text-[#3A332E] hover:border-[#E8E1DA] hover:shadow-[0_4px_15px_rgba(202,138,112,0.08)] transition-all shrink-0 active:scale-[0.97]"
+      >
+       <User className={cn("w-5 h-5 shrink-0", isAuthenticated ? "text-[#CA8A70]" : "text-[#A19C98]")} />
+       <span className="hidden sm:inline">
+        {isAuthenticated ? "Личный кабинет" : "Войти"}
+       </span>
+>>>>>>> 63ace912840f4aa73853efb951a605ee01f139de
       </Link>
 
       {/* Desktop Inline Categories */}
@@ -90,6 +125,7 @@ const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
       )}
      </div>
 
+<<<<<<< HEAD
      {/* Right Group: Address + Search + Profile */}
      <div className="flex items-center gap-4 sm:gap-6 lg:gap-8 shrink-0 min-w-0">
 
@@ -118,12 +154,46 @@ const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
        <div className="absolute inset-x-0 top-0 h-full w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-[200%] transition-transform duration-1000 ease-in-out pointer-events-none" />
 
        <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-smusl-brown/30 group-focus-within:text-smusl-terracotta group-focus-within:scale-110 transition-all duration-300" />
+=======
+    {/* Bottom row: Categories · Search */}
+    {showCategories && (
+     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-8 pt-1">
+      {/* Categories */}
+      <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar smooth-scroll shrink-0 w-[calc(100%+2rem)] -mx-4 px-4 sm:w-auto sm:mx-0 sm:px-0">
+       {categories.map((cat) => (
+        <button
+         key={cat.id}
+         onClick={() => {
+          setActiveCategory(cat.id)
+          setSearchQuery('')
+         }}
+         className={cn(
+          "px-5 sm:px-7 py-3 sm:py-3.5 rounded-[1.2rem] text-[13px] sm:text-[14px] font-[900] uppercase tracking-widest whitespace-nowrap transition-all duration-300 border",
+          activeCategory === cat.id
+           ? "bg-[#CA8A70] text-white border-[#CA8A70] shadow-[0_8px_20px_rgba(202,138,112,0.35)] -translate-y-0.5"
+           : "bg-white text-[#3A332E]/60 border-[#F2F2F2] hover:border-[#CA8A70]/30 hover:text-[#CA8A70] shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
+         )}
+        >
+         {cat.label}
+        </button>
+       ))}
+      </div>
+
+      {/* Search */}
+      <div className="relative w-full sm:max-w-[300px] md:max-w-[380px] lg:max-w-[440px] group mb-1 sm:mb-0">
+       <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A19C98] group-focus-within:text-[#CA8A70] transition-colors" />
+>>>>>>> 63ace912840f4aa73853efb951a605ee01f139de
        <input
         type="text"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
+<<<<<<< HEAD
         placeholder="Поиск десертов..."
         className="absolute inset-0 bg-transparent px-14 text-[15px] font-bold text-smusl-brown focus:outline-none placeholder:text-smusl-brown/30 transition-all"
+=======
+        placeholder="Кекс фисташковый"
+        className="w-full bg-white border border-[#F2F2F2] rounded-[1.4rem] py-2 sm:py-2.5 pl-11 pr-5 text-[15px] sm:text-[16px] font-[700] text-[#3A332E] focus:outline-none focus:border-[#CA8A70]/50 focus:shadow-[0_4px_20px_rgba(202,138,112,0.08)] transition-all placeholder:text-[#A19C98] placeholder:font-[600]"
+>>>>>>> 63ace912840f4aa73853efb951a605ee01f139de
        />
       </div>
 
