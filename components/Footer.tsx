@@ -2,6 +2,7 @@
 import React from "react";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Send, Mail, Phone, Clock, MapPin } from "lucide-react";
 
 const Footer: React.FC = () => {
@@ -11,11 +12,11 @@ const Footer: React.FC = () => {
     {/* ── Logo ── */}
     <div className="flex flex-col gap-4">
      <Link href="/" className="block w-fit select-none hover:opacity-80 transition-opacity">
-      <img
+      <Image
        src="/photo/logo.png"
        alt="Logo"
-       width="160"
-       height="160"
+       width={160}
+       height={160}
        className="h-auto w-[140px] sm:w-[180px] brightness-0 invert opacity-90"
       />
      </Link>

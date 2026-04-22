@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 const STATUS_CONFIG = {
   new: { label: 'Новый', color: 'bg-blue-50 text-blue-600 border-blue-100', icon: Clock },
@@ -251,7 +252,7 @@ export default function OrdersTab() {
                     {selectedOrder.items.map((item, idx) => (
                       <div key={idx} className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-xl bg-[#FAF8F5] overflow-hidden relative shrink-0 border border-gray-100">
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                          <Image src={item.image} alt={item.name} fill className="object-cover" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-[14px] font-black text-[#6B5D54] truncate">{item.name}</p>

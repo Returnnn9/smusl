@@ -9,7 +9,18 @@ export default auth((req) => {
   const token = req.auth;
   const is2faEnabled = token?.twoFactorEnabled;
   const is2faVerified = req.cookies.has("admin_2fa_verified");
+  
+  // ─── GLOBAL SITE LOCK (PRE-RELEASE MODE) ────────────────────────────────────
+  const hasSiteAccess = req.cookies.has("smusl_site_access");
+  const isLockPage = pathname === "/lock";
+  const isPublicFile = pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp|json)$/i) || pathname.startsWith("/_next");
+  
+  // Protect EVERYTHING (Pages + API) except public files and the lock screen
+  if (process.env.SITE_PASSWORD && !hasSiteAccess && !isLockPage && !isPublicFile) {
+    return NextResponse.redirect(new URL("/lock", req.url));
+  }
 
+  // ─── ADMIN AREA PROTECTION ──────────────────────────────────────────────────
   const isAdminArea = pathname.startsWith("/admin");
   const isVerify2fa = pathname.startsWith("/admin/verify-2fa");
   const isLogin = pathname === "/admin/login";
@@ -35,7 +46,6 @@ export default auth((req) => {
   return NextResponse.next();
 });
 
-
 export const config = {
- matcher: ["/admin/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

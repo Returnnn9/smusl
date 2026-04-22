@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react"
-import { useUIStore, useCartStore, useUserStore, useStoreData, useRootStore } from "@/store/hooks"
-import { X, ChevronRight, ChevronDown, Truck, MapPin, ArrowLeft, User, Phone, CheckCircle2, XCircle, Loader2, Edit3, CreditCard, Navigation } from "lucide-react"
+import { useUIStore, useCartStore, useUserStore } from "@/store/hooks"
+import { X, ChevronDown, ArrowLeft, Loader2, Edit3, CreditCard, Navigation } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSession } from "next-auth/react"
 import MapPicker from "./MapPicker"
@@ -9,6 +9,7 @@ import { useAddressSearch } from "@/hooks/useAddressSearch"
 import { PickupPoint, CityKey } from "@/lib/types/address"
 import { PICKUP_POINTS, CITY_COORDS } from "@/lib/constants/delivery"
 import DeliveryTypeSelector from "./DeliveryTypeSelector"
+
 import { parseAddress, formatAddress, extractFromQuery } from "@/lib/address"
 import { normalizePhone } from "@/lib/phone"
 import { containerVariants, itemVariants, stepVariants } from "@/lib/motion-variants"
@@ -16,20 +17,31 @@ import { containerVariants, itemVariants, stepVariants } from "@/lib/motion-vari
 type DeliveryType = "delivery" | "pickup" | null
 
 export default function CheckoutModal() {
- const uiStore = useUIStore()
- const userStore = useUserStore()
- const rootStore = useRootStore()
+  const isCheckoutOpen = useUIStore(s => s.isCheckoutOpen)
+  const setCheckoutOpen = useUIStore(s => s.setCheckoutOpen)
+  const setAuthModalOpen = useUIStore(s => s.setAuthModalOpen)
 
- const isCheckoutOpen = useStoreData(uiStore, s => s.getIsCheckoutOpen())
- const address = useStoreData(userStore, s => s.getAddress())
- const userName = useStoreData(userStore, s => s.getUserName())
- const userPhone = useStoreData(userStore, s => s.getUserPhone())
+  const address = useUserStore(s => s.address)
+  const userName = useUserStore(s => s.userName)
+  const userPhone = useUserStore(s => s.userPhone)
+  const savedAddresses = useUserStore(s => s.savedAddresses)
 
- const setCheckoutOpen = (o: boolean) => uiStore.setCheckoutOpen(o)
- const setUserName = (n: string) => userStore.setUserName(n)
- const setUserPhone = (p: string) => userStore.setUserPhone(p)
- const updateAddress = (a: string, t: "delivery" | "pickup") => userStore.updateAddress(a, t)
- const checkout = () => rootStore.checkout()
+  const setUserName = useUserStore(s => s.setUserName)
+  const setUserPhone = useUserStore(s => s.setUserPhone)
+  const updateAddress = useUserStore(s => s.updateAddress)
+  const checkoutFn = useUserStore(s => s.checkout)
+  
+  const cartItems = useCartStore(s => s.cart)
+  const cartTotal = useCartStore(s => s.getCartTotal())
+  const clearCart = useCartStore(s => s.clearCart)
+
+  const checkout = async () => {
+    const success = await checkoutFn(cartItems, cartTotal);
+    if (success) {
+      clearCart();
+    }
+    return success;
+  }
  const { status } = useSession()
 
  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1)
@@ -40,7 +52,7 @@ export default function CheckoutModal() {
  const [cardCVC, setCardCVC] = useState('')
  const [tempAddress, setTempAddress] = useState(address)
  const [selectedPickup, setSelectedPickup] = useState<PickupPoint | null>(null)
- const [mapError, setMapError] = useState<string | null>(null)
+ 
  const [selectedCity, setSelectedCity] = useState<CityKey>('Москва')
  const [showCityDropdown, setShowCityDropdown] = useState(false)
  const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null)
@@ -76,26 +88,24 @@ export default function CheckoutModal() {
  }, [isCheckoutOpen, step])
 
  // Address search hook
- const {
-  suggestions,
-  setSuggestions,
-  clearSuggestions,
-  isLoading: isLoadingSuggestions,
-  isLocating,
-  skipNextFetch,
-  debouncedSearch,
-  geolocate,
- } = useAddressSearch(selectedCity);
+  const {
+   suggestions,
+   setSuggestions,
+   isLoading: isLoadingSuggestions,
+   skipNextFetch,
+   debouncedSearch,
+   
+  } = useAddressSearch(selectedCity);
 
 
 
  const reset = useCallback(() => {
-  setStep(1)
-  setDeliveryType(null)
-  setPaymentMethod(null)
-  setCardNumber('')
-  setCardExpiry('')
-  setCardCVC('')
+   setStep(1)
+   setDeliveryType(null)
+   setPaymentMethod(null)
+   setCardNumber('')
+   setCardExpiry('')
+   setCardCVC('')
   if (address) {
    const d = parseAddress(address)
    setTempAddress(d.street || address)
@@ -113,22 +123,14 @@ export default function CheckoutModal() {
    setApartment('')
   }
   setSelectedPickup(null)
-  setMapError(null)
+  
   setSelectedCity('Москва')
   setShowCityDropdown(false)
   setSelectedCoords(null)
   setIsEditingAddress(false)
  }, [address])
 
- const handleGeolocate = () => {
-  geolocate((addr, coords, matchedCity) => {
-   if (matchedCity) setSelectedCity(matchedCity);
-   setTempAddress(addr);
-   setSelectedCoords(coords);
-  });
- }
-
- const handleClose = () => {
+  const handleClose = () => {
   setCheckoutOpen(false)
   setTimeout(reset, 400)
  }
@@ -156,23 +158,23 @@ export default function CheckoutModal() {
   }
  }
 
- const formatCardNumber = (val: string) => {
-  const digits = val.replace(/\D/g, '').substring(0, 16)
-  const groups = digits.match(/.{1,4}/g) || []
-  return groups.join(' ')
- }
+  const formatCardNumber = (val: string) => {
+   const digits = val.replace(/\D/g, '').substring(0, 16)
+   const groups = digits.match(/.{1,4}/g) || []
+   return groups.join(' ')
+  }
 
- const formatExpiry = (val: string) => {
-  const digits = val.replace(/\D/g, '').substring(0, 4)
-  if (digits.length <= 2) return digits
-  return `${digits.substring(0, 2)}/${digits.substring(2, 4)}`
- }
+  const formatExpiry = (val: string) => {
+   const digits = val.replace(/\D/g, '').substring(0, 4)
+   if (digits.length <= 2) return digits
+   return `${digits.substring(0, 2)}/${digits.substring(2, 4)}`
+  }
 
- const isCardValid = cardNumber.replace(/\D/g, '').length === 16 &&
-  cardExpiry.length === 5 &&
-  cardCVC.length === 3
+  const isCardValid = cardNumber.replace(/\D/g, '').length === 16 &&
+   cardExpiry.length === 5 &&
+   cardCVC.length === 3
 
- const handleFinalCheckout = async () => {
+  const handleFinalCheckout = async () => {
   const success = await checkout()
   if (success) {
    setStep(6)
@@ -226,39 +228,11 @@ export default function CheckoutModal() {
   if (extracted.apartment) setApartment(extracted.apartment);
 
   if (details.coords) {
-   setSelectedCoords(details.coords);
-  }
- }, [selectedCity, skipNextFetch]);
+    setSelectedCoords(details.coords);
+   }
+  }, [selectedCity, skipNextFetch, tempAddress]);
 
  if (!isCheckoutOpen) return null
-
- const LeftPanel = ({ icon, text }: { icon: React.ReactNode, text: React.ReactNode }) => (
-  <div className="hidden sm:flex flex-shrink-0 bg-[#F8F8F8] border-r border-gray-100 flex-col items-center justify-center gap-6
-					w-[200px] md:w-[280px]
-					py-10 px-6">
-   <div className="w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] rounded-full bg-white flex items-center justify-center shadow-sm border border-gray-100">
-    {mapError && step === 2 ? (
-     <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
-      <XCircle className="w-9 h-9 text-red-400" />
-     </div>
-    ) : icon}
-   </div>
-   <p className={cn(
-    "text-center text-[14px] sm:text-[15px] font-[800] leading-relaxed px-2",
-    mapError && step === 2 ? "text-red-500/80" : "text-[#3A332E]"
-   )}>
-    {mapError && step === 2 ? mapError : text}
-   </p>
-   {step > 1 && step < 6 && (
-    <button
-     onClick={() => setStep((step - 1) as 1 | 2 | 3 | 4 | 5 | 6)}
-     className="flex items-center gap-2 text-[12px] font-bold text-[#3A332E]/40 hover:text-[#3A332E] transition-colors mt-2"
-    >
-     <ArrowLeft className="w-3.5 h-3.5" /> Назад
-    </button>
-   )}
-  </div>
- )
 
  return (
   <AnimatePresence>
@@ -337,7 +311,7 @@ export default function CheckoutModal() {
            />
           </div>
          </div>
-         <div className="flex items-start gap-3 mt-4">
+         <div className="flex items-start gap-3 mt-4 mb-8">
           <button
            type="button"
            onClick={() => setAcceptNews(!acceptNews)}
@@ -349,26 +323,24 @@ export default function CheckoutModal() {
           <p className="text-[13px] font-medium text-[#3A332E]/60 leading-snug">
            Соглашаюсь получать новости и специальные предложения
           </p>
-
-          {status !== 'authenticated' && (
-           <div className="mt-5 pt-5 border-t border-gray-100 text-center">
-            <p className="text-[12px] font-medium text-[#3A332E]/40 mb-3">
-             Уже есть аккаунт?
-            </p>
-            <button
-             onClick={() => { handleClose(); uiStore.setAuthModalOpen(true); }}
-             className="inline-flex items-center gap-2 px-6 py-3 rounded-[1rem] bg-[#3A332E] text-white text-[14px] font-[800] hover:bg-[#2A2420] active:scale-95 transition-all shadow-md"
-            >
-             Войти / Зарегистрироваться
-            </button>
-           </div>
-          )}
          </div>
+
+         {status !== 'authenticated' && (
+          <div className="mb-3 text-center w-full">
+           <span className="text-[14px] font-[500] text-[#A19C98]">Уже есть аккаунт? </span>
+           <button
+            onClick={() => { handleClose(); setAuthModalOpen(true); }}
+            className="text-[14px] font-[800] text-[#CF8F73] hover:text-[#b87a60] transition-colors"
+           >
+            Войти
+           </button>
+          </div>
+         )}
 
          <button
           onClick={() => setStep(2)}
           disabled={!userName || !normalizePhone(userPhone)}
-          className="mt-8 w-full h-[64px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
+          className="w-full h-[64px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
          >
           Далее
          </button>
@@ -413,7 +385,7 @@ export default function CheckoutModal() {
            selectedType={deliveryType}
            onSelect={(type) => {
             setDeliveryType(type);
-            if (type === "delivery" && userStore.getSavedAddresses().length > 0) {
+            if (type === "delivery" && savedAddresses.length > 0) {
              setStep(3);
             } else {
              setStep(4);
@@ -453,7 +425,7 @@ export default function CheckoutModal() {
          className="flex-1 overflow-y-auto px-1 no-scrollbar space-y-3"
         >
          <AnimatePresence mode="popLayout">
-          {userStore.getSavedAddresses().map((addr, idx) => (
+          {savedAddresses.map((addr) => (
            <motion.button
             key={addr}
             variants={itemVariants}
@@ -530,7 +502,7 @@ export default function CheckoutModal() {
            initialAddress={tempAddress}
            onAddressSelect={onAddressSelect}
            onAddressDetailsSelect={onAddressDetailsSelect}
-           onError={setMapError}
+           
            externalCoords={selectedCoords}
           />
          </div>
@@ -600,7 +572,7 @@ export default function CheckoutModal() {
             onClick={() => {
              if (window.innerWidth < 640 && isEditingAddress) {
               setIsEditingAddress(false);
-             } else if (userStore.getSavedAddresses().length > 0) {
+             } else if (savedAddresses.length > 0) {
               setStep(3);
              } else {
               setStep(2);
@@ -783,7 +755,7 @@ export default function CheckoutModal() {
            interactive={true}
            initialAddress={selectedPickup ? `${selectedPickup.city}, ${selectedPickup.address}` : ""}
            onAddressSelect={() => { }}
-           onError={setMapError}
+           
            externalCoords={selectedPickup ? (selectedPickup.coords as [number, number]) : CITY_COORDS[selectedCity]}
           />
          </div>

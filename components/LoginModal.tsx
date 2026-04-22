@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Phone, ArrowRight, Loader2, ChevronLeft, CheckCircle2, AlertCircle } from "lucide-react";
-import { useUIStore, useUserStore, useStoreData } from "@/store/hooks";
+import { useUIStore, useUserStore } from "@/store/hooks";
 
 /* ─── Phone input formatting ─────────────────────────────── */
 function formatPhone(raw: string): string {
@@ -101,11 +101,10 @@ function useCountdown(initial: number) {
 type Step = "phone" | "code" | "done";
 
 const LoginModal: React.FC = () => {
-  const uiStore = useUIStore();
-  const userStore = useUserStore();
-
-  const isAuthModalOpen = useStoreData(uiStore, (s) => s.getIsAuthModalOpen());
-  const setAuthModalOpen = (open: boolean) => uiStore.setAuthModalOpen(open);
+  const isAuthModalOpen = useUIStore((s) => s.isAuthModalOpen);
+  const setAuthModalOpen = useUIStore((s) => s.setAuthModalOpen);
+  const setUserPhone = useUserStore((s) => s.setUserPhone);
+  const setUserName = useUserStore((s) => s.setUserName);
 
   const [step, setStep] = useState<Step>("phone");
   const [isRegister, setIsRegister] = useState(false);
@@ -194,9 +193,9 @@ const LoginModal: React.FC = () => {
       }
 
       // Save phone (and name if registering) to userStore
-      userStore.setUserPhone(phone);
+      setUserPhone(phone);
       if (isRegister && name) {
-        userStore.setUserName(name);
+        setUserName(name);
       }
 
       setStep("done");

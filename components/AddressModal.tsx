@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from "react"
-import { useUIStore, useUserStore, useStoreData } from "@/store/hooks"
-import { X, ChevronDown, MapPin, ArrowLeft, Loader2, Edit3, CheckCircle2, Navigation, Phone, User as UserIcon } from "lucide-react"
+import { useUIStore, useUserStore } from "@/store/hooks"
+import { X, ChevronDown, ArrowLeft, Loader2, Edit3, Navigation, Phone, User as UserIcon } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import MapPicker from "./MapPicker"
 import { cn } from "@/lib/utils"
@@ -16,26 +16,25 @@ import { containerVariants, itemVariants, stepVariants } from "@/lib/motion-vari
 import { useSession } from "next-auth/react"
 
 export default function AddressModal() {
- const uiStore = useUIStore()
- const userStore = useUserStore()
  const { status: authStatus } = useSession()
 
- const isAddressModalOpen = useStoreData(uiStore, s => s.getIsAddressModalOpen())
- const address = useStoreData(userStore, s => s.getAddress())
+ const isAddressModalOpen = useUIStore(s => s.isAddressModalOpen)
+ const setAddressModalOpen = useUIStore(s => s.setAddressModalOpen)
+ const setAuthModalOpen = useUIStore(s => s.setAuthModalOpen)
 
- const setAddressModalOpen = (o: boolean) => uiStore.setAddressModalOpen(o)
- const updateAddress = (a: string, t: "delivery" | "pickup") => userStore.updateAddress(a, t)
+ const address = useUserStore(s => s.address)
+ const updateAddress = useUserStore(s => s.updateAddress)
+ const userName = useUserStore(s => s.userName)
+ const userPhone = useUserStore(s => s.userPhone)
+ const savedAddresses = useUserStore(s => s.savedAddresses)
+ const setUserName = useUserStore(s => s.setUserName)
+ const setUserPhone = useUserStore(s => s.setUserPhone)
 
  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1)
  const [deliveryType, setDeliveryType] = useState<"delivery" | "pickup" | null>(null)
- const userName = useStoreData(userStore, s => s.getUserName())
- const userPhone = useStoreData(userStore, s => s.getUserPhone())
- const setUserName = (n: string) => userStore.setUserName(n)
- const setUserPhone = (p: string) => userStore.setUserPhone(p)
 
  const [tempAddress, setTempAddress] = useState(address)
  const [selectedPickup, setSelectedPickup] = useState<PickupPoint | null>(null)
- const [mapError, setMapError] = useState<string | null>(null)
  const [selectedCity, setSelectedCity] = useState<CityKey>('Москва')
  const [showCityDropdown, setShowCityDropdown] = useState(false)
  const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null)
@@ -61,7 +60,6 @@ export default function AddressModal() {
  // Address search hook
  const {
   suggestions,
-  setSuggestions,
   clearSuggestions,
   isLoading: isLoadingSuggestions,
   skipNextFetch,
@@ -91,7 +89,6 @@ export default function AddressModal() {
    setApartment('')
   }
   setSelectedPickup(null)
-  setMapError(null)
   setSelectedCity('Москва')
   setShowCityDropdown(false)
   setSelectedCoords(null)
@@ -206,7 +203,7 @@ export default function AddressModal() {
      animate={{ opacity: 1, y: 0 }}
      exit={{ opacity: 0, y: "100%" }}
      transition={{ type: "spring" as const, damping: 32, stiffness: 280 }}
-     className="relative z-10 bg-white sm:bg-white/95 sm:backdrop-blur-[20px] rounded-t-[2rem] sm:rounded-[3rem] shadow-[0_-8px_40px_rgba(0,0,0,0.12)] sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] overflow-hidden flex w-full max-w-[1240px] h-[95vh] sm:h-full font-manrope sm:border-l sm:border-white/20 mt-auto sm:mt-0"
+     className="relative z-10 bg-white sm:bg-white/95 sm:backdrop-blur-[20px] rounded-t-[2.5rem] sm:rounded-[3rem] shadow-[0_-8px_40px_rgba(0,0,0,0.12)] sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] flex flex-col w-full max-w-[1240px] h-[100dvh] sm:h-full font-manrope sm:border-l sm:border-white/20 mt-auto sm:mt-0 overflow-hidden"
     >
      <button onClick={handleClose} className="absolute top-6 right-6 z-50 p-2.5 bg-gray-50/80 backdrop-blur-md rounded-full text-[#3A332E] hover:bg-gray-100 transition-all sm:hidden shadow-sm">
       <X className="w-5 h-5" />
@@ -219,7 +216,7 @@ export default function AddressModal() {
           setIsEditingAddress(false);
           return;
          }
-         if (step === 4 && userStore.getSavedAddresses().length > 0) {
+         if (step === 4 && savedAddresses.length > 0) {
           setStep(3);
          } else {
           setStep((step - 1) as 1 | 2 | 3 | 4 | 5);
@@ -304,16 +301,16 @@ export default function AddressModal() {
           </p>
 
           {authStatus !== 'authenticated' && (
-           <div className="mt-5 pt-5 border-t border-gray-100 text-center">
-            <p className="text-[12px] font-medium text-[#3A332E]/40 mb-3">
-             Уже есть аккаунт?
+           <div className="mt-6 pt-5 border-t border-gray-100 flex flex-col items-center gap-2">
+            <p className="text-[14px] font-medium text-[#3A332E]/40">
+             Уже есть аккаунт?{" "}
+             <button
+              onClick={() => { handleClose(); setAuthModalOpen(true); }}
+              className="text-[#CF8F73] font-bold hover:text-[#b87a60] transition-colors decoration-[#CF8F73]/30 underline underline-offset-4 decoration-2"
+             >
+              Войти
+             </button>
             </p>
-            <button
-             onClick={() => { handleClose(); uiStore.setAuthModalOpen(true); }}
-             className="inline-flex items-center gap-2 px-6 py-3 rounded-[1rem] bg-[#3A332E] text-white text-[14px] font-[800] hover:bg-[#2A2420] active:scale-95 transition-all shadow-md"
-            >
-             Войти / Зарегистрироваться
-            </button>
            </div>
           )}
          </div>
@@ -349,7 +346,7 @@ export default function AddressModal() {
             selectedType={deliveryType}
             onSelect={(type) => {
            setDeliveryType(type);
-           if (type === "delivery" && userStore.getSavedAddresses().length > 0) {
+           if (type === "delivery" && savedAddresses.length > 0) {
             setStep(3);
            } else {
             setStep(type === "delivery" ? 4 : 3);
@@ -389,7 +386,7 @@ export default function AddressModal() {
           className="flex-1 overflow-y-auto px-1 no-scrollbar space-y-3"
          >
           <AnimatePresence mode="popLayout">
-           {userStore.getSavedAddresses().map((addr, idx) => (
+           {savedAddresses.map((addr) => (
             <motion.button
              key={addr}
              variants={itemVariants}
@@ -467,7 +464,7 @@ export default function AddressModal() {
            interactive={true}
            initialAddress={selectedPickup ? `${selectedPickup.city}, ${selectedPickup.address}` : ""}
            onAddressSelect={() => { }}
-           onError={setMapError}
+           
            externalCoords={selectedPickup ? (selectedPickup.coords as [number, number]) : CITY_COORDS[selectedCity]}
           />
          </div>
@@ -490,7 +487,7 @@ export default function AddressModal() {
          animate={{ y: 0 }}
          className={cn(
           "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto bg-white sm:bg-transparent z-10 flex flex-col rounded-t-[2.5rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.12)] sm:shadow-none overflow-hidden sm:overflow-y-auto no-scrollbar touch-pan-y",
-          isEditingAddress ? "h-[85vh] sm:h-full p-6 sm:p-10" : "p-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:h-full sm:p-10"
+          isEditingAddress ? "h-[85dvh] sm:h-full p-6 sm:p-10" : "p-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:h-full sm:p-10"
          )}
          transition={{ type: "spring" as const, damping: 28, stiffness: 220 }}
         >
@@ -564,9 +561,15 @@ export default function AddressModal() {
             ))}
            </AnimatePresence>
           </motion.div>
-          <button onClick={handleSavePickup} disabled={!selectedPickup} className="mt-6 w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-black text-[18px] sm:text-[20px] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0">
-           {isEditingAddress && isMobile ? 'Готово' : 'Всё верно'}
-          </button>
+          <div className="mt-auto shrink-0 sticky bottom-0 bg-white pt-4 pb-[calc(3.5rem+env(safe-area-inset-bottom))] sm:pb-0 z-50 border-t border-gray-100/80 -mx-6 px-6 sm:mx-0 sm:px-0 shadow-[0_-20px_50px_rgba(0,0,0,0.06)]">
+           <button 
+            onClick={handleSavePickup} 
+            disabled={!selectedPickup} 
+            className="w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.8rem] font-black text-[18px] sm:text-[20px] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
+           >
+            {isEditingAddress && isMobile ? 'Готово' : 'Всё верно'}
+           </button>
+          </div>
          </div>
         </motion.div>
        </motion.div>
@@ -592,7 +595,7 @@ export default function AddressModal() {
            initialAddress={tempAddress}
            onAddressSelect={onAddressSelect}
            onAddressDetailsSelect={onAddressDetailsSelect}
-           onError={setMapError}
+           
            externalCoords={selectedCoords}
           />
          </div>
@@ -615,7 +618,7 @@ export default function AddressModal() {
          animate={{ y: 0 }}
          className={cn(
           "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto bg-white sm:bg-transparent z-10 flex flex-col rounded-t-[2.5rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.12)] sm:shadow-none overflow-hidden sm:overflow-y-auto no-scrollbar touch-pan-y",
-          isEditingAddress ? "h-[85vh] sm:h-full p-6 sm:p-10" : "p-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:h-full sm:p-10"
+          isEditingAddress ? "h-[85dvh] sm:h-full p-6 sm:p-10" : "p-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:h-full sm:p-10"
          )}
          transition={{ type: "spring" as const, damping: 28, stiffness: 220 }}
         >
@@ -757,9 +760,15 @@ export default function AddressModal() {
 
            </div>
 
-          <button onClick={handleSaveDelivery} disabled={!tempAddress || !house || !entrance || !apartment} className="mt-auto w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-black text-[18px] sm:text-[20px] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0">
-           {isEditingAddress && isMobile ? 'Готово' : 'Всё верно'}
-          </button>
+          <div className="mt-auto shrink-0 sticky bottom-0 bg-white pt-4 pb-[calc(3.5rem+env(safe-area-inset-bottom))] sm:pb-0 z-50 border-t border-gray-100/80 -mx-6 px-6 sm:mx-0 sm:px-0 shadow-[0_-20px_50px_rgba(0,0,0,0.06)]">
+           <button 
+            onClick={handleSaveDelivery} 
+            disabled={!tempAddress || !house || !entrance || !apartment} 
+            className="w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.8rem] font-black text-[18px] sm:text-[20px] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20"
+           >
+            {isEditingAddress && isMobile ? 'Готово' : 'Всё верно'}
+           </button>
+          </div>
          </div>
         </motion.div>
        </motion.div>

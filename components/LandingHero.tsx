@@ -13,26 +13,8 @@ const LandingHero = () => {
   <section className="relative pt-24 pb-32 bg-[#FAF8F5] overflow-hidden">
    {/* Decorative breathing elements */}
    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-    <motion.div
-     animate={{
-      scale: [1, 1.2, 1],
-      opacity: [0.1, 0.2, 0.1],
-      x: [0, 50, 0],
-      y: [0, -30, 0],
-     }}
-     transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-     className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-smusl-terracotta/20 rounded-full blur-[120px]"
-    />
-    <motion.div
-     animate={{
-      scale: [1, 1.3, 1],
-      opacity: [0.05, 0.15, 0.05],
-      x: [0, -40, 0],
-      y: [0, 60, 0],
-     }}
-     transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-     className="absolute bottom-[-10%] right-[-5%] w-[700px] h-[700px] bg-smusl-red/10 rounded-full blur-[140px]"
-    />
+    <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-smusl-terracotta/20 rounded-full blur-[120px] animate-pulse-slow" />
+    <div className="absolute bottom-[-10%] right-[-5%] w-[700px] h-[700px] bg-smusl-red/10 rounded-full blur-[140px] animate-pulse-slower" />
    </div>
 
    <div className="w-full px-4 md:px-10 lg:px-16 relative z-10">
@@ -72,16 +54,9 @@ const LandingHero = () => {
        </div>
 
        <div className="flex items-center relative mt-4 lg:mt-0 lg:ml-8 translate-y-2">
-        <motion.span
-         animate={{
-          y: [0, -15, 0],
-          rotate: [-2, 2, -2]
-         }}
-         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-         className="font-script text-[60px] md:text-[110px] lg:text-[150px] xl:text-[170px] text-smusl-red leading-none select-none pointer-events-none drop-shadow-sm origin-bottom translate-y-4"
-        >
+        <span className="font-script text-[60px] md:text-[110px] lg:text-[150px] xl:text-[170px] text-smusl-red leading-none select-none pointer-events-none drop-shadow-sm origin-bottom translate-y-4 animate-float-script">
          Х
-        </motion.span>
+        </span>
         <h1 className="text-[36px] md:text-[70px] lg:text-[110px] xl:text-[150px] font-extrabold text-smusl-red uppercase tracking-[-0.04em] leading-[0.9] -ml-2 lg:-ml-4 relative z-10">
          ЛЕБ
         </h1>
@@ -104,16 +79,9 @@ const LandingHero = () => {
          И
         </h1>
         <div className="relative isolate translate-y-4 pr-2 md:pr-6">
-         <motion.span
-          animate={{
-           y: [0, -20, 0],
-           scale: [1, 1.05, 1]
-          }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-          className="font-script text-[70px] md:text-[120px] lg:text-[160px] xl:text-[190px] text-smusl-red leading-none select-none pointer-events-none drop-shadow-sm inline-block translate-y-4"
-         >
+         <span className="font-script text-[70px] md:text-[120px] lg:text-[160px] xl:text-[190px] text-smusl-red leading-none select-none pointer-events-none drop-shadow-sm inline-block translate-y-4 animate-float-script-delayed">
           Д
-         </motion.span>
+         </span>
         </div>
         <h1 className="text-[36px] md:text-[70px] lg:text-[110px] xl:text-[150px] font-extrabold text-smusl-red uppercase tracking-[-0.04em] leading-[0.9] -ml-2 lg:-ml-4 relative z-10">
          ЕСЕРТЫ В МОСКВЕ

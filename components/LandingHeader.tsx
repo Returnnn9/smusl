@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 
 import { Menu, X } from "lucide-react"
 import { motion, AnimatePresence, Variants, useScroll, useMotionValueEvent } from "framer-motion"
@@ -118,11 +119,11 @@ const LandingHeader: React.FC = () => {
        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
        className="relative origin-center hover:scale-105 transition-transform duration-500 ease-out py-1"
       >
-       <img
+       <Image
         src="/images/Logoo.png"
         alt="СМЫСЛ ЕСТЬ"
-        width="90"
-        height="90"
+        width={90}
+        height={90}
         className="w-[60px] md:w-[75px] lg:w-[90px] h-auto object-contain drop-shadow-sm group-hover:drop-shadow-md"
        />
       </motion.div>
@@ -181,11 +182,11 @@ const LandingHeader: React.FC = () => {
         </button>
        </div>
        <div className="absolute left-1/2 -translate-x-1/2 top-4 flex items-center justify-center">
-        <img
+        <Image
          src="/photo/logo.png"
          alt="СМЫСЛ ЕСТЬ"
-         width="50"
-         height="50"
+         width={50}
+         height={50}
          className="w-[45px] h-auto object-contain drop-shadow-sm opacity-80"
         />
        </div>

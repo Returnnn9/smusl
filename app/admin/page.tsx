@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useProductStore, useStoreData } from '@/store/hooks';
+import { useProductStore } from '@/store/hooks';
 import Image from 'next/image';
 import { Edit2, Trash2, Plus, ArrowLeft, Package, ShieldCheck as ShieldIcon, Minus } from 'lucide-react';
 import Link from 'next/link';
@@ -16,15 +16,18 @@ import { TrendingUp } from 'lucide-react';
 
 export default function AdminPage() {
  const [activeTab, setActiveTab] = useState<'products' | 'security' | 'analytics'>('analytics');
- const productStore = useProductStore();
- const products = useStoreData(productStore, s => s.getProducts()) || [];
- const isLoading = useStoreData(productStore, s => s.getIsLoading());
+ 
+ const products = useProductStore(s => s.products) || [];
+ const isLoading = useProductStore(s => s.isLoading);
+ const fetchProducts = useProductStore(s => s.fetchProducts);
+ const deleteProduct = useProductStore(s => s.deleteProduct);
+ const updateProduct = useProductStore(s => s.updateProduct);
 
  const [isModalOpen, setIsModalOpen] = useState(false);
  const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
 
  useEffect(() => {
-  productStore.fetchProducts();
+  fetchProducts();
   // eslint-disable-next-line react-hooks/exhaustive-deps
  }, []);
 
@@ -35,9 +38,10 @@ export default function AdminPage() {
 
  const handleDelete = async (id: number) => {
   if (confirm('Вы уверены, что хотите удалить этот товар?')) {
-   await productStore.deleteProduct(id);
+   await deleteProduct(id);
   }
  };
+
 
  const handleAddNew = () => {
   setEditingProduct(undefined);
@@ -64,7 +68,7 @@ export default function AdminPage() {
     // We omit image if it's already uploaded. The API will fallback to existing image.
    }
 
-   await productStore.updateProduct(product.id, formData);
+   await updateProduct(product.id, formData);
   } catch (error) {
    console.error("Failed to update quantity", error);
   }

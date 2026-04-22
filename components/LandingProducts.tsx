@@ -5,16 +5,16 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { categories } from '@/data/products';
-import { useProductStore, useStoreData } from '@/store/hooks';
+import { useProductStore } from '@/store/hooks';
 
 const LandingProducts = () => {
  const [activeTab, setActiveTab] = useState('desserts');
- const productStore = useProductStore();
- const products = useStoreData(productStore, s => s.getProducts()) || [];
+ const products = useProductStore((state) => state.products) || [];
+ const fetchProducts = useProductStore((state) => state.fetchProducts);
 
  useEffect(() => {
   if (products.length === 0) {
-   productStore.fetchProducts();
+   fetchProducts();
   }
   // eslint-disable-next-line react-hooks/exhaustive-deps
  }, []);
