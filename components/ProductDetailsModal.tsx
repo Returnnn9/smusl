@@ -43,7 +43,7 @@ export default function ProductDetailsModal() {
   return (
    <>
     {/* Image & Buttons */}
-    <div className="w-full bg-[#EBE7E2] overflow-hidden aspect-[4/3] sm:aspect-[16/9] relative shrink-0 flex items-center justify-center group rounded-t-[2rem] sm:rounded-t-none">
+    <div className="w-full bg-[#FCFBF9] overflow-hidden aspect-[4/3] sm:aspect-[16/9] relative shrink-0 flex items-center justify-center group rounded-t-[2.5rem] sm:rounded-t-none">
      {selectedProduct.image ? (
       <motion.img
        src={selectedProduct.image}
@@ -60,7 +60,7 @@ export default function ProductDetailsModal() {
      {/* Close Button */}
      <button
       onClick={handleClose}
-      className="absolute top-4 left-4 sm:top-5 sm:left-5 h-10 w-10 rounded-full bg-[#EBE7E2]/50 border border-[#4A403A]/10 shadow-sm flex items-center justify-center text-[#4A403A] hover:bg-[#EBE7E2] transition-colors z-10"
+      className="absolute top-4 left-4 sm:top-6 sm:left-6 h-10 w-10 rounded-full bg-white/80 backdrop-blur-md border border-[#F2F2F2] shadow-[0_4px_15px_rgba(0,0,0,0.08)] flex items-center justify-center text-[#3A332E] hover:bg-white transition-all z-10 active:scale-90"
      >
       <X className="w-5 h-5 sm:w-6 sm:h-6" />
      </button>
@@ -68,7 +68,7 @@ export default function ProductDetailsModal() {
      {/* Favorite Button */}
      <button
       onClick={(e) => { e.stopPropagation(); toggleFavorite(selectedProduct.id); }}
-      className={`absolute top-4 right-4 sm:top-5 sm:right-5 h-10 w-10 rounded-full bg-[#EBE7E2]/50 border border-[#4A403A]/10 shadow-sm flex items-center justify-center transition-colors z-10 ${isFavorite ? "text-[#e94e4e] bg-[#EBE7E2]" : "text-[#4A403A]/40 hover:text-[#CF8F73] hover:bg-[#EBE7E2]"
+      className={`absolute top-4 right-4 sm:top-6 sm:right-6 h-10 w-10 rounded-full backdrop-blur-md border border-[#F2F2F2] shadow-[0_4px_15px_rgba(0,0,0,0.08)] flex items-center justify-center transition-all z-10 active:scale-90 ${isFavorite ? "bg-[#CA8A70] text-white border-[#CA8A70]" : "bg-white/80 text-[#A19C98] hover:text-[#CA8A70] hover:bg-white"
        }`}
      >
       <Heart className="w-5 h-5" fill={isFavorite ? "currentColor" : "none"} />
@@ -76,38 +76,38 @@ export default function ProductDetailsModal() {
     </div>
 
     {/* Content */}
-    <div className="flex flex-col p-5 sm:p-8 gap-5 sm:gap-6 flex-1 pb-8 sm:pb-8">
+    <div className="flex flex-col p-6 sm:p-10 gap-6 sm:gap-8 flex-1 pb-10 sm:pb-12 bg-[#FAF8F5]">
      {/* Name + weight */}
      <div>
-      <h1 className="text-[24px] sm:text-[32px] font-bold text-[#4A403A] leading-[1.1] mb-1">
+      <h1 className="text-[28px] sm:text-[36px] font-[900] text-[#3A332E] leading-[1.1] mb-1.5 tracking-tight">
        {selectedProduct.name}
       </h1>
-      <p className="text-[14px] sm:text-[16px] font-medium text-[#4A403A]/60">{selectedProduct.weight}</p>
+      <p className="text-[14px] sm:text-[16px] font-[700] text-[#A19C98] uppercase tracking-widest">{selectedProduct.weight}</p>
      </div>
 
      {/* Price */}
-     <div className="flex items-center gap-3">
-      <span className="px-5 sm:px-6 py-2.5 sm:py-3 bg-[#CF8F73] text-white text-[19px] sm:text-[24px] font-bold rounded-[1rem] shadow-sm shadow-[#CF8F73]/20">
+     <div className="flex items-center gap-4">
+      <span className="px-6 py-3 bg-[#CA8A70] text-white text-[20px] sm:text-[26px] font-[900] rounded-[1.4rem] shadow-[0_8px_20px_rgba(202,138,112,0.25)]">
        {selectedProduct.price} ₽/шт
       </span>
-      <span className="text-[13px] sm:text-[14px] font-medium text-[#4A403A]/50">в наличии 31 шт</span>
+      <span className="text-[12px] sm:text-[14px] font-[700] text-[#A19C98] bg-[#F2F2F2] px-3 py-1.5 rounded-full">в наличии 31 шт</span>
      </div>
 
      {/* Quantity + Add */}
-     <div className="flex items-center gap-3 sm:gap-4 select-none">
-      <div className="flex items-center gap-4 sm:gap-6 bg-[#FDF4EE] rounded-[1rem] sm:rounded-[1.2rem] px-5 sm:px-6 py-3 sm:py-3.5">
+     <div className="flex items-center gap-3 sm:gap-6 select-none">
+      <div className="flex items-center gap-2 bg-[#FAF8F5] rounded-[1.8rem] px-2 py-2 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
        <button
         onClick={decrement}
-        className="text-[24px] sm:text-[28px] font-light text-[#CF8F73] leading-none w-6 text-center hover:opacity-70 transition-opacity select-none touch-manipulation"
+        className="text-[20px] font-[500] text-[#CA8A70] leading-none w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(202,138,112,0.15)] transition-all active:scale-90 select-none touch-manipulation"
        >
         −
        </button>
-       <span className="text-[19px] sm:text-[20px] font-bold text-[#4A403A] min-w-[20px] sm:min-w-[24px] text-center select-none cursor-default font-mono">
+       <span className="text-[16px] sm:text-[18px] font-[800] text-[#3A332E] min-w-[32px] sm:min-w-[40px] text-center select-none cursor-default">
         {quantity}
        </span>
        <button
         onClick={increment}
-        className="text-[24px] sm:text-[28px] font-light text-[#CF8F73] leading-none w-6 text-center hover:opacity-70 transition-opacity select-none touch-manipulation"
+        className="text-[20px] font-[500] text-[#CA8A70] leading-none w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(202,138,112,0.15)] transition-all active:scale-90 select-none touch-manipulation"
        >
         +
        </button>
@@ -115,32 +115,36 @@ export default function ProductDetailsModal() {
 
       <button
        onClick={handleAddToCart}
-       className="flex-1 h-[56px] sm:h-[68px] bg-[#CF8D72] text-white rounded-[1.2rem] font-bold text-[16px] sm:text-[18px] flex items-center justify-center gap-2 sm:gap-3 shadow-[0_8px_24px_rgba(207,141,114,0.35)] hover:shadow-[0_12px_32px_rgba(207,141,114,0.5)] hover:bg-[#C27E63] transition-all hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.98] select-none touch-manipulation transform-gpu"
+       className="flex-1 h-[64px] sm:h-[76px] bg-[#CA8A70] text-white rounded-[1.5rem] font-[900] text-[16px] sm:text-[20px] flex items-center justify-center gap-2 sm:gap-3 transition-all active:scale-[0.98] shadow-[0_12px_30px_rgba(202,138,112,0.3)] hover:bg-[#bd7d64] hover:shadow-[0_15px_40px_rgba(202,138,112,0.4)] relative overflow-hidden group select-none touch-manipulation"
       >
-       <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 text-white" />
-        <span className="drop-shadow-sm tracking-wide pointer-events-none">
-         <span className="sm:hidden">В корзину</span>
-         <span className="hidden sm:inline">Добавить в корзину</span>
-        </span>
+       {/* Gloss effect */}
+       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+
+       <ShoppingBag className="w-5 h-5 sm:w-7 sm:h-7 shrink-0 text-white relative z-10" />
+       <span className="relative z-10 drop-shadow-sm tracking-wide pointer-events-none">
+        <span className="sm:hidden">В корзину</span>
+        <span className="hidden sm:inline">Добавить в корзину</span>
+       </span>
       </button>
      </div>
 
      {/* Nutrition */}
      {selectedProduct.nutrition && (
-      <div className="w-full bg-[#FEF4E8] rounded-[1.5rem] p-4 sm:p-6">
-       <p className="text-[10px] sm:text-[12px] font-black text-[#CF8F73] uppercase tracking-[0.15em] mb-3 sm:mb-4">
-        на 100 грамм
+      <div className="w-full bg-white border border-[#F2F2F2] rounded-[1.5rem] p-5 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+       <p className="text-[10px] sm:text-[11px] font-[900] text-[#A19C98] uppercase tracking-[0.2em] mb-5 sm:mb-6 flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#CA8A70]" />
+        На 100 грамм продукта
        </p>
-       <div className="grid grid-cols-4 gap-3 sm:gap-4">
+       <div className="grid grid-cols-4 gap-4 sm:gap-8">
         {[
-         { label: "Ккал/кДж", val: selectedProduct.nutrition.kcal },
-         { label: "Белки, г", val: selectedProduct.nutrition.proteins },
-         { label: "Жиры, г", val: selectedProduct.nutrition.fats },
-         { label: "Углеводы, г", val: selectedProduct.nutrition.carbs },
+         { label: "Ккал", val: selectedProduct.nutrition.kcal },
+         { label: "Белки", val: selectedProduct.nutrition.proteins },
+         { label: "Жиры", val: selectedProduct.nutrition.fats },
+         { label: "Углев.", val: selectedProduct.nutrition.carbs },
         ].map((n, i) => (
          <div key={i} className="flex flex-col gap-0.5 sm:gap-1">
-          <span className="text-[16px] sm:text-[22px] font-black text-[#CF8F73] leading-none">{n.val}</span>
-          <span className="text-[8px] sm:text-[10px] font-bold text-[#CF8F73]/40 uppercase leading-tight">{n.label}</span>
+          <span className="text-[18px] sm:text-[26px] font-[900] text-[#3A332E] leading-none tracking-tight">{n.val}</span>
+          <span className="text-[9px] sm:text-[10px] font-[800] text-[#A19C98] uppercase tracking-wider leading-tight">{n.label}</span>
          </div>
         ))}
        </div>
@@ -149,9 +153,9 @@ export default function ProductDetailsModal() {
 
      {/* Description */}
      {selectedProduct.description && (
-      <div>
-       <h3 className="text-[17px] sm:text-[20px] font-bold text-[#4A403A] mb-1.5 sm:mb-2">Описание</h3>
-       <p className="text-[14px] sm:text-[16px] text-[#4A403A]/80 leading-[1.6] sm:leading-[1.7] font-medium">
+      <div className="space-y-2">
+       <h3 className="text-[14px] sm:text-[16px] font-[900] text-[#3A332E] uppercase tracking-widest">Описание</h3>
+       <p className="text-[15px] sm:text-[17px] text-[#3A332E]/80 leading-[1.6] sm:leading-[1.7] font-[600]">
         {selectedProduct.description}
        </p>
       </div>
@@ -159,9 +163,9 @@ export default function ProductDetailsModal() {
 
      {/* Composition */}
      {selectedProduct.composition && (
-      <div className="pb-0 sm:pb-2">
-       <h3 className="text-[17px] sm:text-[20px] font-bold text-[#4A403A] mb-1.5 sm:mb-2">Состав</h3>
-       <p className="text-[13px] sm:text-[15px] text-[#4A403A]/60 leading-[1.5] sm:leading-[1.6] font-medium">
+      <div className="pb-2 space-y-2">
+       <h3 className="text-[14px] sm:text-[16px] font-[900] text-[#3A332E] uppercase tracking-widest">Состав</h3>
+       <p className="text-[14px] sm:text-[16px] text-[#A19C98] leading-[1.6] sm:leading-[1.7] font-[600]">
         {selectedProduct.composition}
        </p>
       </div>
@@ -193,12 +197,12 @@ export default function ProductDetailsModal() {
       initial={{ y: "100%" }}
       animate={{ y: 0 }}
       exit={{ y: "100%" }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
      >
-      <div className="relative bg-[#F5E6DA] rounded-t-[2.5rem] shadow-2xl w-full max-h-[92dvh] overflow-y-auto flex flex-col font-montserrat pb-20">
+      <div className="relative bg-[#FCFBF9] rounded-t-[2.5rem] shadow-[0_-12px_40px_rgba(0,0,0,0.15)] w-full max-h-[92dvh] overflow-y-auto flex flex-col font-montserrat pb-20">
        {/* Drag handle */}
-       <div className="sticky top-0 z-20 flex justify-center pt-3 pb-2 bg-[#F5E6DA]/95">
-        <div className="w-12 h-1.5 rounded-full bg-[#4A403A]/15" />
+       <div className="sticky top-0 z-20 flex justify-center pt-4 pb-2 bg-[#FCFBF9]/95 backdrop-blur-md">
+        <div className="w-12 h-1.5 rounded-full bg-[#E8E1DA]" />
        </div>
        {renderContent()}
       </div>
@@ -211,9 +215,9 @@ export default function ProductDetailsModal() {
       initial={{ x: "100%" }}
       animate={{ x: 0 }}
       exit={{ x: "100%" }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
      >
-      <div className="relative bg-[#FDF8ED] shadow-2xl w-[min(680px,100vw)] h-full overflow-y-auto flex flex-col font-montserrat">
+      <div className="relative bg-[#FCFBF9] shadow-[-20px_0_60px_rgba(0,0,0,0.1)] w-[min(640px,100vw)] h-full overflow-y-auto flex flex-col font-montserrat">
        {renderContent()}
       </div>
      </motion.div>

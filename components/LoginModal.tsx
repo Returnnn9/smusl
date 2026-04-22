@@ -371,14 +371,17 @@ const LoginModal: React.FC = () => {
                   initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
                   onClick={handleSend}
                   disabled={!isPhoneValid || isLoading}
-                  className="w-full h-[64px] bg-gradient-to-r from-[#CF8F73] to-[#B87A60] disabled:opacity-50 text-white rounded-[1.4rem] font-[800] text-[17px] flex items-center justify-center gap-2 hover:brightness-105 transition-all active:scale-95 shadow-[0_16px_40px_-12px_rgba(207,143,115,0.6)]"
+                  className="w-full h-[72px] bg-gradient-to-br from-[#D99A82] via-[#CF8F73] to-[#B87A60] disabled:from-gray-200 disabled:to-gray-100 disabled:shadow-none text-white rounded-[1.5rem] font-[900] text-[18px] transition-all active:scale-[0.98] shadow-[0_20px_40px_-12px_rgba(207,143,115,0.4)] hover:shadow-[0_25px_50px_-12px_rgba(207,143,115,0.5)] hover:-translate-y-1 relative overflow-hidden group flex items-center justify-center gap-2"
                 >
+                  {/* Gloss effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  
                   {isLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin relative z-10" />
                   ) : (
                     <>
-                      <span>Получить код</span>
-                      <ArrowRight className="w-5 h-5" />
+                      <span className="relative z-10">Получить код</span>
+                      <ArrowRight className="w-5 h-5 relative z-10" />
                     </>
                   )}
                 </motion.button>
@@ -489,12 +492,15 @@ const LoginModal: React.FC = () => {
                   initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                   onClick={handleVerify}
                   disabled={!isOtpComplete || isLoading}
-                  className="w-full h-[64px] bg-gradient-to-r from-[#CF8F73] to-[#B87A60] disabled:opacity-50 text-white rounded-[1.4rem] font-[800] text-[17px] flex items-center justify-center gap-2 hover:brightness-105 transition-all active:scale-95 shadow-[0_16px_40px_-12px_rgba(207,143,115,0.6)] mt-6"
+                  className="w-full h-[72px] bg-gradient-to-br from-[#D99A82] via-[#CF8F73] to-[#B87A60] disabled:from-gray-200 disabled:to-gray-100 disabled:shadow-none text-white rounded-[1.5rem] font-[900] text-[18px] transition-all active:scale-[0.98] shadow-[0_20px_40px_-12px_rgba(207,143,115,0.4)] hover:shadow-[0_25px_50px_-12px_rgba(207,143,115,0.5)] hover:-translate-y-1 relative overflow-hidden group flex items-center justify-center gap-2 mt-6"
                 >
+                  {/* Gloss effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  
                   {isLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin relative z-10" />
                   ) : (
-                    <span>Подтвердить</span>
+                    <span className="relative z-10">Подтвердить</span>
                   )}
                 </motion.button>
 

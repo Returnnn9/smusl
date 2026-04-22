@@ -34,7 +34,7 @@ const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
  const isAuthenticated = mounted && status === "authenticated"
 
  return (
-  <header className="w-full z-[100] font-montserrat bg-[#F5E6DA]/50 pb-3 sm:pb-5 border-b border-[#4A403A]/5">
+  <header className="w-full z-[100] font-montserrat bg-[#FCFBF9] pb-3 sm:pb-5 border-b border-[#F2EEE9]">
    <div className="w-full px-4 sm:px-8 lg:px-10">
 
     {/* Top row: Logo · Address · Profile */}
@@ -65,9 +65,9 @@ const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
       {/* Profile Button */}
       <Link
        href="/profile"
-       className="flex items-center gap-2.5 sm:gap-3 px-5 sm:px-6 py-2.5 sm:py-3 bg-white border border-[#D8CEC8] rounded-full text-[15px] sm:text-[16px] font-medium text-[#5B5047]/90 hover:border-[#CF8F73]/60 hover:text-[#5B5047] transition-all shrink-0 shadow-none hover:shadow-none"
+       className="flex items-center gap-2.5 sm:gap-3 px-5 sm:px-6 py-2.5 sm:py-3 bg-white border border-[#F2EEE9] rounded-[1.4rem] text-[14px] sm:text-[15px] font-[800] text-[#3A332E] hover:border-[#E8E1DA] hover:shadow-[0_4px_15px_rgba(202,138,112,0.08)] transition-all shrink-0 active:scale-[0.97]"
       >
-       <User className={cn("w-5 h-5 shrink-0", isAuthenticated ? "text-[#CF8F73]" : "text-[#5B5047]/60")} />
+       <User className={cn("w-5 h-5 shrink-0", isAuthenticated ? "text-[#CA8A70]" : "text-[#A19C98]")} />
        <span className="hidden sm:inline">
         {isAuthenticated ? "Личный кабинет" : "Войти"}
        </span>
@@ -88,10 +88,10 @@ const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
           setSearchQuery('')
          }}
          className={cn(
-          "px-5 sm:px-6 py-2 sm:py-2.5 rounded-[1rem] text-[15px] sm:text-[16px] font-medium border-[1.5px] transition-all duration-200 whitespace-nowrap",
+          "px-5 sm:px-7 py-3 sm:py-3.5 rounded-[1.2rem] text-[13px] sm:text-[14px] font-[900] uppercase tracking-widest whitespace-nowrap transition-all duration-300 border",
           activeCategory === cat.id
-           ? "bg-white border-[#CF8F73] text-[#CF8F73]"
-           : "bg-white text-[#5B5047]/70 border-[#D8CEC8]/60 hover:border-[#CF8F73]/50 hover:text-[#5B5047]"
+           ? "bg-[#CA8A70] text-white border-[#CA8A70] shadow-[0_8px_20px_rgba(202,138,112,0.35)] -translate-y-0.5"
+           : "bg-white text-[#3A332E]/60 border-[#F2F2F2] hover:border-[#CA8A70]/30 hover:text-[#CA8A70] shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
          )}
         >
          {cat.label}
@@ -101,13 +101,13 @@ const Header: React.FC<HeaderProps> = ({ showCategories = true }) => {
 
       {/* Search */}
       <div className="relative w-full sm:max-w-[300px] md:max-w-[380px] lg:max-w-[440px] group mb-1 sm:mb-0">
-       <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5B5047]/30 group-focus-within:text-[#CF8F73] transition-colors" />
+       <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A19C98] group-focus-within:text-[#CA8A70] transition-colors" />
        <input
         type="text"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Кекс фисташковый"
-        className="w-full bg-white border border-[#D8CEC8]/80 rounded-full py-2.5 sm:py-3 pl-11 pr-5 text-[15px] sm:text-[16px] font-medium text-[#5B5047] focus:outline-none focus:border-[#CF8F73]/50 transition-all placeholder:text-[#5B5047]/30"
+        className="w-full bg-white border border-[#F2F2F2] rounded-[1.4rem] py-2 sm:py-2.5 pl-11 pr-5 text-[15px] sm:text-[16px] font-[700] text-[#3A332E] focus:outline-none focus:border-[#CA8A70]/50 focus:shadow-[0_4px_20px_rgba(202,138,112,0.08)] transition-all placeholder:text-[#A19C98] placeholder:font-[600]"
        />
       </div>
      </div>

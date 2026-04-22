@@ -286,36 +286,35 @@ export default function AddressModal() {
            </div>
           </div>
 
-          <button
-           onClick={() => setStep(2)}
-           disabled={!userName || !normalizePhone(userPhone)}
-           className="w-full h-[64px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.2rem] font-[800] text-[18px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mt-6"
-          >
-           Далее
-          </button>
+          <div className="flex flex-col mt-4 gap-4">
+            {authStatus !== 'authenticated' && (
+             <div className="mt-4 -mb-1 text-center w-full">
+              <span className="text-[14px] font-[500] text-[#A19C98]">Уже есть аккаунт? </span>
+              <button
+               onClick={() => { handleClose(); uiStore.setAuthModalOpen(true); }}
+               className="text-[14px] font-[800] text-[#CA8A70] hover:text-[#bd7d64] transition-colors"
+              >
+               Войти
+              </button>
+             </div>
+            )}
 
-          <p className="mt-6 text-[12px] font-medium text-[#3A332E]/30 leading-relaxed text-center px-4">
-           Нажимая «Далее», принимаю{" "}
-           <a href="/offer" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">оферту</a>
-           {" "}и{" "}
-           <a href="/terms" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">пользовательское соглашение</a>
-           , соглашаюсь на обработку персональных данных на условиях{" "}
-           <a href="/privacy" className="text-[#CF8F73] underline underline-offset-2 hover:text-[#b87a60] transition-colors">политики конфиденциальности</a>
-          </p>
-
-          {authStatus !== 'authenticated' && (
-           <div className="mt-5 pt-5 border-t border-gray-100 text-center">
-            <p className="text-[12px] font-medium text-[#3A332E]/40 mb-3">
-             Уже есть аккаунт?
-            </p>
             <button
-             onClick={() => { handleClose(); uiStore.setAuthModalOpen(true); }}
-             className="inline-flex items-center gap-2 px-6 py-3 rounded-[1rem] bg-[#3A332E] text-white text-[14px] font-[800] hover:bg-[#2A2420] active:scale-95 transition-all shadow-md"
+             onClick={() => setStep(2)}
+             disabled={!userName || !normalizePhone(userPhone)}
+             className="w-full h-[72px] bg-gradient-to-br from-[#D99A82] via-[#CF8F73] to-[#B87A60] disabled:from-gray-200 disabled:to-gray-100 disabled:shadow-none text-white rounded-[1.5rem] font-[900] text-[20px] transition-all active:scale-[0.98] shadow-[0_20px_40px_-12px_rgba(207,143,115,0.4)] hover:shadow-[0_25px_50px_-12px_rgba(207,143,115,0.5)] hover:-translate-y-1 relative overflow-hidden group"
             >
-             Войти / Зарегистрироваться
+             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+             <span className="relative z-10">Далее</span>
             </button>
-           </div>
-          )}
+            
+            <p className="text-[10.5px] font-[500] text-[#C4C4C4] leading-[1.5] text-center px-4 mb-2">
+              Нажимая «Далее», принимаю{" "}
+              <a href="/offer" className="text-[#CA8A70] hover:text-[#bd7d64] transition-colors">оферту</a>{" "}и{" "}
+              <a href="/terms" className="text-[#CA8A70] hover:text-[#bd7d64] transition-colors">пользовательское соглашение</a>, соглашаюсь на обработку персональных данных на условиях{" "}
+              <a href="/privacy" className="text-[#CA8A70] hover:text-[#bd7d64] transition-colors">политики конфиденциальности</a>
+            </p>
+          </div>
          </div>
         </div>
        </motion.div>
@@ -490,7 +489,7 @@ export default function AddressModal() {
          animate={{ y: 0 }}
          className={cn(
           "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto bg-white sm:bg-transparent z-10 flex flex-col rounded-t-[2.5rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.12)] sm:shadow-none overflow-hidden sm:overflow-y-auto no-scrollbar touch-pan-y",
-          isEditingAddress ? "h-[85vh] sm:h-full p-6 sm:p-10" : "p-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:h-full sm:p-10"
+          isEditingAddress ? "h-[85dvh] sm:h-full p-6 sm:p-10" : "p-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:h-full sm:p-10"
          )}
          transition={{ type: "spring" as const, damping: 28, stiffness: 220 }}
         >
@@ -564,7 +563,7 @@ export default function AddressModal() {
             ))}
            </AnimatePresence>
           </motion.div>
-          <button onClick={handleSavePickup} disabled={!selectedPickup} className="mt-6 w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-black text-[18px] sm:text-[20px] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0">
+          <button onClick={handleSavePickup} disabled={!selectedPickup} className="mt-auto shrink-0 w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-black text-[18px] sm:text-[20px] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0">
            {isEditingAddress && isMobile ? 'Готово' : 'Всё верно'}
           </button>
          </div>
@@ -615,7 +614,7 @@ export default function AddressModal() {
          animate={{ y: 0 }}
          className={cn(
           "absolute bottom-0 left-0 right-0 sm:relative sm:bottom-auto bg-white sm:bg-transparent z-10 flex flex-col rounded-t-[2.5rem] sm:rounded-none shadow-[0_-12px_40px_rgba(0,0,0,0.12)] sm:shadow-none overflow-hidden sm:overflow-y-auto no-scrollbar touch-pan-y",
-          isEditingAddress ? "h-[85vh] sm:h-full p-6 sm:p-10" : "p-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:h-full sm:p-10"
+          isEditingAddress ? "h-[85dvh] sm:h-full p-6 sm:p-10" : "p-6 pb-[calc(20px+env(safe-area-inset-bottom))] sm:h-full sm:p-10"
          )}
          transition={{ type: "spring" as const, damping: 28, stiffness: 220 }}
         >
@@ -644,9 +643,10 @@ export default function AddressModal() {
           <button
            onClick={handleSaveDelivery}
            disabled={!tempAddress || !house || !entrance || !apartment}
-           className="w-full h-[68px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-[900] text-[19px] hover:bg-[#b87a60] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mt-1"
+           className="w-full h-[72px] bg-gradient-to-br from-[#D99A82] via-[#CF8F73] to-[#B87A60] disabled:from-gray-200 disabled:to-gray-100 disabled:shadow-none text-white rounded-[1.5rem] font-[900] text-[20px] transition-all active:scale-[0.98] shadow-[0_20px_40px_-12px_rgba(207,143,115,0.4)] hover:shadow-[0_25px_50px_-12px_rgba(207,143,115,0.5)] hover:-translate-y-1 relative overflow-hidden group flex items-center justify-center mt-1"
           >
-           Всё верно
+           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+           <span className="relative z-10">Всё верно</span>
           </button>
          </div>
 
@@ -757,7 +757,7 @@ export default function AddressModal() {
 
            </div>
 
-          <button onClick={handleSaveDelivery} disabled={!tempAddress || !house || !entrance || !apartment} className="mt-auto w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-black text-[18px] sm:text-[20px] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0">
+          <button onClick={handleSaveDelivery} disabled={!tempAddress || !house || !entrance || !apartment} className="mt-auto shrink-0 w-full h-[64px] sm:h-[72px] bg-[#CF8F73] disabled:bg-[#CF8F73]/40 text-white rounded-[1.5rem] font-black text-[18px] sm:text-[20px] transition-all active:scale-95 shadow-xl shadow-[#CF8F73]/20 mb-[calc(1rem+env(safe-area-inset-bottom))] sm:mb-0">
            {isEditingAddress && isMobile ? 'Готово' : 'Всё верно'}
           </button>
          </div>

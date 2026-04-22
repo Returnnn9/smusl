@@ -6,10 +6,11 @@ import Image from "next/image"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, Clock, Heart, ShoppingBag, Minus, Plus, Trash2, LogOut, RotateCcw } from "lucide-react"
+import { ArrowLeft, Clock, Heart, ShoppingBag, Minus, Plus, Trash2, LogOut, RotateCcw, User } from "lucide-react"
 import { Product, CartItem } from "@/store/types"
 import { useUIStore, useCartStore, useUserStore, useProductStore, useStoreData } from "@/store/hooks"
 import { useSession, signOut } from "next-auth/react"
+import { cn } from "@/lib/utils"
 import ProductCard from "@/components/ProductCard"
 import { ProductCardSkeleton } from "@/components/Skeleton"
 
@@ -194,22 +195,25 @@ export default function ProfilePage() {
     {/* Header row */}
     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 sm:gap-6 mb-8">
      <div>
-      <h1 className="text-[28px] sm:text-[40px] lg:text-[52px] font-bold text-[#CF8F73] leading-tight">
-       Добро пожаловать,
+      <h1 className="text-[28px] sm:text-[40px] lg:text-[52px] font-bold text-[#CF8F73] leading-tight flex flex-wrap items-baseline gap-x-3 gap-y-1">
+       <span>Добро пожаловать,</span>
+       {isPageLoading ? (
+         <span className="inline-block w-48 h-8 sm:h-12 bg-[#CF8F73]/20 rounded-[1rem] animate-pulse" />
+       ) : (
+         <span className="text-[32px] sm:text-[48px] lg:text-[60px] font-black leading-[0.95]">{displayName}!</span>
+       )}
       </h1>
-      <h1 className="text-[32px] sm:text-[48px] lg:text-[60px] font-black text-[#CF8F73] leading-[0.95]">
-       {displayName}!
-      </h1>
-      <div className="mt-8 flex flex-wrap items-center gap-3">
-       {!isAuthenticated && (
+      <div className="mt-8 flex flex-wrap items-center gap-3 min-h-[44px]">
+       {isPageLoading ? null : !isAuthenticated ? (
         <button
          onClick={() => setAuthModalOpen(true)}
-         className="px-6 py-2.5 sm:px-8 sm:py-3 rounded-full bg-[#CD8B70] text-white text-[14px] sm:text-[16px] font-bold hover:bg-[#C27E63] transition-colors shadow-sm active:scale-95 select-none touch-manipulation"
+         className="relative flex items-center justify-center gap-3 px-8 py-3.5 sm:px-10 sm:py-4 bg-gradient-to-br from-[#D99A82] via-[#CF8F73] to-[#B87A60] text-white rounded-[1.2rem] text-[14px] sm:text-[16px] font-[900] transition-all active:scale-[0.96] shadow-[0_15px_30px_-10px_rgba(207,143,115,0.4)] hover:shadow-[0_20px_40px_-10px_rgba(207,143,115,0.5)] hover:-translate-y-1 overflow-hidden group select-none touch-manipulation"
         >
-         <span className="tracking-wide pointer-events-none">Войти в аккаунт</span>
+         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+         <User className="w-4 h-4 opacity-90 drop-shadow-sm relative z-10" />
+         <span className="relative z-10 drop-shadow-sm tracking-wide">Войти в аккаунт</span>
         </button>
-       )}
-       {isAuthenticated && (
+       ) : (
         <div className="flex items-center gap-3">
          {session?.user?.role === "ADMIN" && (
           <Link
@@ -219,52 +223,46 @@ export default function ProfilePage() {
            Панель управления
           </Link>
          )}
-         <motion.button
-          whileHover={{ scale: 1.05, backgroundColor: "rgba(254, 226, 226, 0.8)" }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleLogout}
-          className="group flex items-center gap-2 px-6 py-2.5 rounded-full bg-red-50/50 text-red-500 border border-red-200/50 text-[14px] font-bold backdrop-blur-md transition-all shadow-sm hover:shadow-md hover:border-red-300"
-         >
-          <motion.div
-           variants={{
-            hover: { x: 3 }
-           }}
-           transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          <motion.button
+           whileHover={{ scale: 1.02, backgroundColor: "rgba(239, 68, 68, 0.05)" }}
+           whileTap={{ scale: 0.98 }}
+           onClick={handleLogout}
+           className="group flex items-center gap-2.5 px-6 py-2.5 rounded-[1.2rem] bg-white border border-[#F2F2F2] text-[#EF4444] text-[14px] font-[800] transition-all shadow-[0_4px_15px_rgba(0,0,0,0.02)] hover:border-red-200"
           >
-           <LogOut className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-          </motion.div>
-          Выйти
-         </motion.button>
+           <LogOut className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+           Выйти
+          </motion.button>
         </div>
        )}
       </div>
      </div>
 
-     {/* Points block */}
-     {isAuthenticated && (
-      <div className="px-5 py-3 sm:px-6 sm:py-4 border-2 border-[#CF8F73]/30 rounded-[1.5rem] flex flex-row sm:flex-col items-center sm:items-end gap-3 sm:gap-0 bg-white shadow-sm self-start">
-       <span className="text-[11px] text-[#CF8F73]/60 font-bold uppercase tracking-widest sm:mb-1">Всего баллов</span>
-       <span className="text-[36px] sm:text-[44px] font-black text-[#4A403A] leading-none tracking-tight">102</span>
-      </div>
-     )}
+      {/* Points block */}
+      {isAuthenticated && (
+       <div className="px-8 py-6 rounded-[2rem] flex flex-col items-center sm:items-end bg-white border border-[#F2F2F2] shadow-[0_10px_30px_rgba(0,0,0,0.03)] relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-[#CA8A70]/5 rounded-full -mr-12 -mt-12 transition-transform duration-700 group-hover:scale-125" />
+        <span className="text-[11px] text-[#A19C98] font-[800] uppercase tracking-[0.2em] mb-1 relative z-10">Всего баллов</span>
+        <span className="text-[42px] font-[900] text-[#3A332E] leading-none tracking-tight relative z-10">102</span>
+       </div>
+      )}
     </div>
 
     {/* Tabs Navigation */}
     <div className="mt-12 sm:mt-16 mb-8 sm:mb-12 -mx-4 sm:mx-0">
      <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto no-scrollbar pb-4 px-4 sm:px-1 after:content-[''] after:w-1 after:shrink-0 sm:after:hidden">
-      {TABS.map(({ label, icon: Icon }) => (
-       <button
-        key={label}
-        onClick={() => setActiveTab(label)}
-        className={`flex items-center gap-2 px-5 sm:px-8 py-3 sm:py-4 rounded-[1.5rem] text-[14px] sm:text-[16px] font-bold border-2 shrink-0 whitespace-nowrap transition-all duration-300 ${activeTab === label
-         ? "bg-white text-[#CF8F73] border-[#CF8F73] shadow-lg shadow-[#CF8F73]/10"
-         : "bg-white text-smusl-gray/70 border-smusl-light-gray hover:border-smusl-gray/40 hover:text-smusl-gray"
-         }`}
-       >
-        <Icon className={`w-4.5 h-4.5 shrink-0 ${activeTab === label ? "text-[#CF8F73]" : "text-smusl-gray/40"}`} />
-        {label}
-       </button>
-      ))}
+       {TABS.map(({ label, icon: Icon }) => (
+        <button
+         key={label}
+         onClick={() => setActiveTab(label)}
+         className={`flex items-center gap-2.5 px-5 sm:px-9 py-3 sm:py-4.5 rounded-[1.6rem] text-[14px] sm:text-[15px] font-[800] border-2 transition-all duration-400 group shrink-0 whitespace-nowrap ${activeTab === label
+          ? "bg-white text-[#CA8A70] border-[#CA8A70] shadow-[0_12px_25px_rgba(202,138,112,0.12)] -translate-y-0.5"
+          : "bg-white text-[#A19C98] border-[#F2F2F2] hover:border-[#CA8A70]/30 hover:text-[#CA8A70]"
+          }`}
+        >
+         <Icon className={cn("w-5 h-5 transition-transform duration-400", activeTab === label ? "text-[#CA8A70] scale-110" : "text-[#A19C98]/40 group-hover:scale-110")} />
+         {label}
+        </button>
+       ))}
      </div>
     </div>
 
